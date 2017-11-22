@@ -1,0 +1,16 @@
+carto==1.1.1
+certifi==2017.11.5
+chardet==3.0.4
+future==0.15.2
+idna==2.6
+pkginfo==1.4.1
+psycopg2==2.7.3.2
+pyrestcli==0.6.4
+python-dateutil==2.5.3
+redis==2.10.6
+requests==2.18.4
+requests-toolbelt==0.8.0
+six==1.11.0
+tqdm==4.19.4
+twine==1.9.1
+urllib3==1.22
