@@ -42,7 +42,6 @@ def auth():
             """
             user_data = get_jwt_identity()
             token = request.headers.get('Authorization', None)
-            log.info('Get Token')
             if not token:
                 return jsonify({'msg': 'You must provide authorization header (token)'}), 401
 
