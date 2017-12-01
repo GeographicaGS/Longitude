@@ -7,9 +7,10 @@ import hashlib
 import pickle
 import redis
 import os
+import time
 
 from carto.auth import APIKeyAuthClient
-from carto.sql import SQLClient
+from carto.sql import SQLClient, BatchSQLClient
 from carto.exceptions import CartoException
 from ..config import cfg
 
@@ -26,18 +27,11 @@ class CartoModel:
         """
         self._carto_api_key = cfg['CARTO_API_KEY']
         self._carto_user = cfg['CARTO_USER']
+        self._cartouser_url = 'https://{0}.carto.com'.format(self._carto_user)
         if cfg['CACHE']:
             self._redis = redis.StrictRedis(host=cfg['REDIS_HOST'], port=cfg['REDIS_PORT'], db=cfg['REDIS_DB'])
         else:
             self._redis = None
-
-    @staticmethod
-    def _get_auth_client(api_key, carto_user):
-        """
-        Create the client
-        """
-        cartouser_url = 'https://{0}.carto.com'.format(carto_user)
-        return APIKeyAuthClient(cartouser_url, api_key)
 
     @staticmethod
     def _is_write_query(sql_query):
@@ -60,11 +54,12 @@ class CartoModel:
 
             cache = cfg['CACHE'] and opts.get('cache', True)
             write_qry = opts.get('write_qry', False)
+            batch = opts.get('batch',False)
 
             if not write_qry and self._is_write_query(sql_query):
                 raise CartoModelException('Aborted query. No write queries allowed.')
 
-            if write_qry:
+            if write_qry or batch:
                 cache = False
 
             if not cache:
@@ -100,12 +95,48 @@ class CartoModel:
         do_post = opts.get('do_post', True)
         format_query = opts.get('format', None)
 
-        auth_client = self._get_auth_client(self._carto_api_key, self._carto_user)
-        sql = SQLClient(auth_client, api_version='v2')
+        auth_client = APIKeyAuthClient(api_key=self._carto_api_key, base_url=self._cartouser_url)
 
-        res = sql.send(sql_query, parse_json, do_post, format_query)
+        if opts['batch']:
+            # Run using batch API
+            batch_sql = BatchSQLClient(auth_client)
+            job = batch_sql.create(sql_query)
+            print('Job status: {0}/api/v2/sql/job/{1}?api_key={2}'.format(self._cartouser_url,job['job_id'],self._carto_api_key))
+
+            finished = self._finished_batch_query(auth_client, job['job_id'])
+            while not finished:
+                time.sleep(1)
+                finished = self._finished_batch_query(auth_client, job['job_id'])
+            return finished
+
+        else:
+            # Run using SQL API
+            sql = SQLClient(auth_client, api_version='v2')
+            res = sql.send(sql_query, parse_json, do_post, format_query)
 
         if format_query is None:
             return res['rows']
 
         return res
+
+    def _finished_batch_query(self, auth_client, job_id):
+        """
+        Privated metoh for check batch query status
+        """
+        try:
+            batch_sql = BatchSQLClient(auth_client)
+            job = batch_sql.read(job_id)
+            if not job or job['status'] == 'failed' or\
+                    job['status'] == 'canceled' or job['status'] == 'unknown':
+                raise Exception(
+                    'Batch query failed: {0}'.format(json.dumps(job)))
+
+            elif job['status'] == 'done':
+                return True
+
+            else:
+                return False
+
+        except CartoException as exc:
+            print('Error executing polling of a batch query in Carto: {0}'.format(exc))
+            return False
