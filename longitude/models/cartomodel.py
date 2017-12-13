@@ -94,10 +94,11 @@ class CartoModel:
         parse_json = opts.get('parse_json', True)
         do_post = opts.get('do_post', True)
         format_query = opts.get('format', None)
+        batch = opts.get('batch',False)
 
         auth_client = APIKeyAuthClient(api_key=self._carto_api_key, base_url=self._cartouser_url)
 
-        if opts['batch']:
+        if batch:
             # Run using batch API
             batch_sql = BatchSQLClient(auth_client)
             job = batch_sql.create(sql_query)
