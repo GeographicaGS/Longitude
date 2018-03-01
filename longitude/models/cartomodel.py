@@ -43,7 +43,7 @@ class CartoModel:
         if is_write:
             return True
 
-    def query(self, sql_query, opts=None):
+    def query(self, sql_query, opts=None, **kwargs):
         """
         Run a query against CARTO
         """
@@ -51,6 +51,8 @@ class CartoModel:
         try:
             if not opts:
                 opts = {}
+
+            opts.update(kwargs)
 
             cache = cfg['CACHE'] and opts.get('cache', True)
             write_qry = opts.get('write_qry', False)
@@ -88,8 +90,8 @@ class CartoModel:
             p.set(sql_query_hash, pickle.dumps(result), expire)
 
             if cache_group is not None:
-                p.expire(cache_group, expire)
                 p.sadd(cache_group, sql_query_hash)
+                p.expire(cache_group, expire)
 
             p.execute()
 
@@ -160,11 +162,12 @@ class CartoModel:
         if cache_group is None:
             self._redis.flushall()
         else:
-            group_keys = self.smembers(cache_group)
+            group_keys = self._redis.smembers(cache_group)
 
-            p = self._redis.pipeline()
+            if group_keys:
+                p = self._redis.pipeline()
 
-            p.srem(group_keys)
-            p.delete(group_keys)
+                p.srem(cache_group, *group_keys)
+                p.delete(*group_keys)
 
-            p.execute()
+                p.execute()
