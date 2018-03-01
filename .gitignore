@@ -94,3 +94,4 @@ venv.bak/
 .mypy_cache/
 
 __pycache__/
+.idea

@@ -88,7 +88,7 @@ def get_token():
 
     ret = {
         'token': 'JWT {0}'.format(create_access_token(identity=request.user)),
-        'expiresIn': int(cfg['AUTH_TOKEN_EXPIRATION']),
+        'expires_in': int(cfg['AUTH_TOKEN_EXPIRATION']),
         'user': request.user
     }
 
