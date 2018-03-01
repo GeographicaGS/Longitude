@@ -54,7 +54,7 @@ class CartoModel:
 
             cache = cfg['CACHE'] and opts.get('cache', True)
             write_qry = opts.get('write_qry', False)
-            batch = opts.get('batch',False)
+            batch = opts.get('batch', False)
 
             if not write_qry and self._is_write_query(sql_query):
                 raise CartoModelException('Aborted query. No write queries allowed.')
@@ -81,8 +81,17 @@ class CartoModel:
             result = self._do_carto_query(sql_query, opts)
 
             expire = opts.get('cache_expire', cfg['CACHE_EXPIRE'])
+            cache_group = opts.get('cache_group', None)
 
-            self._redis.set(sql_query_hash, pickle.dumps(result), expire)
+            p = self._redis.pipeline()
+
+            p.set(sql_query_hash, pickle.dumps(result), expire)
+
+            if cache_group is not None:
+                p.expire(cache_group, expire)
+                p.sadd(cache_group, sql_query_hash)
+
+            p.execute()
 
             return result
 
@@ -140,3 +149,21 @@ class CartoModel:
         except CartoException as exc:
             print('Error executing polling of a batch query in Carto: {0}'.format(exc))
             return False
+
+    def cache_clear(self, cache_group=None):
+        """
+        Clear the query cache. If a string is given as first argument,
+        remove only keys whose group name matches the provided string.
+        """
+
+        if cache_group is None:
+            self._redis.flushall()
+        else:
+            group_keys = self.smembers(cache_group)
+
+            p = self._redis.pipeline()
+
+            p.srem(group_keys)
+            p.delete(group_keys)
+
+            p.execute()
