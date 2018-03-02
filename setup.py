@@ -16,7 +16,9 @@ with open('requirements.txt') as f:
 
 setup(
     name='geographica-longitude',
-    version='0.1.11',
+
+    version='0.1.12',
+
     description='Longitude',
     long_description=long_description,
 
