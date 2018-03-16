@@ -26,5 +26,5 @@ class PostgresqlModel:
         return [
             OrderedDict(x.items())
             for x
-            in res
+            in (res)
         ]
