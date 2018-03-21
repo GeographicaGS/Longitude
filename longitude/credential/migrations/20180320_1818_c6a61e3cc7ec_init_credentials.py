@@ -25,6 +25,8 @@ def upgrade():
         sa.Column('id', sa.Integer(), primary_key=True, nullable=False, autoincrement=True),
         sa.Column('active', sa.Boolean(), nullable=False, server_default=sa.true()),
 
+        sa.Column('type', sa.String(32), nullable=True, server_default=None),
+
         sa.Column('auth_name', sa.Binary(), nullable=True, server_default=None),
         sa.Column('key', sa.Binary(), nullable=False),
 
