@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -15,9 +17,9 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name='geographica-longitude',
+    name='geographica-longitude-sanic',
 
-    version='0.1.16',
+    version='0.2.4',
 
     description='Longitude',
     long_description=long_description,
@@ -63,4 +65,9 @@ setup(
 
     install_requires=[required],
 
+    entry_points={
+        'console_scripts': [
+            'lmigrate = longitude.migration.command:main'
+        ]
+    }
 )

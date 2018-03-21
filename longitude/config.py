@@ -48,6 +48,7 @@ _BASE_CONFIG_PARAMS = [
     ('AUTH_TOKEN_DOBLE_CHECK', bool, False),
     ('AUTH_USER_TABLE', str, 'users'),
     ('AUTH_TOKEN_TABLE', str, 'users_token'),
+    ('TIMEZONE', str, 'Europe/Madrid')
 ]
 
 _module = sys.modules[__name__]
@@ -67,7 +68,7 @@ for conf_param in chain(_BASE_CONFIG_PARAMS, user_config):
     value = os.environ.get(config_param_name, default)
 
     if value is None:
-        raise RuntimeError('Missing required parameter: ' + config_param_name)
+        raise RuntimeError('Missing required environment var: ' + config_param_name)
 
     if type == bool:
         value = value if isinstance(value, bool) else \
