@@ -8,7 +8,7 @@ from functools import wraps
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from .config import cfg
-from .models.usermodel import UserModel
+from .models.user_model import UserModel
 
 EXPIRATION_DELTA = datetime.timedelta(seconds=cfg['AUTH_TOKEN_EXPIRATION'])
 
