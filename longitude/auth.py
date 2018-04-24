@@ -8,13 +8,15 @@ from functools import wraps
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from .config import cfg
-from .models.usermodel import UserModel
+from .models.user_model import UserModel
+
+EXPIRATION_DELTA = datetime.timedelta(seconds=cfg['AUTH_TOKEN_EXPIRATION'])
+
 
 def ini(app):
     log = logging.getLogger()
 
     JWTManager(app)
-    EXPIRATION_DELTA = datetime.timedelta(seconds=cfg['AUTH_TOKEN_EXPIRATION'])
     app.config['JWT_TOKEN_LOCATION'] = 'headers'
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = EXPIRATION_DELTA
     app.config['JWT_HEADER_NAME'] = 'Authorization'
@@ -24,16 +26,19 @@ def ini(app):
     app.config['JWT_ALGORITHM'] = 'HS256'
 
 
-routes =  Blueprint('auth', __name__)
+routes = Blueprint('auth', __name__)
+
 
 def auth():
     """
     AUTH decorator. It checks for a valid token and validate this token against the DB
     """
+
     def decorator(func):
         """
         Decorator wrapper
         """
+
         @jwt_required
         @wraps(func)
         def check_token(*args, **kwargs):
@@ -47,8 +52,8 @@ def auth():
 
             if cfg['AUTH_TOKEN_DOBLE_CHECK']:
                 user_model = UserModel({
-                    'user_table' : cfg['AUTH_USER_TABLE'],
-                    'token_table' : cfg['AUTH_TOKEN_TABLE']
+                    'user_table': cfg['AUTH_USER_TABLE'],
+                    'token_table': cfg['AUTH_TOKEN_TABLE']
                 })
                 valid = user_model.check_user_token(token)
 
@@ -58,9 +63,11 @@ def auth():
             request.user = user_data
 
             return func(*args, **kwargs)
+
         return check_token
 
     return decorator
+
 
 @routes.route('/token', methods=['GET'])
 def get_token():
@@ -74,8 +81,8 @@ def get_token():
         return jsonify({'msg': 'You must provide username and password'}), 401
 
     user_model = UserModel({
-        'user_table' : cfg['AUTH_USER_TABLE'],
-        'token_table' : cfg['AUTH_TOKEN_TABLE']
+        'user_table': cfg['AUTH_USER_TABLE'],
+        'token_table': cfg['AUTH_TOKEN_TABLE']
     })
     user_data = user_model.get_user(username)
 
@@ -122,7 +129,7 @@ def upload_new_token(user_id, token):
     """
     expiration_date = datetime.datetime.utcnow() + EXPIRATION_DELTA
     user_model = UserModel({
-        'user_table' : cfg['AUTH_USER_TABLE'],
-        'token_table' : cfg['AUTH_TOKEN_TABLE']
+        'user_table': cfg['AUTH_USER_TABLE'],
+        'token_table': cfg['AUTH_TOKEN_TABLE']
     })
     user_model.insert_user_token(user_id, token, expiration_date)

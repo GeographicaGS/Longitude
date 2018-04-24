@@ -1,20 +1,22 @@
 """
 This module allows to manage an User in CARTO
 """
-from .cartomodel import CartoModel
+from .database_model import DatabaseModel
 from .utils import SQL, SQLTrustedString
 
-class UserModel(CartoModel):
+
+class UserModel(DatabaseModel):
     """
     UserModel class
     """
+
     def __init__(self, config={}):
         """
         Constructor
         """
-        self.__user_table = config.get('user_table','users')
-        self.__token_table = config.get('token_table','users_tokens')
-        super(UserModel, self).__init__(config)
+        self.__user_table = config.get('user_table', 'users')
+        self.__token_table = config.get('token_table', 'users_tokens')
+        super().__init__()
 
     def get_user(self, username):
         """
@@ -50,7 +52,6 @@ class UserModel(CartoModel):
 
         self.query(sql, opts={'write_qry': True, 'cache': False})
 
-
     def check_user_token(self, token):
         """
         Check uf an user token exists
@@ -67,7 +68,6 @@ class UserModel(CartoModel):
         if res:
             return res[0]['exists']
 
-
     def delete_user_token(self, user_id):
         """
         Delete an user token
@@ -76,8 +76,8 @@ class UserModel(CartoModel):
         sql = '''
             DELETE FROM {table} WHERE user_id = {user_id} AND expiration < now();
             '''.format(
-                table=SQLTrustedString(self.__token_table),
-                user_id=user_id
-            )
+            table=SQLTrustedString(self.__token_table),
+            user_id=user_id
+        )
 
         self.query(sql, opts={'write_qry': True})

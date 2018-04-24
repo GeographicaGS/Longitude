@@ -8,15 +8,18 @@ import pickle
 import redis
 import os
 import time
+import json
 
 from carto.auth import APIKeyAuthClient
 from carto.sql import SQLClient, BatchSQLClient
 from carto.exceptions import CartoException
-from ..config import cfg
+from longitude.config import cfg
+from .database_base_model import DatabaseBaseModel
 
 CartoModelException = CartoException
 
-class CartoModel:
+
+class CartoModel(DatabaseBaseModel):
     """
     CARTO Model base class
     """
@@ -28,20 +31,9 @@ class CartoModel:
         self._carto_api_key = cfg['CARTO_API_KEY']
         self._carto_user = cfg['CARTO_USER']
         self._cartouser_url = 'https://{0}.carto.com'.format(self._carto_user)
-        if cfg['CACHE']:
-            self._redis = redis.StrictRedis(host=cfg['REDIS_HOST'], port=cfg['REDIS_PORT'], db=cfg['REDIS_DB'])
-        else:
-            self._redis = None
 
-    @staticmethod
-    def _is_write_query(sql_query):
-        """
-        Check if query is a write query
-        """
-        write_cmds = 'drop|delete|insert|update|grant|execute|perform|create|begin|commit|alter'
-        is_write = re.search(write_cmds, sql_query.lower())
-        if is_write:
-            return True
+        super().__init__()
+
 
     def query(self, sql_query, opts=None, **kwargs):
         """
@@ -152,22 +144,3 @@ class CartoModel:
         except CartoException as exc:
             print('Error executing polling of a batch query in Carto: {0}'.format(exc))
             return False
-
-    def cache_clear(self, cache_group=None):
-        """
-        Clear the query cache. If a string is given as first argument,
-        remove only keys whose group name matches the provided string.
-        """
-
-        if cache_group is None:
-            self._redis.flushall()
-        else:
-            group_keys = self._redis.smembers(cache_group)
-
-            if group_keys:
-                p = self._redis.pipeline()
-
-                p.srem(cache_group, *group_keys)
-                p.delete(*group_keys)
-
-                p.execute()
