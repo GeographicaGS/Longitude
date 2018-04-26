@@ -24,7 +24,7 @@ class DatabaseBaseModel(ABC):
             return True
 
     @abstractmethod
-    def query(self, sql_query, arguments=None, opts=None, **kwargs):
+    def query(self, sql_query, opts=None, arguments=None, **kwargs):
         pass
 
     def cache_clear(self, cache_group=None):

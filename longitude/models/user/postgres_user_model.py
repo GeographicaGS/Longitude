@@ -26,7 +26,7 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
 
         sql = 'SELECT * FROM {table} WHERE username = %s LIMIT 1;'.format(table=self.__user_table)
 
-        res = self.query(sql, (username,), opts={'cache': False})
+        res = self.query(sql, arguments=(username,), opts={'cache': False})
         if res:
             return res[0]
 
@@ -38,7 +38,7 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
         sql = 'INSERT INTO {table} (user_id, token, expiration) VALUES (%s, %s::text, %s::timestamp);'.format(
             table=self.__token_table)
 
-        self.query(sql, (user_id, token, expiration), opts={'write_qry': True, 'cache': False})
+        self.query(sql, arguments=(user_id, token, expiration), opts={'write_qry': True, 'cache': False})
 
     def check_user_token(self, token):
         """
@@ -52,7 +52,7 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
                 )
             '''.format(table=self.__token_table)
 
-        res = self.query(sql, (token,), opts={'cache': False})
+        res = self.query(sql, arguments=(token,), opts={'cache': False})
         if res:
             return res[0]['exists']
 
@@ -65,4 +65,4 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
             DELETE FROM {table} WHERE user_id = %s AND expiration < now();
             '''.format(table=self.__token_table)
 
-        self.query(sql, (user_id,), opts={'write_qry': True})
+        self.query(sql, arguments=(user_id,), opts={'write_qry': True})

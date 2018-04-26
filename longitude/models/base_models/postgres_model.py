@@ -15,7 +15,7 @@ class PostgresModel(DatabaseBaseModel):
                                             password=cfg['POSTGRES_PASSWORD'])
         super().__init__()
 
-    def query(self, sql_query, arguments=None, opts=None, **kwargs):
+    def query(self, sql_query, opts=None, arguments=None, **kwargs):
         try:
             if not opts:
                 opts = {}
