@@ -19,3 +19,11 @@ cfg = {
     'AUTH_USER_TABLE': os.environ.get('AUTH_USER_TABLE', 'users'),
     'AUTH_TOKEN_TABLE': os.environ.get('AUTH_TOKEN_TABLE', 'users_tokens')
 }
+
+
+# Add extra JWT identity fields
+
+extra_jwt_identity_fields = {key: value for (key, value) in os.environ.items() if key.startswith('JWT_IDENTITY_')}
+cfg['EXTRA_JWT_IDENTITY_FIELDS'] = extra_jwt_identity_fields
+
+
