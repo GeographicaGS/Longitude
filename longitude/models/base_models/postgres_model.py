@@ -15,7 +15,7 @@ class PostgresModel(DatabaseBaseModel):
                                             password=cfg['POSTGRES_PASSWORD'])
         super().__init__()
 
-    def query(self, sql_query, opts=None, **kwargs):
+    def query(self, sql_query, arguments=None, opts=None, **kwargs):
         try:
             if not opts:
                 opts = {}
@@ -32,7 +32,7 @@ class PostgresModel(DatabaseBaseModel):
                 cache = False
 
             if not cache:
-                result = self._do_postgres_query(sql_query, opts)
+                result = self._do_postgres_query(sql_query, arguments, opts)
                 return result
 
             # sql_query hash
@@ -47,7 +47,7 @@ class PostgresModel(DatabaseBaseModel):
 
             # The query not exists in redis, so do query in carto and save result in redis.
 
-            result = self._do_postgres_query(sql_query, opts)
+            result = self._do_postgres_query(sql_query, arguments, opts)
 
             expire = opts.get('cache_expire', cfg['CACHE_EXPIRE'])
             cache_group = opts.get('cache_group', None)
@@ -67,10 +67,12 @@ class PostgresModel(DatabaseBaseModel):
         except Exception as err:    # Fix
             raise Exception(err)
 
-    def _do_postgres_query(self, sql_query, opts):
+    def _do_postgres_query(self, sql_query, arguments, opts):
         cursor = self._connection.cursor(cursor_factory=RealDictCursor)
 
-        cursor.execute(sql_query)
+        binded_query = cursor.mogrify(sql_query, arguments)
+
+        cursor.execute(binded_query)
 
         if opts.get('write_qry'):
             self._connection.commit()

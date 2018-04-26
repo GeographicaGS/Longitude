@@ -34,8 +34,7 @@ class CartoModel(DatabaseBaseModel):
 
         super().__init__()
 
-
-    def query(self, sql_query, opts=None, **kwargs):
+    def query(self, sql_query, arguments=None, opts=None, **kwargs):
         """
         Run a query against CARTO
         """
