@@ -1,11 +1,12 @@
 """
 This module allows to manage an User in CARTO
 """
-from .database_model import DatabaseModel
-from .utils import SQL, SQLTrustedString
+from .user import AbstractUserModel
+from .user import CartoUserModel, PostgresUserModel
+from longitude.config import cfg
 
 
-class UserModel(DatabaseModel):
+class UserModel(AbstractUserModel):
     """
     UserModel class
     """
@@ -14,8 +15,13 @@ class UserModel(DatabaseModel):
         """
         Constructor
         """
-        self.__user_table = config.get('user_table', 'users')
-        self.__token_table = config.get('token_table', 'users_tokens')
+        if cfg['DATABASE_MODEL'] == 'CARTO':
+            self.base_model = CartoUserModel(config)
+        elif cfg['DATABASE_MODEL'] == 'POSTGRES':
+            self.base_model = PostgresUserModel(config)
+        else:
+            raise Exception('You need to specify a DATABASE_MODEL in environment variables')
+
         super().__init__()
 
     def get_user(self, username):
@@ -23,61 +29,25 @@ class UserModel(DatabaseModel):
         Returns an user given an email
         """
 
-        sql = SQL('''
-            SELECT * FROM {table} WHERE username = {username} LIMIT 1;
-        ''').format(
-            table=SQLTrustedString(self.__user_table),
-            username=username
-        )
-
-        res = self.query(sql, opts={'cache': False})
-        if res:
-            return res[0]
+        return self.base_model.get_user(username)
 
     def insert_user_token(self, user_id, token, expiration):
         """
         Insert a new  user_token
         """
 
-        sql = SQL('''
-            INSERT INTO {0}
-                (user_id, token, expiration)
-                VALUES ({1}, {2}::text, {3}::timestamp);
-        ''').format(
-            SQLTrustedString(self.__token_table),
-            user_id,
-            token,
-            expiration
-        )
-
-        self.query(sql, opts={'write_qry': True, 'cache': False})
+        self.base_model.insert_user_token(user_id, token, expiration)
 
     def check_user_token(self, token):
         """
         Check uf an user token exists
         """
 
-        sql = '''
-            SELECT exists(
-                SELECT 1 FROM {0}
-                    WHERE token='{1}'::text
-                )
-            '''.format(SQLTrustedString(self.__token_table), token)
-
-        res = self.query(sql, opts={'cache': False})
-        if res:
-            return res[0]['exists']
+        return self.base_model.check_user_token(token)
 
     def delete_user_token(self, user_id):
         """
         Delete an user token
         """
 
-        sql = '''
-            DELETE FROM {table} WHERE user_id = {user_id} AND expiration < now();
-            '''.format(
-            table=SQLTrustedString(self.__token_table),
-            user_id=user_id
-        )
-
-        self.query(sql, opts={'write_qry': True})
+        self.base_model.delete_user_token(user_id)
