@@ -1,5 +1,7 @@
+bcrypt==3.1.4
 carto==1.1.1
 certifi==2017.11.5
+cffi==1.11.5
 chardet==3.0.4
 click==6.7
 Flask==0.12.2
@@ -11,6 +13,7 @@ Jinja2==2.10
 MarkupSafe==1.0
 pkginfo==1.4.1
 psycopg2==2.7.3.2
+pycparser==2.18
 PyJWT==1.6.1
 pyrestcli==0.6.4
 python-dateutil==2.5.3
