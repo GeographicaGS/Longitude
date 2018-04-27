@@ -3,6 +3,7 @@ AUTH module
 """
 import datetime
 import logging
+import bcrypt
 
 from functools import wraps
 from flask import Blueprint, jsonify, request
@@ -86,7 +87,8 @@ def get_token():
     })
     user_data = user_model.get_user(username)
 
-    if not user_data or username != user_data['username'] or password != user_data['password']:
+    if not user_data or username != user_data['username'] or not bcrypt.checkpw(password.encode('utf8'),
+                                                                                user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
     del user_data['password']
