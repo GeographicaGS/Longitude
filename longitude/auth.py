@@ -91,6 +91,11 @@ def get_token():
                                                                                 user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
+    if cfg['EXTRA_JWT_IDENTITY_FIELDS']:
+        extra_jwt_identity_fields = {key.replace('JWT_IDENTITY_', '').lower(): value for (key, value) in
+                                     cfg['EXTRA_JWT_IDENTITY_FIELDS'].items()}
+        user_data.update(extra_jwt_identity_fields)
+
     del user_data['password']
 
     request.user = user_data
