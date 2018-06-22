@@ -9,6 +9,7 @@ import redis
 import os
 import time
 import json
+import urllib.parse
 
 from carto.auth import APIKeyAuthClient
 from carto.sql import SQLClient, BatchSQLClient
@@ -31,6 +32,9 @@ class CartoModel(DatabaseBaseModel):
         self._carto_api_key = cfg['CARTO_API_KEY']
         self._carto_user = cfg['CARTO_USER']
         self._cartouser_url = 'https://{0}.carto.com'.format(self._carto_user)
+
+        if 'CARTO_ONPREMISES_URL' in cfg and cfg['CARTO_ONPREMISES_URL'] != None:
+            self._cartouser_url = cfg['CARTO_ONPREMISES_URL']
 
         super().__init__()
 
@@ -104,7 +108,10 @@ class CartoModel(DatabaseBaseModel):
             # Run using batch API
             batch_sql = BatchSQLClient(auth_client)
             job = batch_sql.create(sql_query)
-            print('Job status: {0}/api/v2/sql/job/{1}?api_key={2}'.format(self._cartouser_url,job['job_id'],self._carto_api_key))
+
+            carto_sql_api = urllib.parse.urljoin(self._cartouser_url+'/', 'api/v2/sql')
+
+            print('Job status: {0}/job/{1}?api_key={2}'.format(carto_sql_api, job['job_id'], self._carto_api_key))
 
             finished = self._finished_batch_query(auth_client, job['job_id'])
             while not finished:
