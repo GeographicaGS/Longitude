@@ -92,7 +92,7 @@ def get_token():
                                                                                 user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
-    if cfg.get('CHECK_EXPIRED_ACCOUNT', None):
+    if cfg.get('ACCOUNT_EXPIRATION_FIELD', None):
         if user_data[cfg['ACCOUNT_EXPIRATION_FIELD']] < datetime.datetime.utcnow():
             return jsonify({'msg': 'This account has expired'}), 401
 
