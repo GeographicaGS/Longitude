@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from .config import cfg
 from .models.user_model import UserModel
+from dateutil.parser import parse
 
 EXPIRATION_DELTA = datetime.timedelta(seconds=cfg['AUTH_TOKEN_EXPIRATION'])
 
@@ -84,19 +85,22 @@ def get_token():
     user_model = UserModel({
         'user_table': cfg['AUTH_USER_TABLE'],
         'token_table': cfg['AUTH_TOKEN_TABLE'],
-        'last_access_field': cfg.get('LAST_ACCESS_FIELD', None)
+        'last_access_field': cfg['AUTH_LAST_ACCESS_FIELD']
     })
     user_data = user_model.get_user(username)
+    
+    log = logging.getLogger()
 
     if not user_data or username != user_data['username'] or not bcrypt.checkpw(password.encode('utf8'),
                                                                                 user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
-    if cfg.get('ACCOUNT_EXPIRATION_FIELD', None):
-        if user_data[cfg['ACCOUNT_EXPIRATION_FIELD']] < datetime.datetime.utcnow():
+    if cfg['AUTH_ACCOUNT_EXPIRATION_FIELD']:
+        exp = user_data[cfg['AUTH_ACCOUNT_EXPIRATION_FIELD']]
+        if exp and parse(exp) < datetime.datetime.now(datetime.timezone.utc):
             return jsonify({'msg': 'This account has expired'}), 401
 
-    if cfg.get('UPDATE_LAST_ACCESS', None):
+    if cfg['AUTH_UPDATE_LAST_ACCESS']:
         user_model.update_last_access(user_data['id'])
 
     if cfg['EXTRA_JWT_IDENTITY_FIELDS']:

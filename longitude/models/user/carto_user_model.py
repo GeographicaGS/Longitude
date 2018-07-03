@@ -90,7 +90,7 @@ class CartoUserModel(AbstractUserModel, CartoModel):
         """
 
         sql = '''
-            UPDATE {table} SET {last_access_field} = now() WHERE user_id = {user_id};
+            UPDATE {table} SET {last_access_field} = now() WHERE id = {user_id};
             '''.format(
             table=SQLTrustedString(self.__user_table),
             last_access_field=SQLTrustedString(self.__last_access_field),
