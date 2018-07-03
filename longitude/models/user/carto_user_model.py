@@ -1,5 +1,5 @@
 """
-This module allows to manage an User in CARTO
+This module allows to manage a User in CARTO
 """
 from longitude.models.base_models import CartoModel
 from longitude.models.user import AbstractUserModel
@@ -17,11 +17,12 @@ class CartoUserModel(AbstractUserModel, CartoModel):
         """
         self.__user_table = config.get('user_table', 'users')
         self.__token_table = config.get('token_table', 'users_tokens')
+        self.__last_access_field = config.get('last_access_field', 'last_access')
         super().__init__()
 
     def get_user(self, username):
         """
-        Returns an user given an email
+        Returns a user given an email
         """
 
         sql = SQL('''
@@ -37,7 +38,7 @@ class CartoUserModel(AbstractUserModel, CartoModel):
 
     def insert_user_token(self, user_id, token, expiration):
         """
-        Insert a new  user_token
+        Insert a new user_token
         """
 
         sql = SQL('''
@@ -55,7 +56,7 @@ class CartoUserModel(AbstractUserModel, CartoModel):
 
     def check_user_token(self, token):
         """
-        Check uf an user token exists
+        Check if a user token exists
         """
 
         sql = '''
@@ -71,13 +72,28 @@ class CartoUserModel(AbstractUserModel, CartoModel):
 
     def delete_user_token(self, user_id):
         """
-        Delete an user token
+        Delete a user token
         """
 
         sql = '''
             DELETE FROM {table} WHERE user_id = {user_id} AND expiration < now();
             '''.format(
             table=SQLTrustedString(self.__token_table),
+            user_id=user_id
+        )
+
+        self.query(sql, opts={'write_qry': True})
+
+    def update_last_access(self, user_id):
+        """
+        Update Last Access field in Users table
+        """
+
+        sql = '''
+            UPDATE {table} SET {last_access_field} = now() WHERE user_id = {user_id};
+            '''.format(
+            table=SQLTrustedString(self.__user_table),
+            last_access_field=SQLTrustedString(self.__last_access_field),
             user_id=user_id
         )
 

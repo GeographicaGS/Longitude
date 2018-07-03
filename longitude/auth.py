@@ -32,7 +32,7 @@ routes = Blueprint('auth', __name__)
 
 def auth():
     """
-    AUTH decorator. It checks for a valid token and validate this token against the DB
+    AUTH decorator. It checks for a valid token and validates this token against the DB
     """
 
     def decorator(func):
@@ -49,7 +49,7 @@ def auth():
             user_data = get_jwt_identity()
             token = request.headers.get('Authorization', None)
             if not token:
-                return jsonify({'msg': 'You must provide authorization header (token)'}), 401
+                return jsonify({'msg': 'You must provide an authorization header (token)'}), 401
 
             if cfg['AUTH_TOKEN_DOBLE_CHECK']:
                 user_model = UserModel({
@@ -73,7 +73,7 @@ def auth():
 @routes.route('/token', methods=['GET'])
 def get_token():
     """
-    Get a token given an user and password
+    Get a token given a user and password
     """
     username = request.headers.get('x-auth-username', None)
     password = request.headers.get('x-auth-password', None)
@@ -83,13 +83,21 @@ def get_token():
 
     user_model = UserModel({
         'user_table': cfg['AUTH_USER_TABLE'],
-        'token_table': cfg['AUTH_TOKEN_TABLE']
+        'token_table': cfg['AUTH_TOKEN_TABLE'],
+        'last_access_field': cfg['LAST_ACCESS_FIELD']
     })
     user_data = user_model.get_user(username)
 
     if not user_data or username != user_data['username'] or not bcrypt.checkpw(password.encode('utf8'),
                                                                                 user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
+
+    if cfg['CHECK_EXPIRED_ACCOUNT']:
+        if user_data[cfg['ACCOUNT_EXPIRATION_FIELD']] < datetime.datetime.utcnow():
+            return jsonify({'msg': 'This account has expired'}), 401
+
+    if cfg['UPDATE_LAST_ACCESS']:
+        user_model.update_last_access(user_data['id'])
 
     if cfg['EXTRA_JWT_IDENTITY_FIELDS']:
         extra_jwt_identity_fields = {key.replace('JWT_IDENTITY_', '').lower(): value for (key, value) in
