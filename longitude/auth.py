@@ -84,7 +84,7 @@ def get_token():
     user_model = UserModel({
         'user_table': cfg['AUTH_USER_TABLE'],
         'token_table': cfg['AUTH_TOKEN_TABLE'],
-        'last_access_field': cfg['LAST_ACCESS_FIELD']
+        'last_access_field': cfg.get('LAST_ACCESS_FIELD', None)
     })
     user_data = user_model.get_user(username)
 
@@ -92,11 +92,11 @@ def get_token():
                                                                                 user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
-    if cfg['CHECK_EXPIRED_ACCOUNT']:
+    if cfg.get('CHECK_EXPIRED_ACCOUNT', None):
         if user_data[cfg['ACCOUNT_EXPIRATION_FIELD']] < datetime.datetime.utcnow():
             return jsonify({'msg': 'This account has expired'}), 401
 
-    if cfg['UPDATE_LAST_ACCESS']:
+    if cfg.get('UPDATE_LAST_ACCESS', None):
         user_model.update_last_access(user_data['id'])
 
     if cfg['EXTRA_JWT_IDENTITY_FIELDS']:
