@@ -18,7 +18,10 @@ cfg = {
     'AUTH_TOKEN_EXPIRATION': int(os.environ.get('API_TOKEN_EXPIRATION', 60*15)),
     'AUTH_TOKEN_DOBLE_CHECK': bool(int(os.environ.get('AUTH_TOKEN_DOBLE_CHECK', 0))),
     'AUTH_USER_TABLE': os.environ.get('AUTH_USER_TABLE', 'users'),
-    'AUTH_TOKEN_TABLE': os.environ.get('AUTH_TOKEN_TABLE', 'users_tokens')
+    'AUTH_TOKEN_TABLE': os.environ.get('AUTH_TOKEN_TABLE', 'users_tokens'),
+    'AUTH_LAST_ACCESS_FIELD': os.environ.get('AUTH_LAST_ACCESS_FIELD', None),
+    'AUTH_ACCOUNT_EXPIRATION_FIELD': os.environ.get('AUTH_ACCOUNT_EXPIRATION_FIELD', None),
+    'AUTH_UPDATE_LAST_ACCESS': bool(int(os.environ.get('AUTH_UPDATE_LAST_ACCESS', 0)))
 }
 
 
