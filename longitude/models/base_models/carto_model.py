@@ -73,7 +73,7 @@ class CartoModel(DatabaseBaseModel):
             if result is not None:
                 return pickle.loads(result)
 
-            # The query not exists in redis, so do query in carto and save result in redis.
+            # The query does not exist in redis, so do query in carto and save result in redis.
 
             result = self._do_carto_query(sql_query, opts)
 
@@ -131,7 +131,7 @@ class CartoModel(DatabaseBaseModel):
 
     def _finished_batch_query(self, auth_client, job_id):
         """
-        Privated metoh for check batch query status
+        Private method for checking batch query status
         """
         try:
             batch_sql = BatchSQLClient(auth_client)

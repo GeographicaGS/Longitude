@@ -1,5 +1,5 @@
 """
-This module allows to manage an User in CARTO
+This module allows to manage a User in CARTO
 """
 from .user import AbstractUserModel
 from .user import CartoUserModel, PostgresUserModel
@@ -26,28 +26,36 @@ class UserModel(AbstractUserModel):
 
     def get_user(self, username):
         """
-        Returns an user given an email
+        Returns a user given an email
         """
 
         return self.base_model.get_user(username)
 
     def insert_user_token(self, user_id, token, expiration):
         """
-        Insert a new  user_token
+        Insert a new user_token
         """
 
         self.base_model.insert_user_token(user_id, token, expiration)
 
     def check_user_token(self, token):
         """
-        Check uf an user token exists
+        Check if a user token exists
         """
 
         return self.base_model.check_user_token(token)
 
     def delete_user_token(self, user_id):
         """
-        Delete an user token
+        Delete a user token
         """
 
         self.base_model.delete_user_token(user_id)
+
+    def update_last_access(self, user_id):
+
+        """
+        Update Last Access field in Users table
+        """
+
+        self.base_model.update_last_access(user_id)
