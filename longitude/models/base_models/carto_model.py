@@ -100,14 +100,29 @@ class CartoModel(DatabaseBaseModel):
         parse_json = opts.get('parse_json', True)
         do_post = opts.get('do_post', True)
         format_query = opts.get('format', None)
-        batch = opts.get('batch',False)
+        batch = opts.get('batch', False)
+        retries = opts.get('retries', 5)
 
         auth_client = APIKeyAuthClient(api_key=self._carto_api_key, base_url=self._cartouser_url)
 
         if batch:
             # Run using batch API
             batch_sql = BatchSQLClient(auth_client)
-            job = batch_sql.create(sql_query)
+            job = None
+
+            for retry_number in range(retries):
+                try:
+                    job = batch_sql.create(sql_query)
+
+                    if job:
+                        break
+
+                except Exception as carto_exception:
+                    if retry_number == retries - 1:
+                        raise carto_exception
+                    else:
+                        time.sleep(3)
+                        continue
 
             carto_sql_api = urllib.parse.urljoin(self._cartouser_url+'/', 'api/v2/sql')
 
@@ -122,7 +137,21 @@ class CartoModel(DatabaseBaseModel):
         else:
             # Run using SQL API
             sql = SQLClient(auth_client, api_version='v2')
-            res = sql.send(sql_query, parse_json, do_post, format_query)
+            res = None
+
+            for retry_number in range(retries):
+                try:
+                    res = sql.send(sql_query, parse_json, do_post, format_query)
+
+                    if res:
+                        break
+
+                except CartoException as carto_exception:
+                    if retry_number == retries - 1:
+                        raise carto_exception
+                    else:
+                        time.sleep(5)
+                        continue
 
         if format_query is None:
             return res['rows']
