@@ -121,7 +121,7 @@ class CartoModel(DatabaseBaseModel):
                     if retry_number == retries - 1:
                         raise carto_exception
                     else:
-                        time.sleep(5)
+                        time.sleep(3)
                         continue
 
             carto_sql_api = urllib.parse.urljoin(self._cartouser_url+'/', 'api/v2/sql')
