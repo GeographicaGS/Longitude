@@ -19,7 +19,7 @@ def ini(app):
     log = logging.getLogger()
 
     JWTManager(app)
-    app.config['JWT_TOKEN_LOCATION'] = 'headers'
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = EXPIRATION_DELTA
     app.config['JWT_HEADER_NAME'] = 'Authorization'
     app.config['JWT_HEADER_TYPE'] = 'JWT'
@@ -49,6 +49,10 @@ def auth():
             """
             user_data = get_jwt_identity()
             token = request.headers.get('Authorization', None)
+
+            if not token:
+                token = request.args.get('jwt')
+
             if not token:
                 return jsonify({'msg': 'You must provide an authorization header (token)'}), 401
 
