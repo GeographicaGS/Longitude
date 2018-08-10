@@ -19,7 +19,7 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
 
         super().__init__(config)
 
-    def get_user(self):
+    def get_user(self, username):
         """
         Returns user data given a username, email or other login field
         """

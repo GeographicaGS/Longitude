@@ -21,7 +21,7 @@ class CartoUserModel(AbstractUserModel, CartoModel):
         self.__last_access_field = config.get('last_access_field', 'last_access')
         super().__init__()
 
-    def get_user(self):
+    def get_user(self, username):
         """
         Returns user data given a username, email or other login field
         """
