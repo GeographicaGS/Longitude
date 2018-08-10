@@ -1,10 +1,10 @@
 """
 This module allows to manage a User in CARTO
 """
+
 from longitude.models.base_models import CartoModel
 from longitude.models.user import AbstractUserModel
 from longitude.models.utils import SQL, SQLTrustedString
-
 
 class CartoUserModel(AbstractUserModel, CartoModel):
     """
@@ -26,11 +26,11 @@ class CartoUserModel(AbstractUserModel, CartoModel):
         Returns user data given a username, email or other login field
         """
         login_fields = self.__login_fields.split(',')
-        where_clause = ' OR '.join(["{field} = '{username}'".format(field=x, username) for x in login_fields])
+        where_clause = ' OR '.join(["{field} = '{username}'".format(field=x, username=username) for x in login_fields])
 
-        sql = SQL('''
+        sql = '''
             SELECT * FROM {table} WHERE {where_clause} LIMIT 1;
-        ''').format(
+        '''.format(
             table=SQLTrustedString(self.__user_table),
             where_clause=where_clause
         )

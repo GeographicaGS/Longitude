@@ -74,6 +74,9 @@ def auth():
 
     return decorator
 
+def check_login_fields(fields_list, user_data, username):
+    check_list = [True for x in fields_list if user_data[x] == username]
+    return True if check_list else False
 
 @routes.route('/token', methods=['GET'])
 def get_token():
@@ -88,14 +91,15 @@ def get_token():
 
     user_model = UserModel({
         'user_table': cfg['AUTH_USER_TABLE'],
+        'auth_login_fields': cfg['AUTH_LOGIN_FIELDS'],
         'token_table': cfg['AUTH_TOKEN_TABLE'],
         'last_access_field': cfg['AUTH_LAST_ACCESS_FIELD']
     })
     user_data = user_model.get_user(username)
-    
-    log = logging.getLogger()
 
-    if not user_data or username != user_data['username'] or not bcrypt.checkpw(password.encode('utf8'),
+    login_fields = cfg['AUTH_LOGIN_FIELDS'].split(',')
+
+    if not user_data or not check_login_fields(login_fields, user_data, username) or not bcrypt.checkpw(password.encode('utf8'),
                                                                                 user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
