@@ -25,7 +25,7 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
         Returns user data given a username, email or other login field
         """
         login_fields = self.__login_fields.split(',')
-        where_clause = ' OR '.join(["{field} = '{username}'".format(field=x, username) for x in login_fields])
+        where_clause = ' OR '.join(["{field} = '{username}'".format(field=x, username=username) for x in login_fields])
 
         sql = SQL('''
             SELECT * FROM {table} WHERE {where_clause} LIMIT 1;
