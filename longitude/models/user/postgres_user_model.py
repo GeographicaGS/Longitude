@@ -19,14 +19,21 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
 
         super().__init__(config)
 
-    def get_user(self, username):
+    def get_user(self):
         """
-        Returns an user given an email
+        Returns user data given a username, email or other login field
         """
+        login_fields = self.__login_fields.split(',')
+        where_clause = ' OR '.join(["{field} = '{username}'".format(field=x, username) for x in login_fields])
 
-        sql = 'SELECT * FROM {table} WHERE username = %s LIMIT 1;'.format(table=self.__user_table)
+        sql = SQL('''
+            SELECT * FROM {table} WHERE {where_clause} LIMIT 1;
+        ''').format(
+            table=SQLTrustedString(self.__user_table),
+            where_clause=where_clause
+        )
 
-        res = self.query(sql, arguments=(username,), opts={'cache': False})
+        res = self.query(sql, opts={'cache': False})
         if res:
             return res[0]
 
