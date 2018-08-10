@@ -107,8 +107,6 @@ def get_token():
 
     if not user_data or not check_login_fields(login_fields) or not bcrypt.checkpw(password.encode('utf8'),
                                                                                 user_data['password'].encode('utf-8')):
-    # if not user_data or username != user_data['username'] or not bcrypt.checkpw(password.encode('utf8'),
-    #                                                                             user_data['password'].encode('utf-8')):
         return jsonify({'msg': 'Bad username or password'}), 401
 
     if cfg['AUTH_ACCOUNT_EXPIRATION_FIELD']:
