@@ -14,8 +14,8 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
         """
         Constructor
         """
-        self.__login_fields = config.get('auth_login_fields', 'username')
         self.__user_table = config.get('user_table', 'users')
+        self.__login_fields = config.get('auth_login_fields', 'username')
         self.__token_table = config.get('token_table', 'users_tokens')
         self.__last_access_field = config.get('last_access_field', 'last_access')
         super().__init__(config)
@@ -27,9 +27,9 @@ class PostgresUserModel(AbstractUserModel, PostgresModel):
         login_fields = self.__login_fields.split(',')
         where_clause = ' OR '.join(["{field} = '{username}'".format(field=x, username=username) for x in login_fields])
 
-        sql = SQL('''
+        sql = '''
             SELECT * FROM {table} WHERE {where_clause} LIMIT 1;
-        ''').format(
+        '''.format(
             table=SQLTrustedString(self.__user_table),
             where_clause=where_clause
         )
