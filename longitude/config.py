@@ -22,7 +22,8 @@ cfg = {
     'AUTH_TOKEN_TABLE': os.environ.get('AUTH_TOKEN_TABLE', 'users_tokens'),
     'AUTH_LAST_ACCESS_FIELD': os.environ.get('AUTH_LAST_ACCESS_FIELD', None),
     'AUTH_ACCOUNT_EXPIRATION_FIELD': os.environ.get('AUTH_ACCOUNT_EXPIRATION_FIELD', None),
-    'AUTH_UPDATE_LAST_ACCESS': bool(int(os.environ.get('AUTH_UPDATE_LAST_ACCESS', 0)))
+    'AUTH_UPDATE_LAST_ACCESS': bool(int(os.environ.get('AUTH_UPDATE_LAST_ACCESS', 0))),
+    'AUTH_HEADER_NAME': os.environ.get('AUTH_HEADER_NAME', 'Authorization')
 }
 
 

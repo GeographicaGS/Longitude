@@ -21,7 +21,7 @@ def ini(app):
     JWTManager(app)
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = EXPIRATION_DELTA
-    app.config['JWT_HEADER_NAME'] = 'Authorization'
+    app.config['JWT_HEADER_NAME'] = cfg['AUTH_HEADER_NAME']
     app.config['JWT_HEADER_TYPE'] = 'JWT'
     # Algorithm used is SHA-256 hash
     # More info: https://pyjwt.readthedocs.io/en/latest/algorithms.html
@@ -48,7 +48,7 @@ def auth():
             Check token against DB
             """
             user_data = get_jwt_identity()
-            token = request.headers.get('Authorization', None)
+            token = request.headers.get(cfg['AUTH_HEADER_NAME'], None)
 
             if not token:
                 token = request.args.get('jwt')
