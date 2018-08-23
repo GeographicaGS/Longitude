@@ -12,11 +12,15 @@ from .config import cfg
 from .models.user_model import UserModel
 from dateutil.parser import parse
 
+
 EXPIRATION_DELTA = datetime.timedelta(seconds=cfg['AUTH_TOKEN_EXPIRATION'])
 
 
 def ini(app):
     log = logging.getLogger()
+
+    log.info(cfg['AUTH_TOKEN_EXPIRATION'])
+
 
     JWTManager(app)
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
@@ -67,6 +71,7 @@ def auth():
                     return jsonify({'msg': 'No valid token'}), 403
 
             request.user = user_data
+            request.token = token
 
             return func(*args, **kwargs)
 

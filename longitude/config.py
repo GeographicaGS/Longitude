@@ -15,7 +15,7 @@ cfg = {
     'REDIS_DB': os.environ.get('REDIS_DB', 0),
     'CACHE_EXPIRE':  os.environ.get('CARTO_CACHE_EXPIRE', 900),
     'CACHE': bool(int(os.environ.get('CARTO_CACHE', 0))),
-    'AUTH_TOKEN_EXPIRATION': int(os.environ.get('API_TOKEN_EXPIRATION', 60*15)),
+    'AUTH_TOKEN_EXPIRATION': int(os.environ.get('AUTH_TOKEN_EXPIRATION', 60*15)),
     'AUTH_TOKEN_DOBLE_CHECK': bool(int(os.environ.get('AUTH_TOKEN_DOBLE_CHECK', 0))),
     'AUTH_USER_TABLE': os.environ.get('AUTH_USER_TABLE', 'users'),
     'AUTH_LOGIN_FIELDS': os.environ.get('AUTH_LOGIN_FIELDS', 'username'),
