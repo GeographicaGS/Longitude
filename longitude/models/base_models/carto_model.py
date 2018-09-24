@@ -29,12 +29,14 @@ class CartoModel(DatabaseBaseModel):
         """
         Constructor
         """
-        self._carto_api_key = cfg['CARTO_API_KEY']
-        self._carto_user = cfg['CARTO_USER']
+        conf = self.conf =  dict(cfg)
+        conf.update(config)
+        self._carto_api_key = conf['CARTO_API_KEY']
+        self._carto_user = conf['CARTO_USER']
         self._cartouser_url = 'https://{0}.carto.com'.format(self._carto_user)
 
-        if 'CARTO_ONPREMISES_URL' in cfg and cfg['CARTO_ONPREMISES_URL'] != None:
-            self._cartouser_url = cfg['CARTO_ONPREMISES_URL']
+        if 'CARTO_ONPREMISES_URL' in conf and conf['CARTO_ONPREMISES_URL'] != None:
+            self._cartouser_url = conf['CARTO_ONPREMISES_URL']
 
         super().__init__()
 
@@ -49,7 +51,7 @@ class CartoModel(DatabaseBaseModel):
 
             opts.update(kwargs)
 
-            cache = cfg['CACHE'] and opts.get('cache', True)
+            cache = self.conf['CACHE'] and opts.get('cache', True)
             write_qry = opts.get('write_qry', False)
             batch = opts.get('batch', False)
 
@@ -77,7 +79,7 @@ class CartoModel(DatabaseBaseModel):
 
             result = self._do_carto_query(sql_query, opts)
 
-            expire = opts.get('cache_expire', cfg['CACHE_EXPIRE'])
+            expire = opts.get('cache_expire', self.conf['CACHE_EXPIRE'])
             cache_group = opts.get('cache_group', None)
 
             p = self._redis.pipeline()
