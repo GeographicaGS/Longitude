@@ -29,7 +29,7 @@ class CartoModel(DatabaseBaseModel):
         """
         Constructor
         """
-        self.conf = self.dict(cfg)
+        self.conf = dict(cfg)
         self.conf.update(config)
         self._carto_api_key = self.conf['CARTO_API_KEY']
         self._carto_user = self.conf['CARTO_USER']
