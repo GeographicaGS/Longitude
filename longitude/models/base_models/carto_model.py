@@ -29,14 +29,14 @@ class CartoModel(DatabaseBaseModel):
         """
         Constructor
         """
-        conf = self.conf =  dict(cfg)
-        conf.update(config)
-        self._carto_api_key = conf['CARTO_API_KEY']
-        self._carto_user = conf['CARTO_USER']
+        self.conf = self.dict(cfg)
+        self.conf.update(config)
+        self._carto_api_key = self.conf['CARTO_API_KEY']
+        self._carto_user = self.conf['CARTO_USER']
         self._cartouser_url = 'https://{0}.carto.com'.format(self._carto_user)
 
-        if 'CARTO_ONPREMISES_URL' in conf and conf['CARTO_ONPREMISES_URL'] != None:
-            self._cartouser_url = conf['CARTO_ONPREMISES_URL']
+        if 'CARTO_ONPREMISES_URL' in self.conf and self.conf['CARTO_ONPREMISES_URL'] != None:
+            self._cartouser_url = self.conf['CARTO_ONPREMISES_URL']
 
         super().__init__()
 
