@@ -7,7 +7,9 @@ import bcrypt
 
 from functools import wraps
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token, get_jwt_identity
+)
 from .config import cfg
 from .models.user_model import UserModel
 from dateutil.parser import parse
@@ -20,7 +22,6 @@ def ini(app):
     log = logging.getLogger()
 
     log.info(cfg['AUTH_TOKEN_EXPIRATION'])
-
 
     JWTManager(app)
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
@@ -35,9 +36,23 @@ def ini(app):
 routes = Blueprint('auth', __name__)
 
 
-def auth():
-    """
-    AUTH decorator. It checks for a valid token and validates this token against the DB
+def auth(allow_profiles=None, disallow_profiles=None):
+    """AUTH decorator.
+
+    It checks for a valid token and validates this token against the DB.
+
+    With AUTH_USE_PROFILES env var activated it will aditionally check if
+    the user has a allowed or disallowed profile for the endpoint.
+    You can only specify a set of allowed profiles or a set of disallowed
+    profiles.
+
+    :param allow_profiles: A list of profiles/roles that can access \
+                           the endpoint, defaults to None.
+    :param allow_profiles: list[str], optional.
+    :param disallow_profiles: A list of profiles/roles that cannot access \
+                              the endpoint, defaults to None
+    :param disallow_profiles: list[str], optional.
+    :raises ValueError: If both allowed and disallowed profiles are specified.
     """
 
     def decorator(func):
@@ -58,7 +73,9 @@ def auth():
                 token = request.args.get('jwt')
 
             if not token:
-                return jsonify({'msg': 'You must provide an authorization header (token)'}), 401
+                return jsonify({
+                    'msg': 'You must provide an authorization header (token)'
+                }), 401
 
             if cfg['AUTH_TOKEN_DOBLE_CHECK']:
                 user_model = UserModel({
@@ -70,6 +87,29 @@ def auth():
                 if not valid:
                     return jsonify({'msg': 'No valid token'}), 403
 
+            if cfg['AUTH_USE_PROFILES']:
+                allow_type_prfs = check_auth_profiles(allow_profiles)
+                disallow_type_prfs = check_auth_profiles(disallow_profiles)
+                user_prof = user_data['profile']
+
+                err_response = jsonify(
+                    {
+                        'msg': 'You are not authorized to request '
+                        'this information'
+                    }
+                ), 403
+
+                if (allow_type_prfs is list and
+                        disallow_type_prfs is list):
+                    raise ValueError('You can only specify allowed profiles '
+                                     'or disallowed profiles')
+                elif allow_type_prfs is list:
+                    if user_prof not in allow_profiles:
+                        return err_response
+                elif disallow_type_prfs is list:
+                    if user_prof in disallow_profiles:
+                        return err_response
+
             request.user = user_data
             request.token = token
 
@@ -79,9 +119,34 @@ def auth():
 
     return decorator
 
+
 def check_login_fields(fields_list, user_data, username):
     check_list = [True for x in fields_list if user_data[x] == username]
     return True if check_list else False
+
+
+def check_auth_profiles(profiles):
+    correct = True
+    prof_type = None
+
+    if type(profiles) is list:
+        prof_type = list
+        if len(profiles):
+            for element in profiles:
+                if type(element) is not str:
+                    correct = False
+                    break
+            prof_type = list if correct else None
+    elif profiles is None:
+        pass
+    else:
+        correct = False
+
+    if not correct:
+        raise ValueError('Profiles parameter is expected to be a list[str]')
+    else:
+        return prof_type
+
 
 @routes.route('/token', methods=['GET'])
 def get_token():
@@ -104,8 +169,10 @@ def get_token():
 
     login_fields = cfg['AUTH_LOGIN_FIELDS'].split(',')
 
-    if not user_data or not check_login_fields(login_fields, user_data, username) or not bcrypt.checkpw(password.encode('utf8'),
-                                                                                user_data['password'].encode('utf-8')):
+    if (not user_data or
+        not check_login_fields(login_fields, user_data, username) or
+        not bcrypt.checkpw(password.encode('utf8'),
+                           user_data['password'].encode('utf-8'))):
         return jsonify({'msg': 'Bad username or password'}), 401
 
     if cfg['AUTH_ACCOUNT_EXPIRATION_FIELD']:
@@ -117,8 +184,11 @@ def get_token():
         user_model.update_last_access(user_data['id'])
 
     if cfg['EXTRA_JWT_IDENTITY_FIELDS']:
-        extra_jwt_identity_fields = {key.replace('JWT_IDENTITY_', '').lower(): value for (key, value) in
-                                     cfg['EXTRA_JWT_IDENTITY_FIELDS'].items()}
+        extra_jwt_identity_fields = {
+            key.replace('JWT_IDENTITY_', '').lower(): value
+            for (key, value) in
+            cfg['EXTRA_JWT_IDENTITY_FIELDS'].items()
+        }
         user_data.update(extra_jwt_identity_fields)
 
     del user_data['password']
