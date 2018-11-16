@@ -16,16 +16,23 @@ pip install -e git+https://github.com/GeographicaGS/Longitude#egg=longitude
 
 You need to be part of Geographica's developer team to be able to accomplish this task.
 
+
 Start docker
 ```
 docker-compose run --rm python bash
 ```
+
+Install needed dependencies
+```
+pip install -r requirements.txt
+```
+
 Install twine
 ```
 pip install twine
 ```
 
-Set vertion at setup.py
+Set version at setup.py
 
 Upload:
 ```

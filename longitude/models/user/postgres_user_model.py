@@ -3,6 +3,7 @@ This module allows to manage an User in Postgres
 """
 from longitude.models.base_models import PostgresModel
 from longitude.models.user import AbstractUserModel
+from longitude.models.utils import SQLTrustedString
 
 
 class PostgresUserModel(AbstractUserModel, PostgresModel):
