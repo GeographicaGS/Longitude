@@ -18,3 +18,7 @@ class AbstractUserModel(ABC):
     @abstractmethod
     def delete_user_token(self, user_id):
         pass
+
+    @abstractmethod
+    def update_last_access(self, user_id):
+        pass
