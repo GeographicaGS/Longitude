@@ -27,7 +27,7 @@ To activate the virtual environment: `$ pipenv shell`. If the environment variab
 
 ## Testing and coverage 
 
-The ```pytest-cov``` plugin is being used. Coverage configuration is at ```.coveragerc``` (including output folder).
+The [```pytest-cov```](https://pytest-cov.readthedocs.io/en/latest/) plugin is being used. Coverage configuration is at ```.coveragerc``` (including output folder).
 
 You can run something like: ```pytest --cov-report=html --cov=core core``` and the results will go in the defined html folder.
 

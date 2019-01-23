@@ -10,6 +10,7 @@ coverage = "*"
 pytest-cov = "*"
 
 [packages]
+carto = "*"
 
 [requires]
 python_version = "3.6"
