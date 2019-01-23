@@ -1,0 +1,7 @@
+version: "3"
+services:
+  python:
+    image: python:3.6.3-onbuild
+    command: bash
+    volumes:
+      - .:/usr/src/app
