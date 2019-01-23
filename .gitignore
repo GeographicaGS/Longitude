@@ -119,3 +119,6 @@ dmypy.json
 
 # PyCharm IDE
 .idea
+
+# Coverage report
+coverage_html_report
