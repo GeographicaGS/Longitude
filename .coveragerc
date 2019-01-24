@@ -1,7 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-omit = tests/*
+omit = core/tests/*, **/__init__.py, core/samples/**
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -22,6 +22,9 @@ exclude_lines =
     if __name__ == .__main__.:
 
 ignore_errors = True
+fail_under = 85
+show_missing = True
 
 [html]
+title = Longitude Core Coverage
 directory = coverage_html_report

@@ -19,7 +19,7 @@ class CartoDataSource(DataSource):
         self._batch_client = None
         self.set_custom_query_default('do_post', False)
         self.set_custom_query_default('parse_json', True)
-        self.set_custom_query_default('format', None)
+        self.set_custom_query_default('format', 'json')
 
     def setup(self):
         auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.get_config('user_url'))
@@ -39,9 +39,7 @@ class CartoDataSource(DataSource):
         do_post = query_config.custom['do_post']
         format_ = query_config.custom['format']
         try:
-            return self._sql_client.send(self, formatted_statement,
-                                         parse_json=parse_json,
-                                         do_post=do_post,
-                                         format=format_)
-        except CartoException:
+            return self._sql_client.send(formatted_statement, parse_json=parse_json, do_post=do_post, format= format_)
+
+        except CartoException as e:
             raise LongitudeQueryCannotBeExecutedException
