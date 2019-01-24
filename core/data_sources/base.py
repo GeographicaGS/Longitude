@@ -159,3 +159,17 @@ class DataSource:
         :return:
         """
         raise NotImplementedError
+
+    def parse_response(self, response):
+        """"
+        :param response from an succesfully executed query
+        :return: A QueryResponse object
+        """
+        raise NotImplementedError
+
+
+class QueryResponse:
+    def __init__(self):
+        self.rows = []
+        self.profiling = {}
+        self.fields = []

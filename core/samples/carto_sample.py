@@ -3,23 +3,21 @@ from core.data_sources.carto import CartoDataSource
 
 # This module is IGNORED in git. Create one in your repo and add the needed fields.
 # Ask your PM about where to find these values
-from core.samples.carto_sample_config import CARTO_API_KEY, CARTO_URL
+from core.samples.carto_sample_config import CARTO_API_KEY, CARTO_USER
 
 if __name__ == "__main__":
     config = {
-        'api_version': 'v2',
-        'uses_batch': False,
         'api_key': CARTO_API_KEY,
-        'user_url': CARTO_URL
+        'user': CARTO_USER
     }
 
     ds = CartoDataSource(config)
     ds.setup()
     if ds.is_ready:
         try:
-            data = ds.query('select 1 + 1')
+            data = ds.query('select * from county_population')
             print(data)
         except LongitudeRetriesExceeded:
-            print ("caca")
+            print("Too many retries and no success...")
     else:
-        print("tararí")
+        print("Data source is not properly configured.")

@@ -1,5 +1,8 @@
 from unittest import TestCase, mock
+
 from carto.exceptions import CartoException
+
+from core.data_sources.base import LongitudeRetriesExceeded
 from core.data_sources.carto import CartoDataSource
 
 
@@ -11,29 +14,52 @@ class TestCartoDataSource(TestCase):
             self.assertEqual(log_test.output,
                              ['INFO:core.data_sources.carto:api_key key is using default value',
                               'INFO:core.data_sources.carto:api_version key is using default value',
-                              'INFO:core.data_sources.carto:user_url key is using default value',
+                              'INFO:core.data_sources.carto:on_premise_domain key is using default value',
+                              'INFO:core.data_sources.carto:user key is using default value',
                               'INFO:core.data_sources.carto:uses_batch key is using default value']
                              )
 
             self.assertEqual('', carto_ds.get_config('api_key'))
             self.assertEqual('v2', carto_ds.get_config('api_version'))
-            self.assertEqual('', carto_ds.get_config('user_url'))
+            self.assertEqual('', carto_ds.get_config('on_premise_domain'))
+            self.assertEqual('', carto_ds.get_config('user'))
             self.assertFalse(carto_ds.get_config('uses_batch'))
 
-    def test_setup_fails_with_default_config(self):
-        import warnings
-        # Default config MUST NOT BE USABLE for authentication
-        with warnings.catch_warnings(record=True) as w:
-            with self.assertRaises(CartoException) as error:
-                CartoDataSource().setup()
-            self.assertEqual(1, len(w), 'Carto will warn us about not using https')
+    def test_setup_not_ready_if_empty_user(self):
+        carto_ds = CartoDataSource({
+            'uses_batch': True  # Just to enable that coverage branch for now
+        })
+        carto_ds.setup()
+        self.assertFalse(carto_ds.is_ready)
 
-    def test_setup_needs_a_valid_user_url(self):
-        config = {
-            'user_url': 'https://fake_user.carto.com',
-            'uses_batch': True
-
-        }
-        carto_ds = CartoDataSource(config=config)
+    def test_setup_needs_some_user(self):
+        carto_ds = CartoDataSource({
+            'user': 'some_user'
+        })
         carto_ds.setup()
         self.assertTrue(carto_ds.is_ready)
+        self.assertEqual('https://some_user.carto.com', carto_ds.base_url)
+
+    def test_setup_can_accept_on_premise_domain(self):
+        carto_ds = CartoDataSource({
+            'user': 'some_on_premise_user',
+            'on_premise_domain': 'some_cool_domain.io'
+        })
+        carto_ds.setup()
+        self.assertTrue(carto_ds.is_ready)
+        self.assertEqual('https://some_cool_domain.io/user/some_on_premise_user', carto_ds.base_url)
+
+    def test_succesful_query(self):
+        ds = CartoDataSource()
+        ds._sql_client = mock.MagicMock()
+        ds._sql_client.send.return_value = "{}"
+        result = ds.query('some query')
+        ds._sql_client.send.assert_called_with('some query', do_post=False, format='json', parse_json=True)
+        self.assertEqual("{}", result)
+
+    def test_wrong_query(self):
+        ds = CartoDataSource()
+        ds._sql_client = mock.MagicMock()
+        ds._sql_client.send.side_effect = CartoException
+        with self.assertRaises(LongitudeRetriesExceeded):
+            ds.query('some irrelevant query')
