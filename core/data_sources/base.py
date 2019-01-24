@@ -67,12 +67,6 @@ class DataSource:
 
         self._config = config
 
-    def enable_writing_queries(self):
-        self._default_query_config.enable_writing = True
-
-    def disable_writing_queries(self):
-        self._default_query_config.enable_writing = False
-
     @property
     def tries(self):
         return self._default_query_config.retries + 1
@@ -104,7 +98,7 @@ class DataSource:
         This method must be implemented by children classes.
         :return: True if setup() call was successful. False if not.
         """
-        return NotImplementedError
+        raise NotImplementedError
 
     def get_config(self, key: str):
         """
@@ -142,8 +136,9 @@ class DataSource:
 
         for r in range(self.tries):
             try:
-                return self.execute_query(formatted_statement=statement.format(**params), query_config=query_config,
-                                          **opts)
+                response = self.execute_query(formatted_statement=statement.format(**params), query_config=query_config,
+                                              **opts)
+                return self.parse_response(response)
             except LongitudeQueryCannotBeExecutedException:
                 self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
 
@@ -168,8 +163,40 @@ class DataSource:
         raise NotImplementedError
 
 
-class QueryResponse:
-    def __init__(self):
-        self.rows = []
-        self.profiling = {}
-        self.fields = []
+class LongitudeQueryResponse:
+    def __init__(self, rows=None, fields=None, profiling=None):
+        self.rows = rows or []
+        self.fields = fields or {}
+        self.profiling = profiling or {}
+
+    def preview_top(self):
+        return self._preview(10)
+
+    def preview_bottom(self):
+        return self._preview(-10)
+
+    def _preview(self, limit):
+        def render_line(values):
+            def render_value(value):
+                value = str(value)
+                if len(value) > 20:
+                    value = value[:14] + ' (...)'
+                return value
+
+            values = [render_value(v) + '\t' for v in values]
+            return '| ' + '| '.join(values) + '\t|'
+
+        if limit > 0:
+            preview_list = self.rows[:limit]
+        else:
+            preview_list = self.rows[limit:]
+
+        lines = [render_line(l) for l in preview_list]
+        headers = [k for k, v in self.fields.items()]
+
+        lines = [render_line(headers)] + lines
+        render = '\n'.join(lines) + '\n\n' + '... time = %f' % self.profiling['response_time']
+        return render
+
+    def __str__(self):
+        return self.preview_top()

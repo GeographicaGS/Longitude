@@ -1,6 +1,6 @@
 from carto.exceptions import CartoException
 
-from core.data_sources.base import DataSource, LongitudeQueryCannotBeExecutedException
+from core.data_sources.base import DataSource, LongitudeQueryCannotBeExecutedException, LongitudeQueryResponse
 from carto.auth import APIKeyAuthClient
 from carto.sql import BatchSQLClient, SQLClient
 
@@ -56,3 +56,12 @@ class CartoDataSource(DataSource):
 
         except CartoException as e:
             raise LongitudeQueryCannotBeExecutedException
+
+    def parse_response(self, response):
+        return LongitudeQueryResponse(
+            rows=[[v for k, v in dictionary.items()] for dictionary in response['rows']],
+            fields=response['fields'],
+            profiling={
+                'response_time': response['time']
+            }
+        )

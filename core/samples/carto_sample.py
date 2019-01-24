@@ -15,7 +15,7 @@ if __name__ == "__main__":
     ds.setup()
     if ds.is_ready:
         try:
-            data = ds.query('select * from county_population')
+            data = ds.query('select * from county_population limit 30')
             print(data)
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")

@@ -52,10 +52,11 @@ class TestCartoDataSource(TestCase):
     def test_succesful_query(self):
         ds = CartoDataSource()
         ds._sql_client = mock.MagicMock()
-        ds._sql_client.send.return_value = "{}"
+        ds._sql_client.send.return_value = {'rows': [], 'time': 42.0, 'fields': {}}
         result = ds.query('some query')
         ds._sql_client.send.assert_called_with('some query', do_post=False, format='json', parse_json=True)
-        self.assertEqual("{}", result)
+        self.assertEqual([], result.rows)
+        self.assertEqual(42, result.profiling['response_time'])
 
     def test_wrong_query(self):
         ds = CartoDataSource()
