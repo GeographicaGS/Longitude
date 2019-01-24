@@ -1,7 +1,5 @@
 from unittest import TestCase, mock
-
 from carto.exceptions import CartoException
-
 from core.data_sources.carto import CartoDataSource
 
 
@@ -11,10 +9,10 @@ class TestCartoDataSource(TestCase):
         with self.assertLogs(level='INFO') as log_test:
             carto_ds = CartoDataSource()
             self.assertEqual(log_test.output,
-                             ['INFO:core.data_source:api_key key is using default value',
-                              'INFO:core.data_source:api_version key is using default value',
-                              'INFO:core.data_source:user_url key is using default value',
-                              'INFO:core.data_source:uses_batch key is using default value']
+                             ['INFO:core.data_sources.carto:api_key key is using default value',
+                              'INFO:core.data_sources.carto:api_version key is using default value',
+                              'INFO:core.data_sources.carto:user_url key is using default value',
+                              'INFO:core.data_sources.carto:uses_batch key is using default value']
                              )
 
             self.assertEqual('', carto_ds.get_config('api_key'))

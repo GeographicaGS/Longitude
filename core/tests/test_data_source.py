@@ -1,5 +1,5 @@
 from unittest import TestCase
-from core.data_source import DataSource
+from core.data_sources.base import DataSource
 
 
 class TestDataSource(TestCase):
@@ -18,8 +18,8 @@ class TestDataSource(TestCase):
         with self.assertLogs(level='WARNING') as log_test:
             ds = DataSource(config)
             self.assertEqual(log_test.output,
-                             ['WARNING:core.data_source:some_another_config_value is an unexpected config value',
-                              'WARNING:core.data_source:some_config_value is an unexpected config value'])
+                             ['WARNING:core.data_sources.base:some_another_config_value is an unexpected config value',
+                              'WARNING:core.data_sources.base:some_config_value is an unexpected config value'])
 
         # Values in the config can be retrieved using get_config. If no default or config is defined, None is returned.
         self.assertEqual(0, ds.get_config('some_config_value'))
@@ -29,4 +29,4 @@ class TestDataSource(TestCase):
     def test_query_is_custom(self):
         ds = DataSource({})
         with self.assertRaises(NotImplementedError):
-            ds.query({})
+            ds.query(statement='whatever')
