@@ -1,5 +1,8 @@
-import re
 import logging
+from typing import Type
+
+from core.caches.base import LongitudeCache
+from .util import is_write_query
 
 
 class LongitudeBaseException(Exception):
@@ -18,21 +21,14 @@ class LongitudeWrongQueryException(LongitudeBaseException):
     pass
 
 
-def is_write_query(sql_statement):
-    """
-    Check if a query string is a write query
-    """
-    write_cmds = 'drop|delete|insert|update|grant|execute|perform|create|begin|commit|alter'
-    is_write = re.search(write_cmds, sql_statement.lower())
-    return is_write
-
-
 class DataSourceQueryConfig:
-    def __init__(self, enable_writing=False, retries=0, custom=None):
+    def __init__(self, enable_writing=False, retries=0, custom=None, use_cache=True):
+        self.use_cache = use_cache
         self.enable_writing = enable_writing
         self.retries = retries
 
-        self.custom = custom or {}  # Depending on the specific interface, sometimes we also need to specify per-query values
+        # Depending on the specific interface (i.e.: CARTO, Postgres...), we might also need to specify per-query values
+        self.custom = custom or {}
 
     def copy(self):
         return DataSourceQueryConfig(self.enable_writing, self.retries, self.custom)
@@ -41,15 +37,22 @@ class DataSourceQueryConfig:
 class DataSource:
     default_config = {}
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, cache_class: Type[LongitudeCache] = None):
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
+        self._cache = None
 
         if config is None:
             config = {}
 
         if not isinstance(config, dict):
             raise TypeError('Config object must be a dictionary')
+
+        if cache_class:
+            if not issubclass(cache_class, LongitudeCache):
+                raise TypeError('Cache must derive from LongitudeCache or be None')
+            else:
+                self._cache = cache_class()
 
         default_keys = set(self.default_config.keys())
         config_keys = set(config.keys())
@@ -66,6 +69,10 @@ class DataSource:
             self.logger.info("%s key is using default value" % k)
 
         self._config = config
+
+    def setup(self):
+        if self._cache:
+            self._cache.setup()
 
     @property
     def tries(self):
@@ -95,10 +102,10 @@ class DataSource:
     @property
     def is_ready(self):
         """
-        This method must be implemented by children classes.
+        This method must be implemented by children classes to reflect that setup was ok and must call super().is_ready
         :return: True if setup() call was successful. False if not.
         """
-        raise NotImplementedError
+        return not self._cache or self._cache.is_ready
 
     def get_config(self, key: str):
         """
@@ -131,24 +138,38 @@ class DataSource:
         if query_config is None:
             query_config = self._default_query_config
 
-        if is_write_query(statement):
-            raise LongitudeWrongQueryException('Aborted query. No write queries allowed.')
+        query_is_writing = is_write_query(statement)
 
-        for r in range(self.tries):
-            try:
-                response = self.execute_query(formatted_statement=statement.format(**params), query_config=query_config,
-                                              **opts)
-                return self.parse_response(response)
-            except LongitudeQueryCannotBeExecutedException:
-                self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
+        if query_is_writing:
+            raise LongitudeWrongQueryException('Aborted query. No write queries allowed for now.')
 
-        raise LongitudeRetriesExceeded
+        formatted_query = statement.format(**params)
 
-    def execute_query(self, formatted_statement, query_config, **opts):
+        response = None
+        if self._cache and query_config.use_cache and not query_is_writing:
+            response = self._cache.get(formatted_query)
+
+        if not response:
+            for r in range(self.tries):
+                try:
+                    response = self.execute_query(formatted_query=formatted_query,
+                                                  query_config=query_config,
+                                                  **opts)
+                    if self._cache and query_config.use_cache:
+                        self._cache.put(formatted_query, response)
+
+                    return self.parse_response(response)
+                except LongitudeQueryCannotBeExecutedException:
+                    self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
+                raise LongitudeRetriesExceeded
+        else:
+            return self.parse_response(response)
+
+    def execute_query(self, formatted_query, query_config, **opts):
         """
 
         :raise LongitudeQueryCannotBeExecutedException
-        :param formatted_statement:
+        :param formatted_query:
         :param query_config:
         :param opts:
         :return:

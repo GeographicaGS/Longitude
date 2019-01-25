@@ -30,6 +30,7 @@ class CartoDataSource(DataSource):
 
         if self.get_config('uses_batch'):
             self._batch_client = BatchSQLClient(auth_client)
+        super().setup()
 
     @property
     def base_url(self):
@@ -43,16 +44,20 @@ class CartoDataSource(DataSource):
 
     @property
     def is_ready(self):
-        sql_setup_ready = self._sql_client is not None
-        batch_setup_ready = not self.get_config('uses_batch') or (self._batch_client is not None)
-        return sql_setup_ready and batch_setup_ready and self.get_config('user') != ''
+        if super().is_ready:
+            sql_setup_ready = self._sql_client is not None
+            batch_setup_ready = not self.get_config('uses_batch') or (self._batch_client is not None)
+            is_ready = sql_setup_ready and batch_setup_ready and self.get_config('user') != ''
+            return is_ready
+        else:
+            return False
 
-    def execute_query(self, formatted_statement, query_config, **opts):
+    def execute_query(self, formatted_query, query_config, **opts):
         parse_json = query_config.custom['parse_json']
         do_post = query_config.custom['do_post']
         format_ = query_config.custom['format']
         try:
-            return self._sql_client.send(formatted_statement, parse_json=parse_json, do_post=do_post, format=format_)
+            return self._sql_client.send(formatted_query, parse_json=parse_json, do_post=do_post, format=format_)
 
         except CartoException as e:
             raise LongitudeQueryCannotBeExecutedException

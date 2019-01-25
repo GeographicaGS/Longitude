@@ -2,7 +2,57 @@
 
 A **new** bunch of middleware functions to build applications on top of CARTO.
 
-## As final user...
+## Roadmap
+
+A live document for the roadmap is [shared here](https://docs.google.com/document/d/1nO_JLaKFmr5h6MudDklFutv96CfkNjJxfd0xyh1szwM/edit#heading=h.44g51xumzfku)
+
+- [ ] Database model
+  - [x] CARTO data source
+    - [x] Basic parametrized queries
+    - [ ] Bind/dynamic parameters in queries
+  - [ ] Postgres data source
+    - [ ] driver 1
+    - [ ] driver 2
+  - [ ] Cache
+  - [ ] Documentation
+  - [ ] Unit tests
+  - [ ] Sample scripts
+ 
+- [ ] Config
+ 
+- [ ] CI PyPi versioning
+
+- [ ] Datos
+  - [ ] Carto
+    - [ ] DataFrame read/write
+    - [ ] COPY
+  -[ ] Postgres
+    - [ ] DataFrame read/write
+    - [ ] COPY
+ 
+- [ ] Validations
+  - [ ] Marshmallow
+    - [ ] Wrapper (?)
+    - [ ] Documentation
+ 
+- [ ] Swagger
+  - [ ] Decorators
+  - [ ] Flassger (?)
+  - [ ] OAuth integration
+  - [ ] Postman integration
+  - [ ] Documentation
+  
+- [ ] SQL Alchemy
+  - [ ] Model definition
+  - [ ] Jenkins integration
+  - [ ] Documentation
+
+- [ ] OAuth
+  - [ ] Role mapping
+  - [ ] Token storage
+  - [ ] Documentation
+  
+  ## As final user...
 
 How to use:
 ```bash

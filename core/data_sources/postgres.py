@@ -1,5 +1,5 @@
 from core.data_sources.base import DataSource
 
 
-class PostgreDataSource(DataSource):
+class PostgresDataSource(DataSource):
     pass
