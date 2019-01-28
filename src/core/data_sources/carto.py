@@ -13,7 +13,8 @@ class CartoDataSource(DataSource):
         'uses_batch': False,
         'on_premise_domain': '',
         'api_key': '',
-        'user': ''
+        'user': '',
+        'cache': None
     }
 
     def __init__(self, config=None, cache_class=None):

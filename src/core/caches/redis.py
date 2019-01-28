@@ -1,5 +1,4 @@
 import redis
-import pickle
 from .base import LongitudeCache
 
 
@@ -28,13 +27,10 @@ class RedisCache(LongitudeCache):
             return False
 
     def execute_get(self, key):
-        value = self._values.get(name=key)
-        if value:
-            return pickle.loads(value)
-        return None
+        return self._values.get(name=key)
 
     def execute_put(self, key, payload):
-        self._values.set(name=key, value=pickle.dumps(payload))
+        self._values.set(name=key, value=payload)
 
     def flush(self):
         self._values.flushall()

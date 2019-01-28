@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import pickle
 from ..data_sources.util import is_write_query
 
 
@@ -34,13 +35,14 @@ class LongitudeCache:
         if is_write_query(formatted_query):
             return None
         else:
-            return self.execute_get(self.generate_key(formatted_query))
+            payload = self.execute_get(self.generate_key(formatted_query))
+            return self.deserialize_payload(payload)
 
     def put(self, formatted_query, payload):
         if is_write_query(formatted_query):
             return None
         else:
-            self.execute_put(self.generate_key(formatted_query), payload)
+            self.execute_put(self.generate_key(formatted_query), self.serialize_payload(payload))
 
     def execute_get(self, key):
         """
@@ -65,3 +67,15 @@ class LongitudeCache:
         :return:
         """
         raise NotImplementedError
+
+    @staticmethod
+    def serialize_payload(payload):
+        if payload:
+            return pickle.dumps(payload)
+        return None
+
+    @staticmethod
+    def deserialize_payload(payload):
+        if payload:
+            return pickle.loads(payload)
+        return None

@@ -24,3 +24,11 @@ class RamCache(LongitudeCache):
 
     def flush(self):
         self._values = {}
+
+    @staticmethod
+    def serialize_payload(payload):
+        return payload
+
+    @staticmethod
+    def deserialize_payload(payload):
+        return payload
