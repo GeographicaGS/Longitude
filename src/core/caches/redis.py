@@ -35,3 +35,6 @@ class RedisCache(LongitudeCache):
 
     def execute_put(self, key, payload):
         self._values.set(name=key, value=pickle.dumps(payload))
+
+    def flush(self):
+        self._values.flushall()

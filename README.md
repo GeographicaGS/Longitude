@@ -19,7 +19,7 @@ A live document for the roadmap is [shared here](https://docs.google.com/documen
       - [x] Put
       - [x] Get
       - [x] Key generation
-      - [ ] Flush
+      - [x] Flush
       - [ ] Expiration
     - [x] Ram Cache
     - [x] Redis Cache

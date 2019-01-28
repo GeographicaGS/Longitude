@@ -193,6 +193,9 @@ class DataSource:
         """
         raise NotImplementedError
 
+    def flush_cache(self):
+        if self._cache:
+            self._cache.flush()
 
 class LongitudeQueryResponse:
     def __init__(self, rows=None, fields=None, profiling=None):

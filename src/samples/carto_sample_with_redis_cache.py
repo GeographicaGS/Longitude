@@ -83,6 +83,9 @@ if __name__ == "__main__":
 
             print('If you see decreasing times it is probably because CARTOs cache doing its job!')
 
+            # As Redis is persistent for this script, we flush it after execution so next run does not hit at start
+            ds.flush_cache()
+
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")
     else:

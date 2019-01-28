@@ -57,3 +57,11 @@ class LongitudeCache:
         :return: True if key was overwritten. False if key was new in the cache.
         """
         raise NotImplementedError
+
+    def flush(self):
+        """
+        Custom action to make the cache empty
+
+        :return:
+        """
+        raise NotImplementedError

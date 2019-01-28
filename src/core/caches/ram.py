@@ -8,7 +8,7 @@ class RamCache(LongitudeCache):
     _values = {}
 
     def setup(self):
-        self._values = {}
+        self.flush()
 
     @property
     def is_ready(self):
@@ -21,3 +21,6 @@ class RamCache(LongitudeCache):
         is_overwrite = key in self._values.keys()
         self._values[key] = payload
         return is_overwrite
+
+    def flush(self):
+        self._values = {}
