@@ -152,25 +152,25 @@ class DataSource:
 
         formatted_query = statement.format(**params)
 
-        response = None
+        normalized_response = None
         if self._cache and self.use_cache and query_config.use_cache and not query_is_writing:
-            response = self._cache.get(formatted_query)
+            normalized_response = self._cache.get(formatted_query)
 
-        if response:
-            # TODO: cached responses should, by default, be stored parsed/normalized
-            parsed_response = self.parse_response(response)
-            parsed_response.mark_as_cached()
-            return parsed_response
+        if normalized_response:
+
+            normalized_response.mark_as_cached()
+            return normalized_response
         else:
             for r in range(self.tries):
                 try:
                     response = self.execute_query(formatted_query=formatted_query,
                                                   query_config=query_config,
                                                   **opts)
+                    normalized_response = self.parse_response(response)
                     if self._cache and self.use_cache and query_config.use_cache:
-                        self._cache.put(formatted_query, response)
+                        self._cache.put(formatted_query, normalized_response)
 
-                    return self.parse_response(response)
+                    return normalized_response
                 except LongitudeQueryCannotBeExecutedException:
                     self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
                 raise LongitudeRetriesExceeded
@@ -189,13 +189,14 @@ class DataSource:
     def parse_response(self, response):
         """"
         :param response from an succesfully executed query
-        :return: A QueryResponse object
+        :return: A LongitudeQueryResponse object
         """
         raise NotImplementedError
 
     def flush_cache(self):
         if self._cache:
             self._cache.flush()
+
 
 class LongitudeQueryResponse:
     def __init__(self, rows=None, fields=None, profiling=None):

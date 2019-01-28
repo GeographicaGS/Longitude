@@ -20,9 +20,11 @@ A live document for the roadmap is [shared here](https://docs.google.com/documen
       - [x] Get
       - [x] Key generation
       - [x] Flush
-      - [ ] Expiration
-    - [x] Ram Cache
-    - [x] Redis Cache
+      - [ ] Tests
+    - [ ] Ram Cache
+      - [ ] Tests
+    - [ ] Redis Cache
+      - [ ] Tests 
   - [ ] Documentation
   - [ ] Unit tests
   - [ ] Sample scripts
