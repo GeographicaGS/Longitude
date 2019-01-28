@@ -1,4 +1,4 @@
-from core.caches.base import LongitudeCache
+from .base import LongitudeCache
 
 
 class RedisCache(LongitudeCache):

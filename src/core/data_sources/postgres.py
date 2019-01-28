@@ -1,4 +1,4 @@
-from core.data_sources.base import DataSource
+from .base import DataSource
 
 
 class PostgresDataSource(DataSource):

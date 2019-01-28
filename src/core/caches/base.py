@@ -1,5 +1,5 @@
 import hashlib
-from core.data_sources.util import is_write_query
+from ..data_sources.util import is_write_query
 
 
 class LongitudeCache:

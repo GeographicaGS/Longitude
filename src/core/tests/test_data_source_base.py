@@ -1,9 +1,8 @@
 import os
 from unittest import TestCase, mock
 
-from core.caches.base import LongitudeCache
-from core.data_sources.base import DataSource, DataSourceQueryConfig, LongitudeQueryResponse, \
-    LongitudeWrongQueryException
+from ..caches.base import LongitudeCache
+from ..data_sources.base import DataSource, DataSourceQueryConfig, LongitudeQueryResponse, LongitudeWrongQueryException
 
 
 def load_raw_text(filename):
@@ -71,7 +70,7 @@ class TestDataSource(TestCase):
         with self.assertRaises(TypeError):
             DataSource({}, cache_class=PoorlyImplementedCache)
 
-    @mock.patch('core.data_sources.base.is_write_query')
+    @mock.patch('src.core.data_sources.base.is_write_query')
     def test_write_queries_do_not_use_cache(self, is_write_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
@@ -81,8 +80,8 @@ class TestDataSource(TestCase):
         with self.assertRaises(LongitudeWrongQueryException):
             ds.query('some_query')
 
-    @mock.patch('core.data_sources.base.is_write_query')
-    @mock.patch('core.data_sources.base.DataSource.parse_response')
+    @mock.patch('src.core.data_sources.base.is_write_query')
+    @mock.patch('src.core.data_sources.base.DataSource.parse_response')
     def test_cache_hit(self, parse_response_mock, is_write_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
@@ -90,13 +89,13 @@ class TestDataSource(TestCase):
         # In this test we are interested in triggering that call to the parse function that would return such object,
         # but we do not care, in the abstract class, about what content is generated there.
         is_write_mock.return_value = False
-        parse_response_mock.return_value = 'normalized cache hit'
-        self.assertEqual('normalized cache hit', ds.query('some_query_in_cache'))
+        parse_response_mock.mark_as_cached = True
+        self.assertTrue(ds.query('some_query_in_cache').comes_from_cache)
         parse_response_mock.assert_called_once_with('cache hit')
 
-    @mock.patch('core.data_sources.base.is_write_query')
-    @mock.patch('core.data_sources.base.DataSource.parse_response')
-    @mock.patch('core.data_sources.base.DataSource.execute_query')
+    @mock.patch('src.core.data_sources.base.is_write_query')
+    @mock.patch('src.core.data_sources.base.DataSource.parse_response')
+    @mock.patch('src.core.data_sources.base.DataSource.execute_query')
     def test_cache_miss(self, execute_query_mock, parse_response_mock, is_write_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
@@ -120,8 +119,8 @@ class TestDataSource(TestCase):
         with self.assertLogs(level='WARNING') as log_test:
             ds = DataSource(config)
             self.assertEqual(log_test.output,
-                             ['WARNING:core.data_sources.base:some_another_config_value is an unexpected config value',
-                              'WARNING:core.data_sources.base:some_config_value is an unexpected config value'])
+                             ['WARNING:src.core.data_sources.base:some_another_config_value is an unexpected config value',
+                              'WARNING:src.core.data_sources.base:some_config_value is an unexpected config value'])
 
         # Values in the config can be retrieved using get_config. If no default or config is defined, None is returned.
         self.assertEqual(0, ds.get_config('some_config_value'))

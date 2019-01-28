@@ -1,5 +1,5 @@
 from unittest import TestCase, mock
-from core.caches.base import LongitudeCache
+from ..caches.base import LongitudeCache
 
 
 class TestLongitudeCache(TestCase):
@@ -24,7 +24,7 @@ class TestLongitudeCache(TestCase):
         unique_key = set([LongitudeCache.generate_key('SOME_QUERY_OVER_AND_OVER') for _ in range(100)])
         self.assertEqual(1, len(unique_key))
 
-    @mock.patch('core.caches.base.is_write_query')
+    @mock.patch('src.core.caches.base.is_write_query')
     def test_get_and_put_returns_none_for_write_queries(self, is_write_mock):
         is_write_mock.return_value = True
         cache = LongitudeCache()
@@ -32,7 +32,7 @@ class TestLongitudeCache(TestCase):
         self.assertIsNone(cache.put('some_query', payload='whatever'))
         self.assertEqual(2, is_write_mock.call_count)
 
-    @mock.patch('core.caches.base.is_write_query')
+    @mock.patch('src.core.caches.base.is_write_query')
     def test_get_nor_put_are_implemented_in_base_class(self, is_write_mock):
         is_write_mock.return_value = False
         cache = LongitudeCache()

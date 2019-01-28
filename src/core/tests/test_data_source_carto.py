@@ -2,8 +2,8 @@ from unittest import TestCase, mock
 
 from carto.exceptions import CartoException
 
-from core.data_sources.base import LongitudeRetriesExceeded
-from core.data_sources.carto import CartoDataSource
+from ..data_sources.base import LongitudeRetriesExceeded
+from ..data_sources.carto import CartoDataSource
 
 
 class TestCartoDataSource(TestCase):
@@ -12,11 +12,11 @@ class TestCartoDataSource(TestCase):
         with self.assertLogs(level='INFO') as log_test:
             carto_ds = CartoDataSource()
             self.assertEqual(log_test.output,
-                             ['INFO:core.data_sources.carto:api_key key is using default value',
-                              'INFO:core.data_sources.carto:api_version key is using default value',
-                              'INFO:core.data_sources.carto:on_premise_domain key is using default value',
-                              'INFO:core.data_sources.carto:user key is using default value',
-                              'INFO:core.data_sources.carto:uses_batch key is using default value']
+                             ['INFO:src.core.data_sources.carto:api_key key is using default value',
+                              'INFO:src.core.data_sources.carto:api_version key is using default value',
+                              'INFO:src.core.data_sources.carto:on_premise_domain key is using default value',
+                              'INFO:src.core.data_sources.carto:user key is using default value',
+                              'INFO:src.core.data_sources.carto:uses_batch key is using default value']
                              )
 
             self.assertEqual('', carto_ds.get_config('api_key'))

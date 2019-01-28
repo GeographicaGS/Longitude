@@ -1,6 +1,6 @@
 from carto.exceptions import CartoException
 
-from core.data_sources.base import DataSource, LongitudeQueryCannotBeExecutedException, LongitudeQueryResponse
+from .base import DataSource, LongitudeQueryCannotBeExecutedException, LongitudeQueryResponse
 from carto.auth import APIKeyAuthClient
 from carto.sql import BatchSQLClient, SQLClient
 
@@ -16,8 +16,8 @@ class CartoDataSource(DataSource):
         'user': ''
     }
 
-    def __init__(self, config=None):
-        super().__init__(config)
+    def __init__(self, config=None, cache_class=None):
+        super().__init__(config, cache_class=cache_class)
         self._sql_client = None
         self._batch_client = None
         self.set_custom_query_default('do_post', False)

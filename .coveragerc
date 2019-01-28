@@ -1,7 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-omit = core/tests/*, **/__init__.py, core/samples/**
+omit = src/core/tests/*, **/__init__.py, src/samples/**
 
 [report]
 # Regexes for lines to exclude from consideration

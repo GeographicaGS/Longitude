@@ -1,7 +1,7 @@
 import logging
 from typing import Type
 
-from core.caches.base import LongitudeCache
+from ..caches.base import LongitudeCache
 from .util import is_write_query
 
 
@@ -40,6 +40,7 @@ class DataSource:
     def __init__(self, config=None, cache_class: Type[LongitudeCache] = None):
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
+        self.use_cache = True
         self._cache = None
 
         if config is None:
@@ -121,6 +122,12 @@ class DataSource:
             except KeyError:
                 return None
 
+    def enable_cache(self):
+        self.use_cache = True
+
+    def disable_cache(self):
+        self.use_cache = False
+
     def query(self, statement, params=None, query_config=None, **opts):
         """
         This method has to be called to interact with the data source. Each children class will have to implement
@@ -146,24 +153,27 @@ class DataSource:
         formatted_query = statement.format(**params)
 
         response = None
-        if self._cache and query_config.use_cache and not query_is_writing:
+        if self._cache and self.use_cache and query_config.use_cache and not query_is_writing:
             response = self._cache.get(formatted_query)
 
-        if not response:
+        if response:
+            # TODO: cached responses should, by default, be stored parsed/normalized
+            parsed_response = self.parse_response(response)
+            parsed_response.mark_as_cached()
+            return parsed_response
+        else:
             for r in range(self.tries):
                 try:
                     response = self.execute_query(formatted_query=formatted_query,
                                                   query_config=query_config,
                                                   **opts)
-                    if self._cache and query_config.use_cache:
+                    if self._cache and self.use_cache and query_config.use_cache:
                         self._cache.put(formatted_query, response)
 
                     return self.parse_response(response)
                 except LongitudeQueryCannotBeExecutedException:
                     self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
                 raise LongitudeRetriesExceeded
-        else:
-            return self.parse_response(response)
 
     def execute_query(self, formatted_query, query_config, **opts):
         """
@@ -189,6 +199,14 @@ class LongitudeQueryResponse:
         self.rows = rows or []
         self.fields = fields or {}
         self.profiling = profiling or {}
+        self._from_cache = False
+
+    @property
+    def comes_from_cache(self):
+        return self._from_cache
+
+    def mark_as_cached(self):
+        self._from_cache = True
 
     def preview_top(self):
         return self._preview(10)
