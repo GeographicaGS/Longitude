@@ -1,6 +1,6 @@
 import redis.exceptions
 from unittest import TestCase, mock
-from ..caches.redis import RedisCache
+from ..caches.redis import RedisCache, RedisCacheConfig
 
 
 @mock.patch('src.core.caches.redis.redis.Redis')
@@ -8,12 +8,7 @@ class TestRedisCache(TestCase):
     cache = None
 
     def setUp(self):
-        test_config = {
-            'host': 'some_host',
-            'port': 666,
-            'db': 0
-        }
-        self.cache = RedisCache(config=test_config)
+        self.cache = RedisCache(config=RedisCacheConfig(host='some_host', port=666, db=0, password='some_pass'))
 
     def test_is_ready_if_redis_returns_ping(self, redis_mock):
         redis_mock.return_value.ping.return_value = True
@@ -50,3 +45,24 @@ class TestRedisCache(TestCase):
         redis_mock.return_value.ping.side_effect = TimeoutError
         self.cache.setup()
         self.assertFalse(self.cache.is_ready)
+
+    def test_is_not_ready_because_no_password(self, redis_mock):
+        redis_mock.return_value.ping.side_effect = redis.exceptions.ResponseError('NOAUTH Authentication required.')
+        self.cache.setup()
+        with self.assertLogs(level='ERROR') as log_test:
+            self.assertFalse(self.cache.is_ready)
+            self.assertEqual(['ERROR:src.core.caches.redis:Redis password required.'], log_test.output)
+
+    def test_is_not_ready_because_wrong_password(self, redis_mock):
+        redis_mock.return_value.ping.side_effect = redis.exceptions.ResponseError('invalid password')
+        self.cache.setup()
+        with self.assertLogs(level='ERROR') as log_test:
+            self.assertFalse(self.cache.is_ready)
+            self.assertEqual(['ERROR:src.core.caches.redis:Redis password is wrong.'], log_test.output)
+
+    def test_is_not_ready_because_of_generic_response_error(self, redis_mock):
+        redis_mock.return_value.ping.side_effect = redis.exceptions.ResponseError('some error text')
+        self.cache.setup()
+        with self.assertLogs(level='ERROR') as log_test:
+            self.assertFalse(self.cache.is_ready)
+            self.assertEqual(['ERROR:src.core.caches.redis:some error text'], log_test.output)
