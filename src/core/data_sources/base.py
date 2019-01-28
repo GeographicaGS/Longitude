@@ -194,7 +194,7 @@ class DataSource:
         raise NotImplementedError
 
     def flush_cache(self):
-        if self._cache:
+        if self._cache and self._cache.is_ready:
             self._cache.flush()
 
 

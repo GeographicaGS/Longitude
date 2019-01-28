@@ -42,7 +42,7 @@ class LongitudeCache:
         if is_write_query(formatted_query):
             return None
         else:
-            self.execute_put(self.generate_key(formatted_query), self.serialize_payload(payload))
+            return self.execute_put(self.generate_key(formatted_query), self.serialize_payload(payload))
 
     def execute_get(self, key):
         """

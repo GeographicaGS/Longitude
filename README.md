@@ -14,20 +14,20 @@ A live document for the roadmap is [shared here](https://docs.google.com/documen
   - [ ] Postgres data source
     - [ ] driver 1
     - [ ] driver 2
-  - [ ] Cache
-    - [ ] Base cache
+  - [x] Cache
+    - [x] Base cache
       - [x] Put
       - [x] Get
       - [x] Key generation
       - [x] Flush
-      - [ ] Tests
-    - [ ] Ram Cache
-      - [ ] Tests
-    - [ ] Redis Cache
-      - [ ] Tests 
+      - [x] Tests
+    - [x] Ram Cache
+      - [x] Tests
+    - [x] Redis Cache
+      - [x] Tests 
   - [ ] Documentation
-  - [ ] Unit tests
-  - [ ] Sample scripts
+  - [x] Unit tests
+  - [x] Sample scripts
  
 - [ ] Config
  

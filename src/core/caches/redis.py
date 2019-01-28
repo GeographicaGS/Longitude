@@ -19,18 +19,19 @@ class RedisCache(LongitudeCache):
         try:
             self._values.ping()
             return True
-        except (ConnectionError, TimeoutError):
+        except TimeoutError:
             return False
         except redis.exceptions.ConnectionError as e:
-            self.logger.error('Cannot connect to Redis server.')
-            self.logger.error(e)
+            self.logger.error('Cannot connect to Redis server at %s:%d.' % (self._config['host'], self._config['port']))
             return False
 
     def execute_get(self, key):
         return self._values.get(name=key)
 
     def execute_put(self, key, payload):
+        overwrite = self._values.exists(key) == 1
         self._values.set(name=key, value=payload)
+        return overwrite
 
     def flush(self):
         self._values.flushall()
