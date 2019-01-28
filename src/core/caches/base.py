@@ -1,8 +1,15 @@
 import hashlib
+import logging
 from ..data_sources.util import is_write_query
 
 
 class LongitudeCache:
+    default_config = {}
+
+    def __init__(self, config=None):
+        self._config = config or self.default_config
+        self.logger = logging.getLogger(self.__class__.__module__)
+
     @staticmethod
     def generate_key(formatted_query):
         """

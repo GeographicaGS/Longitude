@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "686700a73ddd35aeb2c8718ed2b94bf73198540a3d195baabc8b5dc142e2c5e7"
+            "sha256": "dc93ba0a0c855d03807424c2598879586f22ed0da579923bc4eaaf3a8e2ba566"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -52,9 +52,9 @@
         },
         "pyrestcli": {
             "hashes": [
-                "sha256:b8f9b67380bf9024f8c73dc25bf0466afe4b0714732590247acdabeb8137deb9"
+                "sha256:4e98b5cfba0a300acc78a7a4b7c91826edf56b12b588aa316cae4bff8696c644"
             ],
-            "version": "==0.6.7"
+            "version": "==0.6.8"
         },
         "python-dateutil": {
             "hashes": [
@@ -62,6 +62,14 @@
                 "sha256:88f9287c0174266bb0d8cedd395cfba9c58e87e5ad86b2ce58859bc11be3cf02"
             ],
             "version": "==2.7.5"
+        },
+        "redis": {
+            "hashes": [
+                "sha256:2100750629beff143b6a200a2ea8e719fcf26420adabb81402895e144c5083cf",
+                "sha256:8e0bdd2de02e829b6225b25646f9fb9daffea99a252610d040409a6738541f0a"
+            ],
+            "index": "pypi",
+            "version": "==3.0.1"
         },
         "requests": {
             "hashes": [

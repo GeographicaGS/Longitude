@@ -8,12 +8,21 @@ A live document for the roadmap is [shared here](https://docs.google.com/documen
 
 - [ ] Database model
   - [x] CARTO data source
-    - [x] Basic parametrized queries
-    - [ ] Bind/dynamic parameters in queries
+    - [x] Basic parametrized queries (i.e. templated queries)
+    - [ ] Protected parametrized queries (i.e. avoiding injection)
+    - [ ] Bind/dynamic parameters in queries (server-side render)
   - [ ] Postgres data source
     - [ ] driver 1
     - [ ] driver 2
   - [ ] Cache
+    - [ ] Base cache
+      - [x] Put
+      - [x] Get
+      - [x] Key generation
+      - [ ] Flush
+      - [ ] Expiration
+    - [x] Ram Cache
+    - [x] Redis Cache
   - [ ] Documentation
   - [ ] Unit tests
   - [ ] Sample scripts
@@ -22,7 +31,7 @@ A live document for the roadmap is [shared here](https://docs.google.com/documen
  
 - [ ] CI PyPi versioning
 
-- [ ] Datos
+- [ ] Data manipulation
   - [ ] Carto
     - [ ] DataFrame read/write
     - [ ] COPY

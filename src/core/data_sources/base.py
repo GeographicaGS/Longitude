@@ -53,7 +53,7 @@ class DataSource:
             if not issubclass(cache_class, LongitudeCache):
                 raise TypeError('Cache must derive from LongitudeCache or be None')
             else:
-                self._cache = cache_class()
+                self._cache = cache_class(config=config.get('cache'))
 
         default_keys = set(self.default_config.keys())
         config_keys = set(config.keys())
