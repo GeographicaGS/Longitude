@@ -14,6 +14,7 @@ class TestCartoDataSource(TestCase):
             self.assertEqual(log_test.output,
                              ['INFO:src.core.data_sources.carto:api_key key is using default value',
                               'INFO:src.core.data_sources.carto:api_version key is using default value',
+                              'INFO:src.core.data_sources.carto:cache key is using default value',
                               'INFO:src.core.data_sources.carto:on_premise_domain key is using default value',
                               'INFO:src.core.data_sources.carto:user key is using default value',
                               'INFO:src.core.data_sources.carto:uses_batch key is using default value']

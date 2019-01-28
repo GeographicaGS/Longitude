@@ -39,7 +39,10 @@ class TestDataSourceQueryConfig(TestCase):
 
 class TestDataSource(TestCase):
     def setUp(self):
+        import pickle
+
         class FakeCache(LongitudeCache):
+
             @staticmethod
             def generate_key(formatted_query):
                 if formatted_query == 'some_query_in_cache':
@@ -55,7 +58,7 @@ class TestDataSource(TestCase):
 
             def execute_get(self, key):
                 if key == 'hit':
-                    return 'cache hit'
+                    return pickle.dumps(LongitudeQueryResponse())
                 return None
 
             def execute_put(self, key, payload):
@@ -81,17 +84,14 @@ class TestDataSource(TestCase):
             ds.query('some_query')
 
     @mock.patch('src.core.data_sources.base.is_write_query')
-    @mock.patch('src.core.data_sources.base.DataSource.parse_response')
-    def test_cache_hit(self, parse_response_mock, is_write_mock):
+    def test_cache_hit(self, is_write_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
         # At high level, ds.query will return a normalized LongitudeQueryResponse
         # In this test we are interested in triggering that call to the parse function that would return such object,
         # but we do not care, in the abstract class, about what content is generated there.
         is_write_mock.return_value = False
-        parse_response_mock.mark_as_cached = True
         self.assertTrue(ds.query('some_query_in_cache').comes_from_cache)
-        parse_response_mock.assert_called_once_with('cache hit')
 
     @mock.patch('src.core.data_sources.base.is_write_query')
     @mock.patch('src.core.data_sources.base.DataSource.parse_response')
@@ -119,8 +119,9 @@ class TestDataSource(TestCase):
         with self.assertLogs(level='WARNING') as log_test:
             ds = DataSource(config)
             self.assertEqual(log_test.output,
-                             ['WARNING:src.core.data_sources.base:some_another_config_value is an unexpected config value',
-                              'WARNING:src.core.data_sources.base:some_config_value is an unexpected config value'])
+                             [
+                                 'WARNING:src.core.data_sources.base:some_another_config_value is an unexpected config value',
+                                 'WARNING:src.core.data_sources.base:some_config_value is an unexpected config value'])
 
         # Values in the config can be retrieved using get_config. If no default or config is defined, None is returned.
         self.assertEqual(0, ds.get_config('some_config_value'))
