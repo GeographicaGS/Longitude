@@ -146,10 +146,6 @@ class DataSource:
             query_config = self._default_query_config
 
         query_is_writing = is_write_query(statement)
-
-        if query_is_writing:
-            raise LongitudeWrongQueryException('Aborted query. No write queries allowed for now.')
-
         formatted_query = statement.format(**params)
 
         normalized_response = None
@@ -157,7 +153,6 @@ class DataSource:
             normalized_response = self._cache.get(formatted_query)
 
         if normalized_response:
-
             normalized_response.mark_as_cached()
             return normalized_response
         else:
@@ -238,7 +233,9 @@ class LongitudeQueryResponse:
         headers = [k for k, v in self.fields.items()]
 
         lines = [render_line(headers)] + lines
-        render = '\n'.join(lines) + '\n\n' + '... time = %f' % self.profiling['response_time']
+        render = '\n'.join(lines)
+        if self.profiling and 'response_time' in self.profiling.keys():
+            render += '\n\n' + '... time = %f' % self.profiling['response_time']
         return render
 
     def __str__(self):
