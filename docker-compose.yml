@@ -16,3 +16,13 @@ services:
       - --maxmemory 256mb
       - --maxmemory-policy allkeys-lru
     restart: unless-stopped
+
+  postgres:
+    image: kartoza/postgis
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: longitude
+      POSTGRES_PASS: longitude
+    volumes:
+      - ./data/:/var/lib/postgresql/data/pgdata
