@@ -74,16 +74,6 @@ class TestDataSource(TestCase):
             DataSource({}, cache_class=PoorlyImplementedCache)
 
     @mock.patch('src.core.data_sources.base.is_write_query')
-    def test_write_queries_do_not_use_cache(self, is_write_mock):
-        ds = DataSource({}, cache_class=self._cache_class)
-        ds.setup()
-        self.assertTrue(ds.is_ready)
-
-        is_write_mock.return_value = True
-        with self.assertRaises(LongitudeWrongQueryException):
-            ds.query('some_query')
-
-    @mock.patch('src.core.data_sources.base.is_write_query')
     def test_cache_hit(self, is_write_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
