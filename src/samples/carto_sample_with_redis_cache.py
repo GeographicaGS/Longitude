@@ -34,7 +34,7 @@ if __name__ == "__main__":
     config = {
         'api_key': CARTO_API_KEY,
         'user': CARTO_USER,
-        'cache': RedisCacheConfig(password='as')
+        'cache': RedisCacheConfig(password='longitude')
     }
 
     ds = CartoDataSource(config, cache_class=RedisCache)

@@ -4,8 +4,6 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
 
 ## Roadmap
 
-A live document for the roadmap is [shared here](https://docs.google.com/document/d/1nO_JLaKFmr5h6MudDklFutv96CfkNjJxfd0xyh1szwM/edit#heading=h.44g51xumzfku)
-
 - [ ] Database model
   - [x] CARTO data source
     - [x] Basic parametrized queries (i.e. templated queries)
@@ -63,7 +61,7 @@ A live document for the roadmap is [shared here](https://docs.google.com/documen
   - [ ] Token storage
   - [ ] Documentation
   
-  ## As final user...
+## As final user...
 
 How to use:
 ```bash
@@ -101,25 +99,3 @@ The [```pytest-cov```](https://pytest-cov.readthedocs.io/en/latest/) plugin is b
 You can run something like: ```pytest --cov-report=html --cov=core core``` and the results will go in the defined html folder.
 
 There is a bash script called ```generate_core_coverage.sh``` that runs the coverage analysis and shows the report in your browser.
-
-## Upload a new version to PyPi
-
-You need to be part of *Geographica's development team* to be able to accomplish this task.
-
-Start docker
-```
-docker-compose run --rm python bash
-```
-
-Install needed dependencies
-```
-pip install -r requirements.txt
-```
-
-Set version at ```setup.py```
-
-Upload:
-```
-python setup.py sdist
-twine upload dist/geographica-longitude-<yourversion>.tar.gz
-```
