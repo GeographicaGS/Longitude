@@ -2,30 +2,13 @@ import os
 from unittest import TestCase, mock
 
 from ..caches.base import LongitudeCache
-from ..data_sources.base import DataSource, DataSourceQueryConfig, LongitudeQueryResponse, LongitudeWrongQueryException
+from ..data_sources.base import DataSource, DataSourceQueryConfig, LongitudeQueryResponse
 
 
 def load_raw_text(filename):
     file_path = os.path.join(os.path.dirname(__file__), 'raw_text', filename)
     with open(file_path, 'r') as f:
         return f.read()
-
-
-class TestLongitudeQueryResponse(TestCase):
-    def test_preview(self):
-        qr = LongitudeQueryResponse(
-            rows=[['A' + str(v), 'B' + str(v)] for v in range(20)],
-            fields={'As': {'type': 'string'}, 'Bs': {'type': 'string'}},
-            profiling={'response_time': 42.0}
-        )
-
-        render_top = qr.preview_top()
-        expected_render_top = load_raw_text('query_response_render_top.txt')
-        self.assertEqual(expected_render_top, render_top)
-
-        render_bottom = qr.preview_bottom()
-        expected_render_bottom = load_raw_text('query_response_render_bottom.txt')
-        self.assertEqual(expected_render_bottom, render_bottom)
 
 
 class TestDataSourceQueryConfig(TestCase):

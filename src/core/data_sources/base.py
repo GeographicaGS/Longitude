@@ -203,37 +203,3 @@ class LongitudeQueryResponse:
 
     def mark_as_cached(self):
         self._from_cache = True
-
-    def preview_top(self):
-        return self._preview(10)
-
-    def preview_bottom(self):
-        return self._preview(-10)
-
-    def _preview(self, limit):
-        def render_line(values):
-            def render_value(value):
-                value = str(value)
-                if len(value) > 20:
-                    value = value[:14] + ' (...)'
-                return value
-
-            values = [render_value(v) + '\t' for v in values]
-            return '| ' + '| '.join(values) + '\t|'
-
-        if limit > 0:
-            preview_list = self.rows[:limit]
-        else:
-            preview_list = self.rows[limit:]
-
-        lines = [render_line(l) for l in preview_list]
-        headers = [k for k, v in self.fields.items()]
-
-        lines = [render_line(headers)] + lines
-        render = '\n'.join(lines)
-        if self.profiling and 'response_time' in self.profiling.keys():
-            render += '\n\n' + '... time = %f' % self.profiling['response_time']
-        return render
-
-    def __str__(self):
-        return self.preview_top()
