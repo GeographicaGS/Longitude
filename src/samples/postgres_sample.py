@@ -37,8 +37,10 @@ if __name__ == "__main__":
                 needs_commit=True)
             print(r1.profiling)
 
-            r2 = ds.query("insert into users(name, password) values('longitude', 'password')", needs_commit=True)
-            print(r2.profiling)
+            for i in range(10):
+                r2 = ds.query("insert into users(name, password) values('longitude%d', 'password%d')" % (i, i),
+                              needs_commit=True)
+                print(r2.profiling)
 
             r3 = ds.query('select * from users')
             print(r3.rows)

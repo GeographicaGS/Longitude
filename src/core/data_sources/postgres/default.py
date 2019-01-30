@@ -1,7 +1,7 @@
 import psycopg2
 import psycopg2.extensions
 from ..base import DataSource
-from ..base import LongitudeQueryResponse
+from ...common.query_response import LongitudeQueryResponse
 from time import time
 
 
@@ -68,6 +68,8 @@ class DefaultPostgresDataSource(DataSource):
 
     def parse_response(self, response):
         if response:
-            fields_names = {n.name: self._type_as_string(n.type_code).name for n in response['fields']}
-            return LongitudeQueryResponse(rows=response['rows'], fields=fields_names, profiling=response['profiling'])
+            raw_fields = response['fields']
+            fields_names = {n.name: {'type': self._type_as_string(n.type_code).name} for n in raw_fields}
+            rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
+            return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None

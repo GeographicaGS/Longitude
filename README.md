@@ -10,7 +10,7 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
     - [ ] Protected parametrized queries (i.e. avoiding injection)
     - [ ] Bind/dynamic parameters in queries (server-side render)
   - [ ] Postgres data source
-    - [ ] psycopg2
+    - [x] psycopg2
       - [ ] SQLAlchemy
     - [ ] Asyncpg
   - [x] Cache
@@ -25,6 +25,7 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
     - [x] Redis Cache
       - [x] Tests 
   - [ ] Documentation
+    - [x] Sample scripts
   - [x] Unit tests
   - [x] Sample scripts
  
