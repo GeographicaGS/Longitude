@@ -2,25 +2,22 @@ import redis
 from .base import LongitudeCache
 
 
-class RedisCacheConfig:
-    def __init__(self, host='localhost', port=6379, db=0, password=None):
-        self.host = host
-        self.port = port
-        self.db = db
-        self.password = password
-
-
 class RedisCache(LongitudeCache):
-    _default_config = RedisCacheConfig()
+    _default_config = {
+        'host': 'localhost',
+        'port': 6379,
+        'db': 0,
+        'password': None
+    }
 
     _values = None
 
     def setup(self):
         self._values = redis.Redis(
-            host=self._config.host,
-            port=self._config.port,
-            db=self._config.db,
-            password=self._config.password
+            host=self.get_config('host'),
+            port=self.get_config('port'),
+            db=self.get_config('db'),
+            password=self.get_config('password')
         )
 
     @property
@@ -31,7 +28,8 @@ class RedisCache(LongitudeCache):
         except TimeoutError:
             return False
         except redis.exceptions.ConnectionError:
-            self.logger.error('Cannot connect to Redis server at %s:%d.' % (self._config.host, self._config.port))
+            self.logger.error(
+                'Cannot connect to Redis server at %s:%d.' % (self.get_config('host'), self.get_config('port')))
             return False
         except redis.exceptions.ResponseError as e:
             msg = str(e)

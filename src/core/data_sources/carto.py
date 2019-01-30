@@ -8,7 +8,7 @@ from carto.sql import BatchSQLClient, SQLClient
 class CartoDataSource(DataSource):
     SUBDOMAIN_URL_PATTERN = "https://%s.carto.com"
     ON_PREMISE_URL_PATTERN = "https://%s/user/%s"
-    default_config = {
+    _default_config = {
         'api_version': 'v2',
         'uses_batch': False,
         'on_premise_domain': '',

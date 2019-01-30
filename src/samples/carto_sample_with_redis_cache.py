@@ -25,7 +25,7 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from src.core.caches.redis import RedisCache, RedisCacheConfig
+from src.core.caches.redis import RedisCache
 from src.core.data_sources.base import LongitudeRetriesExceeded
 from src.core.data_sources.carto import CartoDataSource
 from src.samples.carto_sample_config import CARTO_API_KEY, CARTO_USER, CARTO_TABLE_NAME
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     config = {
         'api_key': CARTO_API_KEY,
         'user': CARTO_USER,
-        'cache': RedisCacheConfig(password='longitude')
+        'cache': {'password': 'longitude'}
     }
 
     ds = CartoDataSource(config, cache_class=RedisCache)

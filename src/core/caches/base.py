@@ -2,12 +2,14 @@ import hashlib
 import logging
 import pickle
 
+from ..common.config import LongitudeConfigurable
 
-class LongitudeCache:
-    default_config = {}
+
+class LongitudeCache(LongitudeConfigurable):
+    _default_config = {}
 
     def __init__(self, config=None):
-        self._config = config or self.default_config
+        super().__init__(config=config)
         self.logger = logging.getLogger(self.__class__.__module__)
 
     @staticmethod

@@ -11,13 +11,14 @@ class TestCartoDataSource(TestCase):
     def test_default_configuration_loads(self):
         with self.assertLogs(level='INFO') as log_test:
             carto_ds = CartoDataSource()
+            module_name = 'src.core.common.config'
             self.assertEqual(log_test.output,
-                             ['INFO:src.core.data_sources.carto:api_key key is using default value',
-                              'INFO:src.core.data_sources.carto:api_version key is using default value',
-                              'INFO:src.core.data_sources.carto:cache key is using default value',
-                              'INFO:src.core.data_sources.carto:on_premise_domain key is using default value',
-                              'INFO:src.core.data_sources.carto:user key is using default value',
-                              'INFO:src.core.data_sources.carto:uses_batch key is using default value']
+                             ['INFO:%s:api_key key is using default value' % module_name,
+                              'INFO:%s:api_version key is using default value' % module_name,
+                              'INFO:%s:cache key is using default value' % module_name,
+                              'INFO:%s:on_premise_domain key is using default value' % module_name,
+                              'INFO:%s:user key is using default value' % module_name,
+                              'INFO:%s:uses_batch key is using default value' % module_name]
                              )
 
             self.assertEqual('', carto_ds.get_config('api_key'))

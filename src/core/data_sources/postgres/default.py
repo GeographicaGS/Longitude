@@ -5,7 +5,7 @@ from ..base import LongitudeQueryResponse
 
 
 class DefaultPostgresDataSource(DataSource):
-    default_config = {
+    _default_config = {
         'host': 'localhost',
         'port': 5432,
         'db': '',

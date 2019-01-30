@@ -2,22 +2,8 @@ import logging
 from typing import Type
 
 from ..caches.base import LongitudeCache
-
-
-class LongitudeBaseException(Exception):
-    pass
-
-
-class LongitudeRetriesExceeded(LongitudeBaseException):
-    pass
-
-
-class LongitudeQueryCannotBeExecutedException(LongitudeBaseException):
-    pass
-
-
-class LongitudeWrongQueryException(LongitudeBaseException):
-    pass
+from ..common.config import LongitudeConfigurable
+from ..common.exceptions import LongitudeRetriesExceeded, LongitudeQueryCannotBeExecutedException
 
 
 class DataSourceQueryConfig:
@@ -31,42 +17,20 @@ class DataSourceQueryConfig:
         return DataSourceQueryConfig(self.retries, self.custom)
 
 
-class DataSource:
-    default_config = {}
+class DataSource(LongitudeConfigurable):
 
     def __init__(self, config=None, cache_class: Type[LongitudeCache] = None):
+        super().__init__(config=config)
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
         self._use_cache = True
         self._cache = None
-
-        if config is None:
-            config = {}
-
-        if not isinstance(config, dict):
-            raise TypeError('Config object must be a dictionary')
 
         if cache_class:
             if not issubclass(cache_class, LongitudeCache):
                 raise TypeError('Cache must derive from LongitudeCache or be None')
             else:
                 self._cache = cache_class(config=config.get('cache'))
-
-        default_keys = set(self.default_config.keys())
-        config_keys = set(config.keys())
-        unexpected_config_keys = list(config_keys.difference(default_keys))
-        using_defaults_for = list(default_keys.difference(config_keys))
-
-        unexpected_config_keys.sort()
-        using_defaults_for.sort()
-
-        for k in unexpected_config_keys:
-            self.logger.warning("%s is an unexpected config value" % k)
-
-        for k in using_defaults_for:
-            self.logger.info("%s key is using default value" % k)
-
-        self._config = config
 
     def setup(self):
         if self._cache:
@@ -104,20 +68,6 @@ class DataSource:
         :return: True if setup() call was successful. False if not.
         """
         return not self._cache or self._cache.is_ready
-
-    def get_config(self, key: str):
-        """
-        Getter for configuration values
-        :param key: Key in the configuration dictionary
-        :return: Current value of the chosen key
-        """
-        try:
-            return self._config[key]
-        except KeyError:
-            try:
-                return self.default_config[key]
-            except KeyError:
-                return None
 
     def enable_cache(self):
         self._use_cache = True

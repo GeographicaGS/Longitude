@@ -1,6 +1,6 @@
 import redis.exceptions
 from unittest import TestCase, mock
-from ..caches.redis import RedisCache, RedisCacheConfig
+from ..caches.redis import RedisCache
 
 
 @mock.patch('src.core.caches.redis.redis.Redis')
@@ -8,7 +8,7 @@ class TestRedisCache(TestCase):
     cache = None
 
     def setUp(self):
-        self.cache = RedisCache(config=RedisCacheConfig(host='some_host', port=666, db=0, password='some_pass'))
+        self.cache = RedisCache(config={'host': 'some_host', 'port': 666, 'db': 0, 'password': 'some_pass'})
 
     def test_is_ready_if_redis_returns_ping(self, redis_mock):
         redis_mock.return_value.ping.return_value = True
