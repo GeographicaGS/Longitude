@@ -1,7 +1,6 @@
 import hashlib
 import logging
 import pickle
-from ..data_sources.util import is_write_query
 
 
 class LongitudeCache:
@@ -32,17 +31,11 @@ class LongitudeCache:
         raise NotImplementedError
 
     def get(self, formatted_query):
-        if is_write_query(formatted_query):
-            return None
-        else:
-            payload = self.execute_get(self.generate_key(formatted_query))
-            return self.deserialize_payload(payload)
+        payload = self.execute_get(self.generate_key(formatted_query))
+        return self.deserialize_payload(payload)
 
     def put(self, formatted_query, payload):
-        if is_write_query(formatted_query):
-            return None
-        else:
-            return self.execute_put(self.generate_key(formatted_query), self.serialize_payload(payload))
+        return self.execute_put(self.generate_key(formatted_query), self.serialize_payload(payload))
 
     def execute_get(self, key):
         """

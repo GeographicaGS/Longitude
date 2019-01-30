@@ -73,23 +73,19 @@ class TestDataSource(TestCase):
         with self.assertRaises(TypeError):
             DataSource({}, cache_class=PoorlyImplementedCache)
 
-    @mock.patch('src.core.data_sources.base.is_write_query')
-    def test_cache_hit(self, is_write_mock):
+    def test_cache_hit(self):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
         # At high level, ds.query will return a normalized LongitudeQueryResponse
         # In this test we are interested in triggering that call to the parse function that would return such object,
         # but we do not care, in the abstract class, about what content is generated there.
-        is_write_mock.return_value = False
         self.assertTrue(ds.query('some_query_in_cache').comes_from_cache)
 
-    @mock.patch('src.core.data_sources.base.is_write_query')
     @mock.patch('src.core.data_sources.base.DataSource.parse_response')
     @mock.patch('src.core.data_sources.base.DataSource.execute_query')
-    def test_cache_miss(self, execute_query_mock, parse_response_mock, is_write_mock):
+    def test_cache_miss(self, execute_query_mock, parse_response_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
-        is_write_mock.return_value = False
         execute_query_mock.return_value = 'some response from the server'
         parse_response_mock.return_value = 'normalized response from data source'
         self.assertEqual('normalized response from data source', ds.query('some_query_not_in_cache'))

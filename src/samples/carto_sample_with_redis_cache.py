@@ -70,9 +70,8 @@ if __name__ == "__main__":
 
             # Or disable specific queries via query_config (nothing gets read or written)
             query_config = ds.copy_default_query_config()
-            query_config.use_cache = False
             start = time.time()
-            data = ds.query(REPEATED_QUERY, query_config=query_config)
+            data = ds.query(REPEATED_QUERY, query_config=query_config, use_cache=False)
             elapsed = time.time() - start
             print('It took %s with disabled cache (per-query)' % str(elapsed))
             print('Uses cache? ' + str(data.comes_from_cache))

@@ -2,7 +2,6 @@ import logging
 from typing import Type
 
 from ..caches.base import LongitudeCache
-from .util import is_write_query
 
 
 class LongitudeBaseException(Exception):
@@ -22,16 +21,14 @@ class LongitudeWrongQueryException(LongitudeBaseException):
 
 
 class DataSourceQueryConfig:
-    def __init__(self, enable_writing=False, retries=0, custom=None, use_cache=True):
-        self.use_cache = use_cache
-        self.enable_writing = enable_writing
+    def __init__(self, retries=0, custom=None):
         self.retries = retries
 
         # Depending on the specific interface (i.e.: CARTO, Postgres...), we might also need to specify per-query values
         self.custom = custom or {}
 
     def copy(self):
-        return DataSourceQueryConfig(self.enable_writing, self.retries, self.custom)
+        return DataSourceQueryConfig(self.retries, self.custom)
 
 
 class DataSource:
@@ -40,7 +37,7 @@ class DataSource:
     def __init__(self, config=None, cache_class: Type[LongitudeCache] = None):
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
-        self.use_cache = True
+        self._use_cache = True
         self._cache = None
 
         if config is None:
@@ -123,18 +120,19 @@ class DataSource:
                 return None
 
     def enable_cache(self):
-        self.use_cache = True
+        self._use_cache = True
 
     def disable_cache(self):
-        self.use_cache = False
+        self._use_cache = False
 
-    def query(self, statement, params=None, query_config=None, **opts):
+    def query(self, statement, params=None, use_cache=True, query_config=None, **opts):
         """
         This method has to be called to interact with the data source. Each children class will have to implement
         its own .execute_query(...) with the specific behavior for each interface.
 
         :param statement: Unformatted SQL query
         :param params: Values to be passed to the query when formatting it
+        :param use_cache: Bool to indicate if this specific query should use cache or not (default: True)
         :param query_config: Specific query configuration. If None, the default one will be used.
         :param opts:
         :return: Result of querying the database
@@ -145,11 +143,10 @@ class DataSource:
         if query_config is None:
             query_config = self._default_query_config
 
-        query_is_writing = is_write_query(statement)
         formatted_query = statement.format(**params)
 
         normalized_response = None
-        if self._cache and self.use_cache and query_config.use_cache and not query_is_writing:
+        if self._cache and self._use_cache and use_cache:
             normalized_response = self._cache.get(formatted_query)
 
         if normalized_response:
@@ -162,7 +159,7 @@ class DataSource:
                                                   query_config=query_config,
                                                   **opts)
                     normalized_response = self.parse_response(response)
-                    if self._cache and self.use_cache and query_config.use_cache:
+                    if self._cache and self._use_cache and use_cache:
                         self._cache.put(formatted_query, normalized_response)
 
                     return normalized_response
