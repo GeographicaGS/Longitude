@@ -1,7 +1,6 @@
 import os
 from unittest import TestCase, mock
 
-from src.core.common.exceptions import LongitudeConfigError
 from ..caches.base import LongitudeCache
 from ..data_sources.base import DataSource, DataSourceQueryConfig, LongitudeQueryResponse
 
@@ -74,8 +73,6 @@ class TestDataSource(TestCase):
         parse_response_mock.return_value = 'normalized response from data source'
         self.assertEqual('normalized response from data source', ds.query('some_query_not_in_cache'))
         parse_response_mock.assert_called_once_with('some response from the server')
-
-
 
     def test_abstract_methods_are_not_implemented(self):
         ds = DataSource({})

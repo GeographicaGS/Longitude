@@ -2,6 +2,7 @@ import psycopg2
 import psycopg2.extensions
 from ..base import DataSource
 from ..base import LongitudeQueryResponse
+from time import time
 
 
 class DefaultPostgresDataSource(DataSource):
@@ -39,15 +40,26 @@ class DefaultPostgresDataSource(DataSource):
     def is_ready(self):
         return super().is_ready and self._conn and self._cursor
 
-    def execute_query(self, formatted_query, query_config, **opts):
+    def execute_query(self, formatted_query, needs_commit, query_config, **opts):
+        data = {
+            'fields': [],
+            'rows': [],
+            'profiling': {}
+        }
+
+        start = time()
         self._cursor.execute(formatted_query)
-        data = None
+        data['profiling']['execute_time'] = time() - start
+
         if self._cursor.description:
-            data = {
-                'fields': self._cursor.description,
-                'rows': self._cursor.fetchall()
-            }
-        self._conn.commit()
+            data['fields'] = self._cursor.description
+            data['rows'] = self._cursor.fetchall()
+
+        if needs_commit:
+            start = time()
+            self._conn.commit()
+            data['profiling']['commit_time'] = time() - start
+
         return data
 
     @staticmethod
@@ -57,5 +69,5 @@ class DefaultPostgresDataSource(DataSource):
     def parse_response(self, response):
         if response:
             fields_names = {n.name: self._type_as_string(n.type_code).name for n in response['fields']}
-            return LongitudeQueryResponse(rows=response['rows'], fields=fields_names)
+            return LongitudeQueryResponse(rows=response['rows'], fields=fields_names, profiling=response['profiling'])
         return None

@@ -31,12 +31,18 @@ if __name__ == "__main__":
     ds.setup()
     if ds.is_ready:
         try:
-            ds.query("drop table if exists users")
-            ds.query(
-                'create table users(id serial PRIMARY KEY, name varchar(50) UNIQUE NOT NULL, password varchar(50))')
-            ds.query("insert into users(name, password) values('longitude', 'password')")
-            data = ds.query('select * from users')
-            print(data)
+            r0 = ds.query("drop table if exists users")
+            r1 = ds.query(
+                'create table users(id serial PRIMARY KEY, name varchar(50) UNIQUE NOT NULL, password varchar(50))',
+                needs_commit=True)
+            print(r1.profiling)
+
+            r2 = ds.query("insert into users(name, password) values('longitude', 'password')", needs_commit=True)
+            print(r2.profiling)
+
+            r3 = ds.query('select * from users')
+            print(r3.rows)
+            print(r3.profiling)
 
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")

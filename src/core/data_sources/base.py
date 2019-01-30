@@ -1,4 +1,5 @@
 import logging
+from time import time
 from typing import Type
 
 from ..caches.base import LongitudeCache
@@ -75,14 +76,15 @@ class DataSource(LongitudeConfigurable):
     def disable_cache(self):
         self._use_cache = False
 
-    def query(self, statement, params=None, use_cache=True, query_config=None, **opts):
+    def query(self, statement, params=None, use_cache=True, needs_commit=False, query_config=None, **opts):
         """
         This method has to be called to interact with the data source. Each children class will have to implement
         its own .execute_query(...) with the specific behavior for each interface.
 
         :param statement: Unformatted SQL query
         :param params: Values to be passed to the query when formatting it
-        :param use_cache: Bool to indicate if this specific query should use cache or not (default: True)
+        :param use_cache: Boolean to indicate if this specific query should use cache or not (default: True)
+        :param needs_commit: Boolean to indicate if this specific query needs to commit to db (default: False)
         :param query_config: Specific query configuration. If None, the default one will be used.
         :param opts:
         :return: Result of querying the database
@@ -97,7 +99,10 @@ class DataSource(LongitudeConfigurable):
 
         normalized_response = None
         if self._cache and self._use_cache and use_cache:
+            start = time()
             normalized_response = self._cache.get(formatted_query)
+            if normalized_response:
+                normalized_response.profiling['cache_time'] = time() - start
 
         if normalized_response:
             normalized_response.mark_as_cached()
@@ -106,6 +111,7 @@ class DataSource(LongitudeConfigurable):
             for r in range(self.tries):
                 try:
                     response = self.execute_query(formatted_query=formatted_query,
+                                                  needs_commit=needs_commit,
                                                   query_config=query_config,
                                                   **opts)
                     normalized_response = self.parse_response(response)
@@ -117,11 +123,12 @@ class DataSource(LongitudeConfigurable):
                     self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
                 raise LongitudeRetriesExceeded
 
-    def execute_query(self, formatted_query, query_config, **opts):
+    def execute_query(self, formatted_query, needs_commit, query_config, **opts):
         """
 
         :raise LongitudeQueryCannotBeExecutedException
         :param formatted_query:
+        :param needs_commit:
         :param query_config:
         :param opts:
         :return:

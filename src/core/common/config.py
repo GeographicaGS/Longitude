@@ -42,7 +42,4 @@ class LongitudeConfigurable:
         try:
             return self._config[key]
         except (TypeError, KeyError):
-            try:
-                return self._default_config[key]
-            except KeyError:
-                return None
+            return self._default_config[key]

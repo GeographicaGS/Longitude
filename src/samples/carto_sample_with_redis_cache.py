@@ -25,8 +25,9 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from src.core.common.helpers import DisabledCache
 from src.core.caches.redis import RedisCache
-from src.core.data_sources.base import LongitudeRetriesExceeded
+from src.core.common.exceptions import LongitudeRetriesExceeded
 from src.core.data_sources.carto import CartoDataSource
 from src.samples.carto_sample_config import CARTO_API_KEY, CARTO_USER, CARTO_TABLE_NAME
 
@@ -56,17 +57,13 @@ if __name__ == "__main__":
             print("It took %s with cache" % elapsed_with_cache)
             print('Uses cache? ' + str(cached_data.comes_from_cache))
 
-            # Data is the same...
-            assert str(data) == str(cached_data)
-
             # You can also disable the cache for a while (nothing gets read or written)
-            ds.disable_cache()
-            start = time.time()
-            data = ds.query(REPEATED_QUERY)
-            elapsed = time.time() - start
-            print('It took %s with disabled cache' % str(elapsed))
-            print('Uses cache? ' + str(data.comes_from_cache))
-            ds.enable_cache()
+            with DisabledCache(ds):
+                start = time.time()
+                data = ds.query(REPEATED_QUERY)
+                elapsed = time.time() - start
+                print('It took %s with disabled cache' % str(elapsed))
+                print('Uses cache? ' + str(data.comes_from_cache))
 
             # Or disable specific queries via query_config (nothing gets read or written)
             query_config = ds.copy_default_query_config()

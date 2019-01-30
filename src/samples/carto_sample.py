@@ -29,7 +29,8 @@ if __name__ == "__main__":
     if ds.is_ready:
         try:
             data = ds.query('select * from %s limit 30' % CARTO_TABLE_NAME)
-            print(data)
+            [print(r) for r in data.rows]
+            print(data.profiling)
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")
     else:

@@ -53,7 +53,7 @@ class CartoDataSource(DataSource):
         else:
             return False
 
-    def execute_query(self, formatted_query, query_config, **opts):
+    def execute_query(self, formatted_query, needs_commit, query_config, **opts):
         parse_json = query_config.custom['parse_json']
         do_post = query_config.custom['do_post']
         format_ = query_config.custom['format']
