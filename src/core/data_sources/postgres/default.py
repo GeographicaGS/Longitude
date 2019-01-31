@@ -40,7 +40,7 @@ class DefaultPostgresDataSource(DataSource):
     def is_ready(self):
         return super().is_ready and self._conn and self._cursor
 
-    def execute_query(self, formatted_query, needs_commit, query_config, **opts):
+    def execute_query(self, query_template, params, needs_commit, query_config, **opts):
         data = {
             'fields': [],
             'rows': [],
@@ -48,7 +48,7 @@ class DefaultPostgresDataSource(DataSource):
         }
 
         start = time()
-        self._cursor.execute(formatted_query)
+        self._cursor.execute(query_template, params)
         data['profiling']['execute_time'] = time() - start
 
         if self._cursor.description:

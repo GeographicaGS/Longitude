@@ -14,6 +14,7 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from src.core.caches.ram import RamCache
 from src.core.data_sources.base import LongitudeRetriesExceeded
 from src.core.data_sources.postgres.default import DefaultPostgresDataSource
 from src.samples.postgres_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
@@ -27,24 +28,38 @@ if __name__ == "__main__":
         'password': POSTGRES_PASS or 'longitude'
     }
 
-    ds = DefaultPostgresDataSource(config)
+    ds = DefaultPostgresDataSource(config, cache_class=RamCache)
     ds.setup()
     if ds.is_ready:
         try:
-            r0 = ds.query("drop table if exists users")
+
+            r0 = ds.query("drop table if exists users", use_cache=False)
             r1 = ds.query(
                 'create table users(id serial PRIMARY KEY, name varchar(50) UNIQUE NOT NULL, password varchar(50))',
-                needs_commit=True)
+                needs_commit=True,
+                use_cache=False
+            )
             print(r1.profiling)
 
             for i in range(10):
-                r2 = ds.query("insert into users(name, password) values('longitude%d', 'password%d')" % (i, i),
-                              needs_commit=True)
+                r2 = ds.query("insert into users(name, password) values(%(user)s, %(password)s)",
+                              needs_commit=True,
+                              use_cache=False,
+                              params={
+                                  'user': 'longitude_user_' + str(i),
+                                  'password': 'unsafe_password_' + str(i)
+
+                              })
                 print(r2.profiling)
 
-            r3 = ds.query('select * from users')
+            r3 = ds.query('select * from users', use_cache=True)
+
             print(r3.rows)
             print(r3.profiling)
+
+            r4 = ds.query('select * from users', use_cache=True)
+            print(r4.profiling)
+            print('It is %f times faster using cache' % (r4.profiling['execute_time'] / r4.profiling['cache_time']))
 
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")

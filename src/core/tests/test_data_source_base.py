@@ -28,8 +28,8 @@ class TestDataSource(TestCase):
         class FakeCache(LongitudeCache):
 
             @staticmethod
-            def generate_key(formatted_query):
-                if formatted_query == 'some_query_in_cache':
+            def generate_key(query_template, query_parameters):
+                if query_template == 'some_query_in_cache':
                     return 'hit'
                 return 'miss'
 
@@ -79,7 +79,7 @@ class TestDataSource(TestCase):
         ds = DataSource({})
 
         with self.assertRaises(NotImplementedError):
-            ds.query(statement='whatever')
+            ds.query(query_template='whatever')
 
     def test_is_ready(self):
         class FakeReadyCache(LongitudeCache):
