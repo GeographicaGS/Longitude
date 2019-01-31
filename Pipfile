@@ -13,6 +13,9 @@ pytest = "*"
 carto = "*"
 redis = "*"
 psycopg2-binary = "*"
+pytest-xdist = "*"
+pytest-sugar = "*"
+pytest-instafail = "*"
 
 [requires]
 python_version = "3.7"
