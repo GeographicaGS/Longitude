@@ -13,17 +13,18 @@ class LongitudeCache(LongitudeConfigurable):
         self.logger = logging.getLogger(self.__class__.__module__)
 
     @staticmethod
-    def generate_key(formatted_query):
+    def generate_key(query_template, params):
         """
-        This is the default key generation algorithm, based in a digest from the sha256 hash of the query.
+        This is the default key generation algorithm, based in a digest from the sha256 hash of the query and parameters
 
         Override this method to provide your own key generation in case you need a specific way to store your cache.
 
-        :param formatted_query: Final query as it should be asked to the database
-        :return: An (most likely) unique hash, generated from the query text
+        :param query_template: Query template (including placeholders) as it should be asked to the database
+        :param params: Dictionary of values to be replaced in the placeholders in a safe manner
+        :return: A (most likely) unique hash, generated from the query text
         """
-
-        return hashlib.sha256(formatted_query.encode('utf-8')).hexdigest()
+        query_payload = query_template + str(params)
+        return hashlib.sha256(query_payload.encode('utf-8')).hexdigest()
 
     def setup(self):
         raise NotImplementedError
@@ -32,12 +33,12 @@ class LongitudeCache(LongitudeConfigurable):
     def is_ready(self):
         raise NotImplementedError
 
-    def get(self, formatted_query):
-        payload = self.execute_get(self.generate_key(formatted_query))
+    def get(self, formatted_query, params):
+        payload = self.execute_get(self.generate_key(formatted_query, params))
         return self.deserialize_payload(payload)
 
-    def put(self, formatted_query, payload):
-        return self.execute_put(self.generate_key(formatted_query), self.serialize_payload(payload))
+    def put(self, formatted_query, params, payload):
+        return self.execute_put(self.generate_key(formatted_query, params), self.serialize_payload(payload))
 
     def execute_get(self, key):
         """

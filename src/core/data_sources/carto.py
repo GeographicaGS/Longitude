@@ -54,7 +54,14 @@ class CartoDataSource(DataSource):
         else:
             return False
 
-    def execute_query(self, formatted_query, needs_commit, query_config, **opts):
+    def execute_query(self, query_template, params, needs_commit, query_config, **opts):
+        # TODO: Here we are parsing the parameters and taking responsability for it. We do not make any safe parsing as
+        #  this will be used in a backend-to-backend context and we build our own queries.
+        #  ---
+        #  There is an open issue in CARTO about having separated parameters and binding them in the server:
+        #  https://github.com/CartoDB/Geographica-Product-Coordination/issues/57
+        formatted_query = query_template.format(**params)
+
         parse_json = query_config.custom['parse_json']
         do_post = query_config.custom['do_post']
         format_ = query_config.custom['format']
