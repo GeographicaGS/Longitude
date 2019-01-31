@@ -33,12 +33,16 @@ class LongitudeCache(LongitudeConfigurable):
     def is_ready(self):
         raise NotImplementedError
 
-    def get(self, formatted_query, params):
-        payload = self.execute_get(self.generate_key(formatted_query, params))
+    def get(self, query_template, query_params=None):
+        if query_params is None:
+            query_params = {}
+        payload = self.execute_get(self.generate_key(query_template, query_params))
         return self.deserialize_payload(payload)
 
-    def put(self, formatted_query, params, payload):
-        return self.execute_put(self.generate_key(formatted_query, params), self.serialize_payload(payload))
+    def put(self, query_template, payload, query_params=None):
+        if query_params is None:
+            query_params = {}
+        return self.execute_put(self.generate_key(query_template, query_params), self.serialize_payload(payload))
 
     def execute_get(self, key):
         """
