@@ -8,6 +8,7 @@ pylint = "*"
 coverage = "*"
 pytest-cov = "*"
 pytest = "*"
+setuptools = "*"
 
 [packages]
 carto = "*"

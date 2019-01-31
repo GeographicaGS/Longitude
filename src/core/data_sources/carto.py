@@ -1,9 +1,9 @@
-from carto.exceptions import CartoException
-
-from .base import DataSource, LongitudeQueryCannotBeExecutedException
-from ..common.query_response import LongitudeQueryResponse
 from carto.auth import APIKeyAuthClient
+from carto.exceptions import CartoException
 from carto.sql import BatchSQLClient, SQLClient
+
+from ..common.query_response import LongitudeQueryResponse
+from .base import DataSource, LongitudeQueryCannotBeExecutedException
 
 
 class CartoDataSource(DataSource):

@@ -2,8 +2,8 @@ import os
 from unittest import TestCase, mock
 
 from ..caches.base import LongitudeCache
-from ..data_sources.base import DataSource, DataSourceQueryConfig
 from ..common.query_response import LongitudeQueryResponse
+from ..data_sources.base import DataSource, DataSourceQueryConfig
 
 
 def load_raw_text(filename):
