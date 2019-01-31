@@ -30,12 +30,16 @@ class LongitudeConfigurable:
         for k in using_defaults_for:
             self.logger.info("%s key is using default value" % k)
 
-    def get_config(self, key):
+    def get_config(self, key=None):
         """
          Getter for configuration values
-         :param key: Key in the configuration dictionary
+         :param key: Key in the configuration dictionary. If no key is provided, the full config is returned.
          :return: Current value of the chosen key
          """
+        if key is None:
+            config_template = dict(self._default_config)
+            config_template.update(self._config)
+            return config_template
 
         if key not in self._default_config.keys():
             raise LongitudeConfigError("%s is not a valid config value. Check your defaults as reference.")
