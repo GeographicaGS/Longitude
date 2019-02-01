@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
+from sqlalchemy.exc import ResourceClosedError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 from src.core.data_sources.base import DataSource
 
@@ -29,23 +29,34 @@ class SQLAlchemyDataSource(DataSource):
         # https://docs.sqlalchemy.org/en/latest/dialects/postgresql.html
 
         self._engine = None
-        self._session = None
+        self._connection = None
 
         super().__init__(config, cache_class=cache_class)
+
+    def __del__(self):
+        if self._connection:
+            self._connection.close()
 
     def setup(self):
         connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)d/%(db)s'
         self._engine = create_engine(connection_string_template % self.get_config(), echo=True)
-        self._session = sessionmaker(bind=self._engine)
+        self._connection = self._engine.connect()
 
         super().setup()
 
     @property
     def is_ready(self):
-        return self._engine is not None and self._session is not None
+        return self._engine is not None and self._connection is not None
 
     def execute_query(self, query_template, params, needs_commit, query_config, **opts):
-        pass
+        return self._connection.execute(query_template, params)
 
     def parse_response(self, response):
-        pass
+
+        try:
+            raw_result = response.fetchall()
+            response.close()
+        except ResourceClosedError:
+            raw_result = None
+
+        return raw_result
