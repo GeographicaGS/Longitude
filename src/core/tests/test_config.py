@@ -32,3 +32,18 @@ class TestConfig(TestCase):
         # We do not allow trying to get a config value out of the default keys
         with self.assertRaises(LongitudeConfigError):
             self.assertIsNone(ds.get_config('some_random_value_that_does_not_exist_in_config_or_defaults'))
+
+    def test_get_config_root(self):
+        class SomeConfigurableClass(LongitudeConfigurable):
+            _default_config = {
+                'a': None,
+                'b': 'this will not be overwritten'
+            }
+
+        ds = SomeConfigurableClass(config={'a': 'custom_value'})
+        c = ds.get_config()
+        expected_config = {
+            'a': 'custom_value',
+            'b': 'this will not be overwritten'
+        }
+        self.assertEqual(expected_config, c)

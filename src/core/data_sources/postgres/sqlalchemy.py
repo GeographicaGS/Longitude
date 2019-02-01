@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from core.data_sources.base import DataSource
+from src.core.data_sources.base import DataSource
 
 
 class SQLAlchemyDataSource(DataSource):
@@ -42,13 +42,10 @@ class SQLAlchemyDataSource(DataSource):
 
     @property
     def is_ready(self):
-        # TODO: Write how, after setup, you can know if queries can be executed (return True) or not (return False)
         return self._engine is not None and self._session is not None
 
     def execute_query(self, query_template, params, needs_commit, query_config, **opts):
-        # TODO: Write how the database query is executed and return the response or None
         pass
 
     def parse_response(self, response):
-        # TODO: Write how the database query response is converted into a LongitudeQueryResponse object
         pass

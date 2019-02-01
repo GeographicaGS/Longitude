@@ -14,7 +14,6 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from src.core.data_sources.base import LongitudeRetriesExceeded
 from src.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
 from src.samples.sqlalchemy_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
 
