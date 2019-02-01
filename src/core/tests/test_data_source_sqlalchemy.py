@@ -42,8 +42,6 @@ class TestSQLAlchemyDataSource(TestCase):
 
     def test_setup(self):
         carto_ds = SQLAlchemyDataSource()
-        with mock.patch(TESTED_MODULE_PATH % 'create_engine') as fake_create_engine, \
-                mock.patch(TESTED_MODULE_PATH % 'sessionmaker') as fake_sessionmaker:
+        with mock.patch(TESTED_MODULE_PATH % 'create_engine') as fake_create_engine:
             carto_ds.setup()
-            fake_sessionmaker.assert_called_once()
             fake_create_engine.assert_called_once()

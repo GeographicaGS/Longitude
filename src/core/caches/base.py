@@ -2,6 +2,7 @@ import hashlib
 import logging
 import pickle
 
+from src.core.common.query_response import LongitudeQueryResponse
 from ..common.config import LongitudeConfigurable
 
 
@@ -23,7 +24,7 @@ class LongitudeCache(LongitudeConfigurable):
         :param params: Dictionary of values to be replaced in the placeholders in a safe manner
         :return: A (most likely) unique hash, generated from the query text
         """
-        query_payload = query_template + str(params)
+        query_payload = str(query_template) + str(params)
         return hashlib.sha256(query_payload.encode('utf-8')).hexdigest()
 
     def setup(self):
@@ -42,6 +43,8 @@ class LongitudeCache(LongitudeConfigurable):
     def put(self, query_template, payload, query_params=None):
         if query_params is None:
             query_params = {}
+        if not isinstance(payload, LongitudeQueryResponse):
+            raise TypeError('Payloads must be instances of LongitudeQueryResponse!')
         return self.execute_put(self.generate_key(query_template, query_params), self.serialize_payload(payload))
 
     def execute_get(self, key):

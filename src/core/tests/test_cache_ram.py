@@ -1,5 +1,6 @@
 from unittest import TestCase, mock
 
+from src.core.common.query_response import LongitudeQueryResponse
 from ..caches.ram import RamCache
 
 
@@ -21,9 +22,10 @@ class TestRedisCache(TestCase):
 
     def test_read_write_flush_cycle(self):
         self.assertIsNone(self.cache.get('fake_key'))
-        self.assertFalse(self.cache.put('key', 'value'))
-        self.assertEqual('value', self.cache.get('key'))
-        self.assertTrue(self.cache.put('key', 'another value'))
-        self.assertEqual('another value', self.cache.get('key'))
+        payload = LongitudeQueryResponse()
+        payload.profiling['value'] = 42
+        self.assertFalse(self.cache.put('key', payload))
+        self.assertEqual(42, self.cache.get('key').profiling['value'])
+
         self.cache.flush()
         self.assertIsNone(self.cache.get('key'))

@@ -71,8 +71,8 @@ class TestDataSource(TestCase):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()
         execute_query_mock.return_value = 'some response from the server'
-        parse_response_mock.return_value = 'normalized response from data source'
-        self.assertEqual('normalized response from data source', ds.query('some_query_not_in_cache'))
+        parse_response_mock.return_value = LongitudeQueryResponse(profiling={'value': 42})
+        self.assertEqual(42, ds.query('some_query_not_in_cache').profiling['value'])
         parse_response_mock.assert_called_once_with('some response from the server')
 
     def test_abstract_methods_are_not_implemented(self):

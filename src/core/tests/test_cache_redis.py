@@ -2,6 +2,7 @@ from unittest import TestCase, mock
 
 import redis.exceptions
 
+from src.core.common.query_response import LongitudeQueryResponse
 from ..caches.redis import RedisCache
 
 
@@ -22,9 +23,9 @@ class TestRedisCache(TestCase):
         redis_mock.return_value.get.assert_called_once()
 
         redis_mock.return_value.set.return_value = None
-        self.assertFalse(self.cache.put('some_key', 'some_payload'))
+        self.assertFalse(self.cache.put('some_key', LongitudeQueryResponse()))
         redis_mock.return_value.exists.return_value = 1
-        self.assertTrue(self.cache.put('some_key', 'some_payload'))
+        self.assertTrue(self.cache.put('some_key', LongitudeQueryResponse()))
         self.assertEqual(2, redis_mock.return_value.set.call_count)
 
         redis_mock.return_value.flushall.return_value = None
