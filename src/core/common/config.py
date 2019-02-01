@@ -1,6 +1,40 @@
 import logging
+import os
 
 from .exceptions import LongitudeConfigError
+
+
+class EnvironmentConfiguration:
+
+    def __init__(self, d):
+        self._original_config = d
+        self._parsed_config = dict(d)
+
+        self._parse_env_vars_references(self._parsed_config)
+
+    def __getitem__(self, key):
+        return self._parsed_config[key]
+
+    @staticmethod
+    def _parse_env_vars_references(dictionary):
+        """
+        Modifies a dictionary like this:
+          * Recursively
+          * If a value is a string starting with '=', it gets substituted by the corresponding environment variable
+        :param dictionary: Dictionary that will be modified.
+        :return: Nothing
+        """
+
+        for k in dictionary.keys():
+            if isinstance(dictionary[k], dict):
+                EnvironmentConfiguration._parse_env_vars_references(dictionary[k])
+            elif isinstance(dictionary[k], str) and dictionary[k].startswith('='):
+                env_var = dictionary[k][1:]  # We remove the '='
+                value = os.environ.get(env_var)
+                if value:
+                    dictionary[k] = value
+                else:
+                    dictionary[k] += ' [NOT FOUND]'
 
 
 class LongitudeConfigurable:
