@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from src.core.common.exceptions import LongitudeConfigError
 from src.core.common.config import LongitudeConfigurable
+from src.core.common.exceptions import LongitudeConfigError
 
 
 class TestConfig(TestCase):

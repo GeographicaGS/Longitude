@@ -1,5 +1,7 @@
-import redis.exceptions
 from unittest import TestCase, mock
+
+import redis.exceptions
+
 from ..caches.redis import RedisCache
 
 

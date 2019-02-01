@@ -1,8 +1,10 @@
+from time import time
+
 import psycopg2
 import psycopg2.extensions
-from ..base import DataSource
+
 from ...common.query_response import LongitudeQueryResponse
-from time import time
+from ..base import DataSource
 
 
 class DefaultPostgresDataSource(DataSource):

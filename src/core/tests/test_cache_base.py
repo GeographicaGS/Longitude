@@ -1,4 +1,5 @@
 from unittest import TestCase, mock
+
 from ..caches.base import LongitudeCache
 
 
@@ -30,4 +31,3 @@ class TestLongitudeCache(TestCase):
             cache.get('some_query', {})
         with self.assertRaises(NotImplementedError):
             cache.put('some_query', payload='whatever')
-

@@ -4,7 +4,8 @@ from typing import Type
 
 from ..caches.base import LongitudeCache
 from ..common.config import LongitudeConfigurable
-from ..common.exceptions import LongitudeRetriesExceeded, LongitudeQueryCannotBeExecutedException
+from ..common.exceptions import (LongitudeQueryCannotBeExecutedException,
+                                 LongitudeRetriesExceeded)
 
 
 class DataSourceQueryConfig:
@@ -144,4 +145,3 @@ class DataSource(LongitudeConfigurable):
     def flush_cache(self):
         if self._cache and self._cache.is_ready:
             self._cache.flush()
-
