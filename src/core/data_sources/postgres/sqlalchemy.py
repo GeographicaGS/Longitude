@@ -1,7 +1,9 @@
-from sqlalchemy import create_engine
-from sqlalchemy.exc import ResourceClosedError
-from sqlalchemy.ext.declarative import declarative_base
+from time import time
 
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from .common import psycopg2_type_as_string
+from src.core.common.query_response import LongitudeQueryResponse
 from src.core.data_sources.base import DataSource
 
 
@@ -49,14 +51,29 @@ class SQLAlchemyDataSource(DataSource):
         return self._engine is not None and self._connection is not None
 
     def execute_query(self, query_template, params, needs_commit, query_config, **opts):
-        return self._connection.execute(query_template, params)
+        data = {
+            'fields': [],
+            'rows': [],
+            'profiling': {}
+        }
+
+        start = time()
+        response = self._connection.execute(query_template, params)
+        data['profiling']['execute_time'] = time() - start
+
+        if response.returns_rows:
+            data['fields'] = response.cursor.description
+            data['rows'] = response.fetchall()
+
+        # TODO: Check auto-commit feature. How do we want to implement this here?
+
+        return data
 
     def parse_response(self, response):
 
-        try:
-            raw_result = response.fetchall()
-            response.close()
-        except ResourceClosedError:
-            raw_result = None
-
-        return raw_result
+        if response:
+            raw_fields = response['fields']
+            fields_names = {n.name: {'type': psycopg2_type_as_string(n.type_code).name} for n in raw_fields}
+            rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
+            return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
+        return None

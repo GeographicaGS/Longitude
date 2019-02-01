@@ -116,7 +116,7 @@ class DataSource(LongitudeConfigurable):
                                                   **opts)
                     normalized_response = self.parse_response(response)
                     if self._cache and self._use_cache and use_cache:
-                        self._cache.put(query_template, params, normalized_response)
+                        self._cache.put(query_template, payload=normalized_response, query_params=params)
 
                     return normalized_response
                 except LongitudeQueryCannotBeExecutedException:

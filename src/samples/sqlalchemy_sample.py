@@ -15,6 +15,8 @@ import sys
 
 from sqlalchemy import text
 
+from src.core.caches.ram import RamCache
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from src.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
 from src.samples.sqlalchemy_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
@@ -52,10 +54,13 @@ if __name__ == "__main__":
         'password': POSTGRES_PASS or 'longitude'
     }
 
-    ds = SQLAlchemyDataSource(config)
+    ds = SQLAlchemyDataSource(config, cache_class=RamCache)
     ds.setup()
     if ds.is_ready:
+        # We prepare a table to play around
         table = prepare_sample_table(ds._engine)
+
+        # Demo insert. Notice how values are passed as parameters instead of just pasted into some string
         q = table.insert()
         params = [
             {'name': 'tony', 'fullname': 'Tony Stark Jr.', 'password': 'smartestavenger'},
@@ -63,9 +68,19 @@ if __name__ == "__main__":
             {'name': 'cap', 'fullname': 'Capt. Steve Rogers', 'password': 'igotthatreference'}
         ]
         ds.query(q, params, use_cache=False)
+
+        # Demo select. Again, the search is done by a parametrized query. In this case, direct text is used as
+        #  where clause.
         q = table.select('password = :password')
         params = {'password': 'igotthatreference'}
-        r = ds.query(q, params)
-        print(r)
+        r = ds.query(q, params, use_cache=True)
+        print(r.fields)
+        print(r.rows)
+        print("Cached? " + str(r.comes_from_cache))
+
+        # Just repeat to check the cache working
+        r = ds.query(q, params, use_cache=True)
+        print(r.rows)
+        print("Cached? " + str(r.comes_from_cache))
     else:
         print("Data source is not properly configured.")
