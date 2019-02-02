@@ -1,7 +1,7 @@
 from unittest import TestCase, mock
 from ..data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
 
-TESTED_MODULE_PATH = 'src.core.data_sources.postgres.sqlalchemy.%s'
+TESTED_MODULE_PATH = 'longitude.core.data_sources.postgres.sqlalchemy.%s'
 
 
 class TestSQLAlchemyDataSource(TestCase):
@@ -9,7 +9,7 @@ class TestSQLAlchemyDataSource(TestCase):
     def test_default_configuration_loads(self):
         with self.assertLogs(level='INFO') as log_test:
             carto_ds = SQLAlchemyDataSource()
-            module_name = 'src.core.common.config'
+            module_name = 'longitude.core.common.config'
             self.assertEqual(log_test.output,
                              ['INFO:%s:db key is using default value' % module_name,
                               'INFO:%s:host key is using default value' % module_name,

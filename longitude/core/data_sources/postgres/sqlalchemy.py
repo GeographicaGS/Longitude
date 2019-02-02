@@ -3,8 +3,8 @@ from time import time
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from .common import psycopg2_type_as_string
-from src.core.common.query_response import LongitudeQueryResponse
-from src.core.data_sources.base import DataSource
+from longitude.core.common.query_response import LongitudeQueryResponse
+from longitude.core.data_sources.base import DataSource
 
 
 class SQLAlchemyDataSource(DataSource):

@@ -15,11 +15,11 @@ import sys
 
 from sqlalchemy import text
 
-from src.core.caches.ram import RamCache
+from longitude.core.caches.ram import RamCache
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from src.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
-from src.samples.sqlalchemy_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
+from longitude.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
+from longitude.samples.sqlalchemy_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
 
 
 def prepare_sample_table(engine):

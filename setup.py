@@ -30,7 +30,7 @@ setup(
         "Company": 'https://geographica.gs',
         "Source Code": "https://github.com/GeographicaGS/Longitude"
     },
-    package_dir={'': 'src'},
+    package_dir={'': 'longitude'},
     # Choose your license
     license='MIT',
 
@@ -66,7 +66,7 @@ setup(
     # What does your project relate to?
     keywords='carto longitude',
 
-    packages=find_packages(where='src', exclude=['test*']),
+    packages=find_packages(where='longitude', exclude=['test*']),
 
     install_requires=[
         'carto==1.4.0',

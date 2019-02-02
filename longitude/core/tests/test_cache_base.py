@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from src.core.common.query_response import LongitudeQueryResponse
+from longitude.core.common.query_response import LongitudeQueryResponse
 from ..caches.base import LongitudeCache
 
 

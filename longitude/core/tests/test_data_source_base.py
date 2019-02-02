@@ -65,8 +65,8 @@ class TestDataSource(TestCase):
         # but we do not care, in the abstract class, about what content is generated there.
         self.assertTrue(ds.query('some_query_in_cache').comes_from_cache)
 
-    @mock.patch('src.core.data_sources.base.DataSource.parse_response')
-    @mock.patch('src.core.data_sources.base.DataSource.execute_query')
+    @mock.patch('longitude.core.data_sources.base.DataSource.parse_response')
+    @mock.patch('longitude.core.data_sources.base.DataSource.execute_query')
     def test_cache_miss(self, execute_query_mock, parse_response_mock):
         ds = DataSource({}, cache_class=self._cache_class)
         ds.setup()

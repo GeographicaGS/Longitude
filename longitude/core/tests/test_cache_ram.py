@@ -1,6 +1,6 @@
 from unittest import TestCase, mock
 
-from src.core.common.query_response import LongitudeQueryResponse
+from longitude.core.common.query_response import LongitudeQueryResponse
 from ..caches.ram import RamCache
 
 
@@ -11,7 +11,7 @@ class TestRedisCache(TestCase):
         self.cache = RamCache()
 
     def test_setup_must_clean_cache(self):
-        with mock.patch('src.core.caches.ram.RamCache.flush') as fake_flush:
+        with mock.patch('longitude.core.caches.ram.RamCache.flush') as fake_flush:
             self.cache.setup()
             fake_flush.assert_called_once()
         self.assertTrue(self.cache.is_ready)

@@ -25,14 +25,16 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from src.core.caches.redis import RedisCache
-from src.core.data_sources.postgres.default import DefaultPostgresDataSource
-from src.core.data_sources.carto import CartoDataSource
-from src.core.common.config import EnvironmentConfiguration
+from longitude.core.caches.redis import RedisCache
+from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
+from longitude.core.data_sources.carto import CartoDataSource
+from longitude.core.common.config import EnvironmentConfiguration
 
 
 def import_table_values_from_carto(limit):
     # First, we read from CARTO our 'county_population'
+    # If you execute this script twice fast, you will make use of the cache.
+    # After 3 seconds, the Carto query will be executed again if requested.
     carto_data = carto.query('select * from county_population limit %d' % limit, use_cache=True, expiration_time_s=3)
     print(carto_data.comes_from_cache)
     # Then, we create a local table

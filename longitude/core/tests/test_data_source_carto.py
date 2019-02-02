@@ -11,7 +11,7 @@ class TestCartoDataSource(TestCase):
     def test_default_configuration_loads(self):
         with self.assertLogs(level='INFO') as log_test:
             carto_ds = CartoDataSource()
-            module_name = 'src.core.common.config'
+            module_name = 'longitude.core.common.config'
             self.assertEqual(log_test.output,
                              ['INFO:%s:api_key key is using default value' % module_name,
                               'INFO:%s:api_version key is using default value' % module_name,

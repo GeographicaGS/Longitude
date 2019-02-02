@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from src.core.common.config import LongitudeConfigurable
-from src.core.common.exceptions import LongitudeConfigError
+from longitude.core.common.config import LongitudeConfigurable
+from longitude.core.common.exceptions import LongitudeConfigError
 
 
 class TestConfig(TestCase):
@@ -20,8 +20,8 @@ class TestConfig(TestCase):
             ds = LongitudeConfigurable(config)
             self.assertEqual(log_test.output,
                              [
-                                 'WARNING:src.core.common.config:some_another_config_value is an unexpected config value',
-                                 'WARNING:src.core.common.config:some_config_value is an unexpected config value'])
+                                 'WARNING:longitude.core.common.config:some_another_config_value is an unexpected config value',
+                                 'WARNING:longitude.core.common.config:some_config_value is an unexpected config value'])
 
         # Values in the config can be retrieved using get_config. If no default or config is defined, None is returned.
         ds._default_config['some_config_value'] = 42

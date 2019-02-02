@@ -1,4 +1,4 @@
-from src.core.data_sources.base import DataSource
+from longitude.core.data_sources.base import DataSource
 
 
 class DisabledCache:

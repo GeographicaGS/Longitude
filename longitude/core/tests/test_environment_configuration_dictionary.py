@@ -1,5 +1,5 @@
 from unittest import TestCase, mock
-from src.core.common.config import EnvironmentConfiguration
+from longitude.core.common.config import EnvironmentConfiguration
 
 fake_environment = {
     'PATATUELA_RULES': 'my_root_value'
@@ -8,7 +8,7 @@ fake_environment = {
 
 class TestConfigurationDictionary(TestCase):
 
-    @mock.patch.dict('src.core.common.config.os.environ', fake_environment)
+    @mock.patch.dict('longitude.core.common.config.os.environ', fake_environment)
     def test_base(self):
         d = EnvironmentConfiguration({
             'root_patatuela': '=PATATUELA_RULES',

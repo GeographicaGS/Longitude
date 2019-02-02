@@ -14,10 +14,10 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from src.core.caches.ram import RamCache
-from src.core.data_sources.base import LongitudeRetriesExceeded
-from src.core.data_sources.postgres.default import DefaultPostgresDataSource
-from src.samples.postgres_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
+from longitude.core.caches.ram import RamCache
+from longitude.core.data_sources.base import LongitudeRetriesExceeded
+from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
+from longitude.samples.postgres_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
 
 if __name__ == "__main__":
     config = {
