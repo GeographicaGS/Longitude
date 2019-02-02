@@ -62,6 +62,8 @@ if __name__ == "__main__":
 
         # Demo insert. Notice how values are passed as parameters instead of just pasted into some string
         q = table.insert()
+
+        # With SQLAlchemy we can bind lists and subsequent rendered queries will be executed
         params = [
             {'name': 'tony', 'fullname': 'Tony Stark Jr.', 'password': 'smartestavenger'},
             {'name': 'hulk', 'fullname': 'Dr. Phd. Bruce Banner', 'password': 'smartestavenger'},

@@ -58,9 +58,11 @@ class CartoDataSource(DataSource):
         # TODO: Here we are parsing the parameters and taking responsability for it. We do not make any safe parsing as
         #  this will be used in a backend-to-backend context and we build our own queries.
         #  ---
+        #  We can use the .mogrify method in psycopg2 to render a query as it is going to be executed
+        #  ---
         #  There is an open issue in CARTO about having separated parameters and binding them in the server:
         #  https://github.com/CartoDB/Geographica-Product-Coordination/issues/57
-        formatted_query = query_template.format(**params)
+        formatted_query = query_template % params
 
         parse_json = query_config.custom['parse_json']
         do_post = query_config.custom['do_post']

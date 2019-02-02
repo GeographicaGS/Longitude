@@ -114,6 +114,7 @@ class DataSource(LongitudeConfigurable):
                                                   needs_commit=needs_commit,
                                                   query_config=query_config,
                                                   **opts)
+
                     normalized_response = self.parse_response(response)
                     if self._cache and self._use_cache and use_cache:
                         self._cache.put(query_template, payload=normalized_response, query_params=params)
@@ -121,7 +122,7 @@ class DataSource(LongitudeConfigurable):
                     return normalized_response
                 except LongitudeQueryCannotBeExecutedException:
                     self.logger.error('Query could not be executed. Retries left: %d' % (self.tries - r))
-                raise LongitudeRetriesExceeded
+            raise LongitudeRetriesExceeded
 
     def execute_query(self, query_template, params, needs_commit, query_config, **opts):
         """
