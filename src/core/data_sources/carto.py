@@ -58,7 +58,10 @@ class CartoDataSource(DataSource):
         # TODO: Here we are parsing the parameters and taking responsability for it. We do not make any safe parsing as
         #  this will be used in a backend-to-backend context and we build our own queries.
         #  ---
-        #  We can use the .mogrify method in psycopg2 to render a query as it is going to be executed
+        #  This is also problematic as quoting is not done and relies in the query template
+        #  ---
+        #  Can we use the .mogrify method in psycopg2 to render a query as it is going to be executed ? -> NO
+        #  ->  .mogrify is a cursor method but in CARTO connections we lack a cursor.
         #  ---
         #  There is an open issue in CARTO about having separated parameters and binding them in the server:
         #  https://github.com/CartoDB/Geographica-Product-Coordination/issues/57
