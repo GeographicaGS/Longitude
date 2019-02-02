@@ -7,12 +7,11 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
 - [ ] Database model
   - [x] CARTO data source
     - [x] Basic parametrized queries (i.e. templated queries)
-    - [ ] Protected parametrized queries (i.e. avoiding injection)
+    - [x] Protected parametrized queries (i.e. avoiding injection)
     - [ ] Bind/dynamic parameters in queries (server-side render)
-  - [ ] Postgres data source
+  - [x] Postgres data source
     - [x] psycopg2
-      - [ ] SQLAlchemy
-    - [ ] Asyncpg
+    - [x] SQLAlchemy
   - [x] Cache
     - [x] Base cache
       - [x] Put
@@ -24,14 +23,14 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
       - [x] Tests
     - [x] Redis Cache
       - [x] Tests 
-  - [ ] Documentation
+  - [x] Documentation
     - [x] Sample scripts
   - [x] Unit tests
   - [x] Sample scripts
  
-- [ ] Config
+- [x] Config
  
-- [ ] CI PyPi versioning
+- [x] CI PyPi versioning
 
 - [ ] Data manipulation
   - [ ] Carto
@@ -77,22 +76,31 @@ pip install -e git+https://github.com/GeographicaGS/Longitude#egg=longitude
 
 ## As developer...
 
-Install pipenv in your development machine if you still do not have it.
+### First time
 
-Set up Python environment:
+1. Install ```poetry``` using the [recommended process](https://github.com/sdispater/poetry#installation)
+    1. poetry is installed globally as a tool
+    1. It works along with virtualenvironments
+1. Create a virtual environment for Python 3.x (check the current development version in ```pyproject.toml```)
+    1. You can create it wherever you want but do not put it inside the project
+    1. A nice place is ```$HOME/virtualenvs/longitude```
+1. Clone the ```longitude``` repo
+1. `cd` to the repo and:
+    1. Activate the virtual environment: `. ~/virtualenvs/longitude/bin/activate`
+    1. Run `poetry install`
+1. Configure your IDE to use the virtual environment
 
-```shell
-$ cd [path-to-longitude-folder]
-$ pipenv install
-```
+### Daily
 
-To activate the virtual environment: `$ pipenv shell`. If the environment variables are defined in a `.env` file, they are loaded in this shell.
+1. Remember to activate the virtual environment 
+
+### Why Poetry?
+
+Because it handles development dependencies and packaging with a single file (```pyproject.toml```), which is [already standard](https://flit.readthedocs.io/en/latest/pyproject_toml.html).
 
 ## Sample scripts
 
-These are intended to be used with real databases (i.e. those in your profile) to check features of the library.
-
-You will probably need to provide credentials/api keys/urls/username/... Check each script and it will be explained there.
+These are intended to be used with real databases (i.e. those in your profile) to check features of the library. They must be run from the virtual environment.
 
 ## Testing and coverage 
 
