@@ -40,12 +40,14 @@ class LongitudeCache(LongitudeConfigurable):
         payload = self.execute_get(self.generate_key(query_template, query_params))
         return self.deserialize_payload(payload)
 
-    def put(self, query_template, payload, query_params=None):
+    def put(self, query_template, payload, query_params=None, expiration_time_s=None):
         if query_params is None:
             query_params = {}
         if not isinstance(payload, LongitudeQueryResponse):
             raise TypeError('Payloads must be instances of LongitudeQueryResponse!')
-        return self.execute_put(self.generate_key(query_template, query_params), self.serialize_payload(payload))
+        return self.execute_put(self.generate_key(query_template, query_params),
+                                self.serialize_payload(payload),
+                                expiration_time_s=expiration_time_s)
 
     def execute_get(self, key):
         """
@@ -55,7 +57,7 @@ class LongitudeCache(LongitudeConfigurable):
         """
         raise NotImplementedError
 
-    def execute_put(self, key, payload):
+    def execute_put(self, key, payload, expiration_time_s=None):
         """
         Custom put action over the cache.
 

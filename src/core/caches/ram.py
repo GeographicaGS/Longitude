@@ -17,7 +17,9 @@ class RamCache(LongitudeCache):
     def execute_get(self, key):
         return self._values.get(key)
 
-    def execute_put(self, key, payload):
+    def execute_put(self, key, payload, expiration_time_s=None):
+        if expiration_time_s:
+            self.logger.warning("RamCache does not support expiration time. Ignoring configuration.")
         is_overwrite = key in self._values.keys()
         self._values[key] = payload
         return is_overwrite

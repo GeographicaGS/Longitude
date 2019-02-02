@@ -33,8 +33,8 @@ from src.core.common.config import EnvironmentConfiguration
 
 def import_table_values_from_carto(limit):
     # First, we read from CARTO our 'county_population'
-    carto_data = carto.query('select * from county_population limit %d' % limit, use_cache=True)
-
+    carto_data = carto.query('select * from county_population limit %d' % limit, use_cache=True, expiration_time_s=3)
+    print(carto_data.comes_from_cache)
     # Then, we create a local table
     postgres.query("drop table if exists county_population", use_cache=False)
     postgres.query(

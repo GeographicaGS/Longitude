@@ -77,7 +77,8 @@ class DataSource(LongitudeConfigurable):
     def disable_cache(self):
         self._use_cache = False
 
-    def query(self, query_template, params=None, use_cache=True, needs_commit=False, query_config=None, **opts):
+    def query(self, query_template, params=None, use_cache=True, expiration_time_s=None, needs_commit=False,
+              query_config=None, **opts):
         """
         This method has to be called to interact with the data source. Each children class will have to implement
         its own .execute_query(...) with the specific behavior for each interface.
@@ -85,6 +86,7 @@ class DataSource(LongitudeConfigurable):
         :param query_template: Unformatted SQL query
         :param params: Values to be passed to the query when formatting it
         :param use_cache: Boolean to indicate if this specific query should use cache or not (default: True)
+        :param expiration_time_s: If using cache and cache supports expiration, amount of seconds for the payload to be stored
         :param needs_commit: Boolean to indicate if this specific query needs to commit to db (default: False)
         :param query_config: Specific query configuration. If None, the default one will be used.
         :param opts:
@@ -117,7 +119,12 @@ class DataSource(LongitudeConfigurable):
 
                     normalized_response = self.parse_response(response)
                     if self._cache and self._use_cache and use_cache:
-                        self._cache.put(query_template, payload=normalized_response, query_params=params)
+                        self._cache.put(
+                            query_template,
+                            payload=normalized_response,
+                            query_params=params,
+                            expiration_time_s=expiration_time_s
+                        )
 
                     return normalized_response
                 except LongitudeQueryCannotBeExecutedException:

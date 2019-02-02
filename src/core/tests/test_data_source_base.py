@@ -45,7 +45,7 @@ class TestDataSource(TestCase):
                     return pickle.dumps(LongitudeQueryResponse())
                 return None
 
-            def execute_put(self, key, payload):
+            def execute_put(self, key, payload, expiration_time_s=None):
                 return True
 
         self._cache_class = FakeCache

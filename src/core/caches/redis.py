@@ -44,9 +44,11 @@ class RedisCache(LongitudeCache):
     def execute_get(self, key):
         return self._values.get(name=key)
 
-    def execute_put(self, key, payload):
+    def execute_put(self, key, payload, expiration_time_s=None):
         overwrite = self._values.exists(key) == 1
         self._values.set(name=key, value=payload)
+        if expiration_time_s:
+            self._values.expire(name=key, time=expiration_time_s)
         return overwrite
 
     def flush(self):
