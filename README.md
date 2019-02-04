@@ -66,7 +66,17 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
 
 How to use:
 ```bash
-pip install geographica-longitude
+pip install longitude
+```
+
+Or:
+```bash
+pipenv install longitude
+```
+
+Or:
+```bash
+poetry add longitude
 ```
 
 Or install from GitHub:

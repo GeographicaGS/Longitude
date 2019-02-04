@@ -89,5 +89,5 @@ if __name__ == "__main__":
     carto.setup()
     postgres.setup()
 
-    if carto.is_ready and postgres.is_ready():
+    if carto.is_ready and postgres.is_ready:
         import_table_values_from_carto(limit=30)
