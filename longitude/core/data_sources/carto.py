@@ -1,3 +1,4 @@
+import cartoframes
 from carto.auth import APIKeyAuthClient
 from carto.exceptions import CartoException
 from carto.sql import BatchSQLClient, SQLClient
@@ -25,6 +26,15 @@ class CartoDataSource(DataSource):
         self.set_custom_query_default('do_post', False)
         self.set_custom_query_default('parse_json', True)
         self.set_custom_query_default('format', 'json')
+
+        # Carto Context for DataFrame handling
+        self._carto_context = None
+
+    @property
+    def cc(self):
+        if self._carto_context is None:
+            self._carto_context = cartoframes.CartoContext(base_url=self.base_url, api_key=self.get_config('api_key'))
+        return self._carto_context
 
     def setup(self):
         auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
@@ -85,3 +95,6 @@ class CartoDataSource(DataSource):
                 'total_rows': response['total_rows']
             }
         )
+
+    def write(self):
+        self.cc
