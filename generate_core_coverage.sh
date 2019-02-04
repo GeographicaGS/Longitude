@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-pytest --cov-report=html --cov=src.core src/core/tests/
+pytest --cov-report=html --cov=longitude.core longitude/core/tests/
 sensible-browser coverage_html_report/index.html
