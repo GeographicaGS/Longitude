@@ -96,5 +96,8 @@ class CartoDataSource(DataSource):
             }
         )
 
-    def write(self):
-        self.cc
+    def write_data_frame(self, data_frame, table_name):
+        return self.cc.write(data_frame, table_name, overwrite=True)
+
+    def read_data_frame(self, table_name):
+        return self.cc.read(table_name)
