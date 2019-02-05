@@ -84,5 +84,13 @@ if __name__ == "__main__":
         r = ds.query(q, params, use_cache=True)
         print(r.rows)
         print("Cached? " + str(r.comes_from_cache))
+
+        # Work with data as dataframes
+        ds.query('DROP TABLE IF EXISTS new_avengers')
+        ds.query('DROP TABLE IF EXISTS green_avengers')
+        df = ds.read_dataframe('avengers')
+        ds.write_dataframe(df, 'new_avengers')
+        df = ds.query_dataframe("SELECT * FROM avengers where name='hulk'")
+        ds.write_dataframe(df, 'green_avengers')
     else:
         print("Data source is not properly configured.")

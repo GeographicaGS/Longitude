@@ -94,6 +94,15 @@ class DataSource(LongitudeConfigurable):
         """
         raise NotImplementedError
 
+    def query_dataframe(self, query, result_table=None):
+        """
+        Executes a query returning a Pandas DataFrame
+        :param query: SQL query to be executed
+        :param result_table: If specified, this table will be created to hold the result of the query
+        :return: DataFrame with pulled data from the query
+        """
+        raise NotImplementedError
+
     def committed_query(self, query_template, params=None):
         """
         This is a shortcut for INSERT queries and similar ones dealing with simple update operations.

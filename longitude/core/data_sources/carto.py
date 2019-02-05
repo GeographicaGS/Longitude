@@ -101,3 +101,6 @@ class CartoDataSource(DataSource):
 
     def read_dataframe(self, table_name, limit=None, decode_geom=True):
         return self.cc.read(table_name, limit=limit, decode_geom=decode_geom)
+
+    def query_dataframe(self, query, result_table=None):
+        return self.cc.query(query, table_name=result_table, decode_geom=True)

@@ -7,6 +7,7 @@ from .common import psycopg2_type_as_string
 from ...common.query_response import LongitudeQueryResponse
 from ..base import DataSource
 
+from ...common.helpers import method_not_supported
 
 class DefaultPostgresDataSource(DataSource):
     _default_config = {
@@ -65,7 +66,6 @@ class DefaultPostgresDataSource(DataSource):
 
         return data
 
-
     def parse_response(self, response):
         if response:
             raw_fields = response['fields']
@@ -73,3 +73,12 @@ class DefaultPostgresDataSource(DataSource):
             rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
+
+    def write_dataframe(self, data_frame, table_name):
+        method_not_supported(self)
+
+    def read_dataframe(self, table_name):
+        method_not_supported(self)
+
+    def query_dataframe(self, query, result_table=None):
+        method_not_supported(self)

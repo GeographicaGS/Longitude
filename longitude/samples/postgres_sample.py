@@ -17,7 +17,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.caches.ram import RamCache
 from longitude.core.data_sources.base import LongitudeRetriesExceeded
 from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
-from longitude.samples.postgres_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
+from longitude.samples.postgres_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, \
+    POSTGRES_PASS
 
 if __name__ == "__main__":
     config = {
@@ -60,6 +61,9 @@ if __name__ == "__main__":
             r4 = ds.query('select * from users', use_cache=True)
             print(r4.profiling)
             print('It is %f times faster using cache' % (r4.profiling['execute_time'] / r4.profiling['cache_time']))
+
+            # This is not allowed: default postgres data source is not compatible with Pandas. Use SQLAlchemy!
+            df = ds.read_dataframe('users')
 
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")
