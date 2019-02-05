@@ -77,7 +77,7 @@ class DataSource(LongitudeConfigurable):
     def disable_cache(self):
         self._use_cache = False
 
-    def write_data_frame(self, data_frame, table_name):
+    def write_dataframe(self, data_frame, table_name):
         """
         Writes a Pandas data frame in the specified table
         :param data_frame: DataFrame to be written
@@ -86,7 +86,7 @@ class DataSource(LongitudeConfigurable):
         """
         raise NotImplementedError
 
-    def read_data_frame(self, table_name):
+    def read_dataframe(self, table_name):
         """
         Reads the target table as a Pandas DataFrame
         :param table_name: String indicating target table

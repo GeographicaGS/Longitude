@@ -557,6 +557,14 @@ urllib3 = ">=1.21.1,<1.25"
 
 [[package]]
 category = "main"
+description = "Geometric objects, predicates, and operations"
+name = "shapely"
+optional = false
+python-versions = "*"
+version = "1.6.4.post2"
+
+[[package]]
+category = "main"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
@@ -644,7 +652,7 @@ python-versions = "*"
 version = "1.11.1"
 
 [metadata]
-content-hash = "f572e1d1731354495599ddb63818510b2c0e680b63f0f3f614f3b3165b7240d8"
+content-hash = "2cbc3e5bbb3a59574a36174b970a719c9d052ad54f36b9bed9378838ca4abf23"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -701,6 +709,7 @@ python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493d
 pytz = ["32b0891edff07e28efe91284ed9c31e123d84bea3fd98e1f72be2508f43ef8d9", "d5f05e487007e29e03409f9398d074e158d920d36eb82eaf66fb1136b0c5374c"]
 redis = ["74c892041cba46078ae1ef845241548baa3bd3634f9a6f0f952f006eb1619c71", "7ba8612bbfd966dea8c62322543fed0095da2834dbd5a7c124afbc617a156aa7"]
 requests = ["502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e", "7bf2a778576d825600030a110f3c0e3e8edc51dfaafe1c146e39a2027784957b"]
+shapely = ["0378964902f89b8dbc332e5bdfa08e0bc2f7ab39fecaeb17fbb2a7699a44fe71", "34e7c6f41fb27906ccdf2514ee44a5774b90b39a256b6511a6a57d11ffe64999", "3ca69d4b12e2b05b549465822744b6a3a1095d8488cc27b2728a06d3c07d0eee", "3e9388f29bd81fcd4fa5c35125e1fbd4975ee36971a87a90c093f032d0e9de24", "3ef28e3f20a1c37f5b99ea8cf8dcb58e2f1a8762d65ed2d21fd92bf1d4811182", "523c94403047eb6cacd7fc1863ebef06e26c04d8a4e7f8f182d49cd206fe787e", "5d22a1a705c2f70f61ccadc696e33d922c1a92e00df8e1d58a6ade14dd7e3b4f", "714b6680215554731389a1bbdae4cec61741aa4726921fa2b2b96a6f578a2534", "7dfe1528650c3f0dc82f41a74cf4f72018288db9bfb75dcd08f6f04233ec7e78", "ba58b21b9cf3c33725f7f530febff9ed6a6846f9d0bf8a120fc74683ff919f89", "c4b87bb61fc3de59fc1f85e71a79b0c709dc68364d9584473697aad4aa13240f", "ebb4d2bee7fac3f6c891fcdafaa17f72ab9c6480f6d00de0b2dc9a5137dfe342"]
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 sqlalchemy = ["c08cee353acaa05dd4ddf8ae0b0844ae779ed88e0b0784a2c9e0c0f9118eb64c"]
 termcolor = ["1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"]

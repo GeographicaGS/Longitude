@@ -7,6 +7,8 @@
 ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝   
 
 You must create a 'carto_sample_config.py' file at this folder with the needed fields (look at the import)
+   !!! As dataframe write is an IMPORT API operation, only the master api key will work !!!
+
 That file will be ignored in git, so do not worry about pushing credentials anywhere (but BE CAREFUL!)
 DO NOT REPLACE THIS WITH HARD CODED CREDENTIALS EVER AND ALWAYS REVIEW YOUR COMMITS!
 """
@@ -28,9 +30,20 @@ if __name__ == "__main__":
     ds.setup()
     if ds.is_ready:
         try:
+
+            # SQL API Call using regular SQL statement
+            # ########################################
             data = ds.query('select * from %s limit 30' % CARTO_TABLE_NAME)
             [print(r) for r in data.rows]
             print(data.profiling)
+
+            # Pandas DataFrame read/write
+            # ########################################
+            dataframe = ds.read_dataframe(table_name=CARTO_TABLE_NAME, limit=30)
+            print(dataframe)
+
+            res = ds.write_dataframe(data_frame=dataframe, table_name='another_county_population')
+            print(res)
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")
     else:
