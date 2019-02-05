@@ -28,7 +28,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.caches.redis import RedisCache
 from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
 from longitude.core.data_sources.carto import CartoDataSource
-from longitude.core.common.config import EnvironmentConfiguration
+from longitude.core.common.config import EnvironmentConfiguration as Config
 
 
 def import_table_values_from_carto(limit):
@@ -59,33 +59,15 @@ def import_table_values_from_carto(limit):
         params=params,
         needs_commit=True)
 
+    res = postgres.query('select * from county_population')
+    print(res.rows)
+
 
 if __name__ == "__main__":
 
-    # This is the global config object
-    # We are going to retrieve some values from a table in Carto, create a local table and copy the values
-    # doing simple inserts (to show how to do queries)
-
-    config = EnvironmentConfiguration({
-        'carto_main': {
-            'api_key': "=CARTO_API_KEY",
-            'user': "=CARTO_USER",
-
-            'cache': {
-                'password': '=REDIS_PASSWORD'
-            }
-        },
-        'postgres_main': {
-            'host': "=POSTGRES_HOST",
-            'port': "=POSTGRES_PORT",
-            'db': "=POSTGRES_DB",
-            'user': "=POSTGRES_USER",
-            'password': "=POSTGRES_PASS"
-        }
-    })
-
-    carto = CartoDataSource(config['carto_main'], cache_class=RedisCache)
-    postgres = DefaultPostgresDataSource(config['postgres_main'])
+    print('REDIS password is %s' % Config.get('carto_main.cache.password'))
+    carto = CartoDataSource(Config.get('carto_main'), cache_class=RedisCache)
+    postgres = DefaultPostgresDataSource(Config.get('postgres_main'))
     carto.setup()
     postgres.setup()
 

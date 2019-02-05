@@ -5,36 +5,78 @@ from .exceptions import LongitudeConfigError
 
 
 class EnvironmentConfiguration:
+    prefix = 'LONGITUDE'
+    separator = '__'
+    config = None
 
-    def __init__(self, d):
-        self._original_config = d
-        self._parsed_config = dict(d)
+    @classmethod
+    def _load_environment_variables(cls):
+        """
+        It loads environment variables into the internal dictionary.
 
-        self._parse_env_vars_references(self._parsed_config)
+        Load is done by grouping and nesting environment variables following this convention:
+        1. Only variables starting with the prefix are taken (i.e. LONGITUDE)
+        2. For each separator used, a new nested object is created inside its parent (i.e. SEPARATOR is '__')
+        3. The prefix indicates the root object (i.e. LONGITUDE__ is the default root dictionary)
 
-    def __getitem__(self, key):
-        return self._parsed_config[key]
+        :return: None
+        """
+        cls.config = {}
+        for v in [k for k in os.environ.keys() if k.startswith(cls.prefix)]:
+            value_path = v.split(cls.separator)[1:]
+            cls._append_value(os.environ.get(v), value_path, cls.config)
+
+    @classmethod
+    def get(cls, key=None):
+        """
+        Returns a nested config value from the configuration. It allows getting values as a series of joined keys using
+        dot ('.') as separator. This will search for keys in nested dictionaries until a final value is found.
+
+        :param key: String in the form of 'parent.child.value...'. It must replicate the configuration nested structure.
+        :return: It returns an integer, a string or a nested dictionary. If none of these is found, it returns None.
+        """
+
+        # We do a lazy load in the first access
+        if cls.config is None:
+            cls._load_environment_variables()
+
+        if key is not None:
+            return cls._get_nested_key(key, cls.config)
+        else:
+            return cls.config
 
     @staticmethod
-    def _parse_env_vars_references(dictionary):
-        """
-        Modifies a dictionary like this:
-          * Recursively
-          * If a value is a string starting with '=', it gets substituted by the corresponding environment variable
-        :param dictionary: Dictionary that will be modified.
-        :return: Nothing
+    def _get_nested_key(key, d):
         """
 
-        for k in dictionary.keys():
-            if isinstance(dictionary[k], dict):
-                EnvironmentConfiguration._parse_env_vars_references(dictionary[k])
-            elif isinstance(dictionary[k], str) and dictionary[k].startswith('='):
-                env_var = dictionary[k][1:]  # We remove the '='
-                value = os.environ.get(env_var)
-                if value:
-                    dictionary[k] = value
-                else:
-                    dictionary[k] += ' [NOT FOUND]'
+        :param key:
+        :param d:
+        :return:
+        """
+        key_path = key.split('.')
+        root_key = key_path[0]
+
+        if root_key in d.keys():
+            if len(key_path) == 1:
+                return d[root_key]  # If a single node is in the path, it is the final one
+            # If there are more than one nodes left, keep digging...
+            return EnvironmentConfiguration._get_nested_key('.'.join(key_path[1:]), d[root_key])
+        else:
+            return None  # Nested key was not found in the config
+
+    @staticmethod
+    def _append_value(value, value_path, d):
+        root_path = value_path[0].lower()
+        if len(value_path) == 1:
+
+            try:
+                d[root_path] = int(value)
+            except ValueError:
+                d[root_path] = value
+        else:
+            if root_path not in d.keys():
+                d[root_path] = {}
+            EnvironmentConfiguration._append_value(value, value_path[1:], d[root_path])
 
 
 class LongitudeConfigurable:
