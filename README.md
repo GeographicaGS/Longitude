@@ -36,7 +36,7 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
   - [ ] Carto
     - [ ] DataFrame read/write
     - [ ] COPY
-  -[ ] Postgres
+  - [ ] Postgres
     - [ ] DataFrame read/write
     - [ ] COPY
  

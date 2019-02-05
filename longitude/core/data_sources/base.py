@@ -77,6 +77,50 @@ class DataSource(LongitudeConfigurable):
     def disable_cache(self):
         self._use_cache = False
 
+    def write_data_frame(self, data_frame, table_name):
+        """
+        Writes a Pandas data frame in the specified table
+        :param data_frame: DataFrame to be written
+        :param table_name: String indicating target table
+        :return:
+        """
+        raise NotImplementedError
+
+    def read_data_frame(self, table_name):
+        """
+        Reads the target table as a Pandas DataFrame
+        :param table_name: String indicating target table
+        :return: Data as DataFrame
+        """
+        raise NotImplementedError
+
+    def committed_query(self, query_template, params=None):
+        """
+        This is a shortcut for INSERT queries and similar ones dealing with simple update operations.
+
+        Makes a default non-cached query committing the result. If you need to specify more details such as cache or
+        query specific values, use .query(...)
+
+        :param query_template: Unformatted SQL query
+        :param params: Values to be passed to the query when formatting it
+        :return:
+        """
+        return self.query(query_template, params=params, use_cache=False, needs_commit=True)
+
+    def cached_query(self, query_template, params=None, expiration_time_s=None):
+        """
+        This is a shortcut for SELECT queries and similar ones requesting simple data.
+
+        Makes a default cached query. This means that no commit is done and no specific config for the query is
+        available. If you need any of these, use .query(...)
+
+        :param query_template: Unformatted SQL query
+        :param params: Values to be passed to the query when formatting it
+        :param expiration_time_s: Amount of seconds for the payload to be stored (if cache supports this)
+        :return: Result of the query
+        """
+        return self.query(query_template, params=params, expiration_time_s=expiration_time_s)
+
     def query(self, query_template, params=None, use_cache=True, expiration_time_s=None, needs_commit=False,
               query_config=None, **opts):
         """
