@@ -114,3 +114,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# VScode IDE
+.vscode
+
+# PyCharm IDE
+.idea
+
+# Coverage report
+coverage_html_report
