@@ -10,6 +10,7 @@ from .common import psycopg2_type_as_string
 
 
 class SQLAlchemyDataSource(DataSource):
+
     _default_config = {
         'host': 'localhost',
         'port': 5432,
@@ -89,3 +90,9 @@ class SQLAlchemyDataSource(DataSource):
             rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
+
+    def copy_from(self, data, filepath, to_table):
+        headers = data.readline().decode('utf-8').split(',')
+        conn = self._engine.raw_connection()
+        conn.cursor().copy_from(data, to_table, columns=headers, sep=',')
+        conn.commit()
