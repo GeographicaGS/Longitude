@@ -9,7 +9,6 @@ from .common import psycopg2_type_as_string
 
 
 class DefaultPostgresDataSource(DataSource):
-
     _default_config = {
         'host': 'localhost',
         'port': 5432,
@@ -74,6 +73,7 @@ class DefaultPostgresDataSource(DataSource):
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
 
-
     def copy_from(self, data, filepath, to_table):
-        pass
+        headers = data.readline().decode('utf-8').split(',')
+        self._cursor.copy_from(data, to_table, columns=headers, sep=',')
+        self._conn.commit()
