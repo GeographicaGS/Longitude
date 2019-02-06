@@ -1,3 +1,5 @@
+import os
+import requests
 from carto.auth import APIKeyAuthClient
 from carto.exceptions import CartoException
 from carto.sql import BatchSQLClient, SQLClient
@@ -20,6 +22,7 @@ class CartoDataSource(DataSource):
 
     def __init__(self, config=None, cache_class=None):
         super().__init__(config, cache_class=cache_class)
+        self._auth_client = None
         self._sql_client = None
         self._batch_client = None
         self.set_custom_query_default('do_post', False)
@@ -28,6 +31,9 @@ class CartoDataSource(DataSource):
 
         # Carto Context for DataFrame handling
         self._carto_context = None
+
+        # Carto client for COPYs
+        self._copy_client = None
 
     @property
     def cc(self):
@@ -44,11 +50,12 @@ class CartoDataSource(DataSource):
         return self._carto_context
 
     def setup(self):
-        auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
-        self._sql_client = SQLClient(auth_client, api_version=self.get_config('api_version'))
+        self._auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
+        self._sql_client = SQLClient(self._auth_client, api_version=self.get_config('api_version'))
 
+        # TODO: We could create the batch client instance in the first use instead of getting a config field
         if self.get_config('uses_batch'):
-            self._batch_client = BatchSQLClient(auth_client)
+            self._batch_client = BatchSQLClient(self._auth_client)
         super().setup()
 
     @property
@@ -91,7 +98,7 @@ class CartoDataSource(DataSource):
             return self._sql_client.send(formatted_query, parse_json=parse_json, do_post=do_post, format=format_)
 
         except CartoException as e:
-            raise LongitudeQueryCannotBeExecutedException
+            raise LongitudeQueryCannotBeExecutedException(str(e))
 
     def parse_response(self, response):
         return LongitudeQueryResponse(
@@ -103,12 +110,11 @@ class CartoDataSource(DataSource):
             }
         )
 
-    def write_dataframe(self, data_frame, table_name, schema, index=False, append=False, *args, **kwargs):
-    #def write_dataframe(self, data_frame, table_name, overwrite=True):
-        return self.cc.write(data_frame, table_name, overwrite=not append)
-
-    def read_dataframe(self, table_name, limit=None, decode_geom=True):
-        return self.cc.read(table_name, limit=limit, decode_geom=decode_geom)
-
-    def query_dataframe(self, query, result_table=None):
-        return self.cc.query(query, table_name=result_table, decode_geom=True)
+    def copy_from(self, data, filepath, to_table):
+        if self._copy_client is None:
+            from carto.sql import CopySQLClient
+            self._copy_client = CopySQLClient(self._auth_client)
+        headers = data.readline().decode('utf-8')
+        data.seek(0)
+        from_query = 'COPY %s (%s) FROM stdin WITH (FORMAT csv, HEADER true)' % (to_table, headers)
+        return self._copy_client.copyfrom_file_object(from_query, data)
