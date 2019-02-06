@@ -32,13 +32,16 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
  
 - [x] CI PyPi versioning
 
-- [ ] Pandas Data manipulation
+- [ ] COPY operations
   - [x] Carto
-    - [x] DataFrame read/write
-    - [ ] COPY
-  - [x] Postgres (SQLAlchemy)
-    - [x] DataFrame read/write
-    - [ ] COPY
+    - [x] COPY FROM
+    - [ ] COPY TO
+  - [x] Postgres
+    - [x] COPY FROM
+    - [ ] COPY TO
+  - [x] SQLAlchemy
+    - [x] COPY FROM
+    - [ ] COPY TO
  
 - [ ] Validations
   - [ ] Marshmallow

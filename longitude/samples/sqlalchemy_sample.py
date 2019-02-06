@@ -95,18 +95,5 @@ if __name__ == "__main__":
         df.to_sql('green_avengers', con=ds.engine)
         r = ds.query('SELECT * FROM green_avengers')
         print(r.rows[0])
-
-        # Copy from csv
-        # ########################################
-        to_table = 'avengers_names'
-        ds.query('DROP TABLE IF EXISTS %s' % to_table)
-        ds.query('CREATE TABLE %s (id serial PRIMARY KEY, name text, color text)' % to_table, needs_commit=True)
-        filepath = os.path.join(os.path.dirname(__file__), 'demo_data.csv')
-        r = ds.copy_from_csv(csv_file_absolute_path=filepath, to_table=to_table)
-        print('Response from copy operation: %s' % str(r))
-        r = ds.query("SELECT name FROM " + to_table)
-        [print(row) for row in r.rows]
-        r = ds.query("SELECT name FROM " + to_table + " WHERE color=%(color)s", params={'color': 'green'})
-        [print(row.get('name')) for row in r.rows]
     else:
         print("Data source is not properly configured.")

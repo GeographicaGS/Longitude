@@ -89,6 +89,7 @@ class CartoDataSource(DataSource):
         #  ---
         #  There is an open issue in CARTO about having separated parameters and binding them in the server:
         #  https://github.com/CartoDB/Geographica-Product-Coordination/issues/57
+        params = {k: "'" + v + "'" for k, v in params.items()}
         formatted_query = query_template % params
 
         parse_json = query_config.custom['parse_json']
