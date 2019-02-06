@@ -1,4 +1,5 @@
 from unittest import TestCase, mock
+
 from longitude.core.common.config import EnvironmentConfiguration as Config
 
 fake_environment = {

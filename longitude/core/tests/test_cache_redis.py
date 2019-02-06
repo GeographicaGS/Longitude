@@ -3,6 +3,7 @@ from unittest import TestCase, mock
 import redis.exceptions
 
 from longitude.core.common.query_response import LongitudeQueryResponse
+
 from ..caches.redis import RedisCache
 
 

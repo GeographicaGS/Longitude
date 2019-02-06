@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 from longitude.core.common.query_response import LongitudeQueryResponse
+
 from ..caches.ram import RamCache
 
 

@@ -1,4 +1,3 @@
-import cartoframes
 from carto.auth import APIKeyAuthClient
 from carto.exceptions import CartoException
 from carto.sql import BatchSQLClient, SQLClient
@@ -32,6 +31,14 @@ class CartoDataSource(DataSource):
 
     @property
     def cc(self):
+        """
+        Creates and returns a CartoContext object to work with Panda Dataframes
+        :return:
+        """
+        # TODO: The CartoContext documentaton says that SSL must be disabled sometimes if an on premise host is used
+        #  We are not taking this into account. It would need to create a requests.Session() object, set its SSL
+        #  to false and pass it to the CartoContext init.
+        import cartoframes
         if self._carto_context is None:
             self._carto_context = cartoframes.CartoContext(base_url=self.base_url, api_key=self.get_config('api_key'))
         return self._carto_context
@@ -96,8 +103,9 @@ class CartoDataSource(DataSource):
             }
         )
 
-    def write_dataframe(self, data_frame, table_name, overwrite=True):
-        return self.cc.write(data_frame, table_name, overwrite=overwrite)
+    def write_dataframe(self, data_frame, table_name, schema, index=False, append=False, *args, **kwargs):
+    #def write_dataframe(self, data_frame, table_name, overwrite=True):
+        return self.cc.write(data_frame, table_name, overwrite=not append)
 
     def read_dataframe(self, table_name, limit=None, decode_geom=True):
         return self.cc.read(table_name, limit=limit, decode_geom=decode_geom)

@@ -1,4 +1,5 @@
 from unittest import TestCase, mock
+
 from ..data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
 
 TESTED_MODULE_PATH = 'longitude.core.data_sources.postgres.sqlalchemy.%s'

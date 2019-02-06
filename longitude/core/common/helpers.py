@@ -1,4 +1,5 @@
 import inspect
+
 from longitude.core.data_sources.base import DataSource
 
 

@@ -62,9 +62,6 @@ if __name__ == "__main__":
             print(r4.profiling)
             print('It is %f times faster using cache' % (r4.profiling['execute_time'] / r4.profiling['cache_time']))
 
-            # This is not allowed: default postgres data source is not compatible with Pandas. Use SQLAlchemy!
-            df = ds.read_dataframe('users')
-
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")
     else:

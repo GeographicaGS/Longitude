@@ -2,11 +2,11 @@ from time import time
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from .common import psycopg2_type_as_string
+
 from longitude.core.common.query_response import LongitudeQueryResponse
 from longitude.core.data_sources.base import DataSource
 
-from pandas import read_sql_table, read_sql
+from .common import psycopg2_type_as_string
 
 
 class SQLAlchemyDataSource(DataSource):
@@ -40,6 +40,16 @@ class SQLAlchemyDataSource(DataSource):
     def __del__(self):
         if self._connection:
             self._connection.close()
+
+    @property
+    def engine(self):
+        """
+        Returns the SQLAlchemy engine being used.
+
+        This can be used, for example, to configure DataFrame functions from Pandas
+        :return:
+        """
+        return self._engine
 
     def setup(self):
         connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)d/%(db)s'
@@ -79,12 +89,3 @@ class SQLAlchemyDataSource(DataSource):
             rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
-
-    def write_dataframe(self, data_frame, table_name):
-        data_frame.to_sql(table_name, self._engine)
-
-    def read_dataframe(self, table_name):
-        return read_sql_table(table_name, self._engine)
-
-    def query_dataframe(self, query, result_table=None):
-        return read_sql(sql=query, con=self._engine)

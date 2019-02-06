@@ -77,32 +77,6 @@ class DataSource(LongitudeConfigurable):
     def disable_cache(self):
         self._use_cache = False
 
-    def write_dataframe(self, data_frame, table_name):
-        """
-        Writes a Pandas data frame in the specified table
-        :param data_frame: DataFrame to be written
-        :param table_name: String indicating target table
-        :return:
-        """
-        raise NotImplementedError
-
-    def read_dataframe(self, table_name):
-        """
-        Reads the target table as a Pandas DataFrame
-        :param table_name: String indicating target table
-        :return: Data as DataFrame
-        """
-        raise NotImplementedError
-
-    def query_dataframe(self, query, result_table=None):
-        """
-        Executes a query returning a Pandas DataFrame
-        :param query: SQL query to be executed
-        :param result_table: If specified, this table will be created to hold the result of the query
-        :return: DataFrame with pulled data from the query
-        """
-        raise NotImplementedError
-
     def committed_query(self, query_template, params=None):
         """
         This is a shortcut for INSERT queries and similar ones dealing with simple update operations.

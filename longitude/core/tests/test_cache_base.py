@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from longitude.core.common.query_response import LongitudeQueryResponse
+
 from ..caches.base import LongitudeCache
 
 

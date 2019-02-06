@@ -20,6 +20,8 @@ from longitude.core.data_sources.base import LongitudeRetriesExceeded
 from longitude.core.data_sources.carto import CartoDataSource
 from longitude.samples.carto_sample_config import CARTO_API_KEY, CARTO_USER, CARTO_TABLE_NAME
 
+import pandas as pd
+
 if __name__ == "__main__":
     config = {
         'api_key': CARTO_API_KEY,
@@ -39,10 +41,9 @@ if __name__ == "__main__":
 
             # Pandas DataFrame read/write
             # ########################################
-            dataframe = ds.read_dataframe(table_name=CARTO_TABLE_NAME, limit=30)
-            print(dataframe)
-
-            res = ds.write_dataframe(data_frame=dataframe, table_name='another_county_population')
+            df = ds.cc.read(table_name=CARTO_TABLE_NAME, limit=30)
+            print(df)
+            res = ds.cc.write(data_frame=df, table_name='another_county_population')
             print(res)
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")

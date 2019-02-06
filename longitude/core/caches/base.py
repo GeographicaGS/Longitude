@@ -3,6 +3,7 @@ import logging
 import pickle
 
 from longitude.core.common.query_response import LongitudeQueryResponse
+
 from ..common.config import LongitudeConfigurable
 
 

@@ -1,4 +1,5 @@
 from unittest import TestCase, mock
+
 from longitude.core.common.helpers import DisabledCache
 from longitude.core.data_sources.base import DataSource
 
