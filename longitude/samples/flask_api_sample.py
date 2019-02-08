@@ -11,9 +11,15 @@ if __name__ == "__main__":
         last_name = fields.String(allow_none=False)
 
 
+    class UserDetailSchema(Schema):
+        details = fields.String()
+
+
     schemas = [UserSchema]
     api = LongitudeRESTAPI(schemas=schemas)
     api.setup()
-    api.add_path('/')  
+    api.add_path('/')
     api.add_path('/users', ['get', 'post'])  # This will use the UserSchema automagically
+    api.add_path('/users/details', {'get': UserDetailSchema, 'post': UserDetailSchema})
+
     pprint(api._spec.to_dict())

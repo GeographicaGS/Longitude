@@ -3,9 +3,6 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from marshmallow import Schema, fields
 import inflect
 
-from longitude.core.common.exceptions import LongitudeWrongHTTPCommand
-
-
 class LongitudeDefaultSchema(Schema):
     pass
 
@@ -68,15 +65,14 @@ class LongitudeRESTAPI:
             self._spec.definition(name, schema=sc)
 
     def add_path(self, path, commands=None):
+        """
 
+        :param path:
+        :param commands: List of HTTP commands OR map of HTTP commands to Schemas
+        :return:
+        """
         if commands is None:  # By default, we assume it is get
             commands = ['get']
-
-        if not isinstance(commands, list):  # Filter commands to valid HTTP commands
-            commands = {'get', 'post', 'put', 'patch', 'delete'}.intersection(commands)
-
-        if len(commands) == 0:
-            raise LongitudeWrongHTTPCommand('Valid commands are get, post, put, patch and delete.')
 
         # Mandatory response definitions that are not specified, are taken from the default ones
         operations = {}
@@ -84,12 +80,19 @@ class LongitudeRESTAPI:
         for c in commands:
             operation = {'responses': {}}
             for response_code in self._DEFAULT_RESPONSES:
-                ref = 'default_%d' % response_code
-                if response_code == 200:
-                    schema_auto_name = self._inflect.singular_noun(path[1:]).capitalize() + 'Schema'
-                    if schema_auto_name in schema_names:
-                        ref = schema_auto_name
+                ref = self._extract_description_reference(c, commands, path, response_code, schema_names)
 
                 operation['responses'][str(response_code)] = {'schema': {'$ref': ref}}
             operations[c] = operation
             self._spec.add_path(path, operations)
+
+    def _extract_description_reference(self, c, commands, path, response_code, schema_names):
+        ref = 'default_%d' % response_code
+        if response_code == 200:
+            if isinstance(commands, dict):
+                ref = commands[c].__name__
+            else:
+                schema_auto_name = self._inflect.singular_noun(path[1:]).capitalize() + 'Schema'
+                if schema_auto_name in schema_names:
+                    ref = schema_auto_name
+        return ref
