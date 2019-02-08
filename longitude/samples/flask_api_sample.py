@@ -75,8 +75,10 @@ if __name__ == "__main__":
 
     api = LongitudeFlaskAPI(config=Config.get('flask_api'), schemas=schemas, managers=managers)
     api.add_endpoint('/', manager=HomeManager)
-    api.add_endpoint('/users/{id}', ['get', 'post'], manager=UsersManager)  # This will use the UserSchema automagically
-    api.add_endpoint('/users/details', {'get': UserDetailSchema, 'post': UserDetailSchema}, manager=UserDetailManager)
+    api.add_endpoint('/users', ['get', 'post'], manager=UsersManager)
+    api.add_endpoint('/users/{id:Integer}', ['get', 'patch', 'delete'], manager=UserManager)
+    api.add_endpoint('/users/{id:Integer}/details', {'get': UserDetailSchema, 'post': UserDetailSchema},
+                     manager=UserDetailManager)
 
     api.setup()
 

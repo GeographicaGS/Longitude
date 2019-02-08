@@ -1,3 +1,4 @@
+import re
 from math import floor
 
 from apispec import APISpec
@@ -77,8 +78,21 @@ class LongitudeRESTAPI(LongitudeConfigurable):
 
         :param path:
         :param commands: List of HTTP commands OR map of HTTP commands to Schemas
+        :param manager: Class defining methods for each HTTP command
         :return:
         """
+
+        def parse_path(url_path):
+            params_template = r"\{(\w+):(\w+)\}"
+            if url_path == '/':
+                auto_name = 'Home'
+            else:
+                name = url_path.split('/')[1]
+                auto_name = self._inflect.singular_noun(name).capitalize()
+
+            params = re.findall(params_template, url_path)
+            return auto_name, params
+
         if commands is None:  # By default, we assume it is get
             commands = ['get']
 
@@ -93,22 +107,16 @@ class LongitudeRESTAPI(LongitudeConfigurable):
                     if isinstance(commands, dict):
                         ref = commands[c].__name__.replace('Schema', '')
                     else:
-                        if path == '/':
-                            auto_name = 'Home'
-                        else:
-                            name = path.split('/')[1]
-                            auto_name = self._inflect.singular_noun(name).capitalize()
+                        auto_name, path_params = parse_path(path)
+                        # TODO: spec forthe path_params
                         if auto_name + 'Schema' in schema_names:
                             ref = auto_name
 
-                response = {
+                operation['responses'][str(response_code)] = {
                     'description': '',
                     'schema': {
                         '$ref': '#/definitions/%s' % ref
                     }
                 }
-
-                operation['responses'][str(response_code)] = response
                 operations[c] = operation
-
         self._endpoints.append((path, operations, manager))
