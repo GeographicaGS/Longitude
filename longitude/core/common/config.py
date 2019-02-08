@@ -118,7 +118,7 @@ class LongitudeConfigurable:
             return config_template
 
         if key not in self._default_config.keys():
-            raise LongitudeConfigError("%s is not a valid config value. Check your defaults as reference.")
+            raise LongitudeConfigError("%s is not a valid config value. Check your defaults as reference." % key)
         try:
             return self._config[key]
         except (TypeError, KeyError):

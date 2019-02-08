@@ -1,10 +1,14 @@
+from math import floor
+
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
+
+from longitude.core.common.config import LongitudeConfigurable
 from longitude.core.common.schemas import *
 import inflect
 
 
-class LongitudeRESTAPI:
+class LongitudeRESTAPI(LongitudeConfigurable):
     _inflect = inflect.engine()
 
     plugins = (
@@ -28,7 +32,11 @@ class LongitudeRESTAPI:
         'patch': [202, 403, 500]
     }
 
-    def __init__(self, name='Longitude Default REST API', version='0.0.1', return_code_defaults=None, schemas=None):
+    def __init__(self, config=None, name='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
+                 schemas=None, managers=None):
+
+        super().__init__(config)
+        self._app = None
         self._spec: APISpec = None
 
         self.name = name
@@ -36,11 +44,14 @@ class LongitudeRESTAPI:
         self.version = version
 
         self._schemas = schemas if schemas is not None else []
-
+        self._managers = managers if managers is not None else []
         # Defaults hold definitions for the common return codes as a dictionary
         self._default_schemas = return_code_defaults if return_code_defaults is not None else self._DEFAULT_RESPONSES
 
+        self._endpoints = []
+
     def setup(self):
+
         self._spec = APISpec(
             title=self.name,
             version=self.version,
@@ -55,7 +66,13 @@ class LongitudeRESTAPI:
             name = sc.__name__.replace('Schema', '')
             self._spec.definition(name, schema=sc)
 
-    def add_path(self, path, commands=None):
+        self.make_app()
+
+    def make_app(self):
+        for endpoint in self._endpoints:
+            self._spec.add_path(endpoint[0], endpoint[1])
+
+    def add_endpoint(self, path, commands=None, manager=None):
         """
 
         :param path:
@@ -71,19 +88,27 @@ class LongitudeRESTAPI:
         for c in commands:
             operation = {'responses': {}}
             for response_code in self._DEFAULT_COMMAND_RESPONSES[c]:
-                ref = self._extract_description_reference(c, commands, path, response_code, schema_names)
+                ref = 'default_%d' % response_code
+                if floor(response_code / 100) == 2:
+                    if isinstance(commands, dict):
+                        ref = commands[c].__name__.replace('Schema', '')
+                    else:
+                        if path == '/':
+                            auto_name = 'Home'
+                        else:
+                            name = path.split('/')[1]
+                            auto_name = self._inflect.singular_noun(name).capitalize()
+                        if auto_name + 'Schema' in schema_names:
+                            ref = auto_name
 
-                operation['responses'][str(response_code)] = {'schema': {'$ref': ref}}
-            operations[c] = operation
-            self._spec.add_path(path, operations)
+                response = {
+                    'description': '',
+                    'schema': {
+                        '$ref': '#/definitions/%s' % ref
+                    }
+                }
 
-    def _extract_description_reference(self, c, commands, path, response_code, schema_names):
-        ref = 'default_%d' % response_code
-        if response_code == 200:
-            if isinstance(commands, dict):
-                ref = commands[c].__name__
-            else:
-                schema_auto_name = self._inflect.singular_noun(path[1:]).capitalize() + 'Schema'
-                if schema_auto_name in schema_names:
-                    ref = schema_auto_name
-        return ref
+                operation['responses'][str(response_code)] = response
+                operations[c] = operation
+
+        self._endpoints.append((path, operations, manager))
