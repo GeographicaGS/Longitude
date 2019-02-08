@@ -16,3 +16,7 @@ class LongitudeWrongQueryException(LongitudeBaseException):
 
 class LongitudeConfigError(LongitudeBaseException):
     pass
+
+
+class LongitudeWrongHTTPCommand(LongitudeBaseException):
+    pass

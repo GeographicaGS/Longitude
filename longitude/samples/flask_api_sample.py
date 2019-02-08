@@ -14,6 +14,6 @@ if __name__ == "__main__":
     schemas = [UserSchema]
     api = LongitudeRESTAPI(schemas=schemas)
     api.setup()
-    api.add_path('/')
-    api.add_path('/users', {'get': {'responses': {'200': {'schema': {'$ref': 'User'}}}}})
+    api.add_path('/')  
+    api.add_path('/users', ['get', 'post'])  # This will use the UserSchema automagically
     pprint(api._spec.to_dict())
