@@ -1,26 +1,7 @@
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-from marshmallow import Schema, fields
+from longitude.core.common.schemas import *
 import inflect
-
-class LongitudeDefaultSchema(Schema):
-    pass
-
-
-class LongitudeOkResponseSchema(LongitudeDefaultSchema):
-    payload = fields.Raw(default={})
-
-
-class LongitudeNotFoundResponseSchema(LongitudeDefaultSchema):
-    error = fields.String(default="Resource not found")
-
-
-class LongitudeNotAllowedResponseSchema(LongitudeDefaultSchema):
-    error = fields.String(default="Not authorized")
-
-
-class LongitudeServerError(LongitudeDefaultSchema):
-    error = fields.String(default="Internal server error. Contact support team.")
 
 
 class LongitudeRESTAPI:
@@ -32,9 +13,19 @@ class LongitudeRESTAPI:
 
     _DEFAULT_RESPONSES = {
         200: LongitudeOkResponseSchema,
+        201: LongitudeCreated,
+        202: LongitudeAccepted,
+        204: LongitudeEmptyContent,
         403: LongitudeNotAllowedResponseSchema,
         404: LongitudeNotFoundResponseSchema,
-        500: LongitudeServerError
+        500: LongitudeServerError,
+    }
+
+    _DEFAULT_COMMAND_RESPONSES = {
+        'get': [200, 403, 500],
+        'post': [201, 403, 500],
+        'delete': [204, 403, 500],
+        'patch': [202, 403, 500]
     }
 
     def __init__(self, name='Longitude Default REST API', version='0.0.1', return_code_defaults=None, schemas=None):
@@ -79,7 +70,7 @@ class LongitudeRESTAPI:
         schema_names = [sc.__name__ for sc in self._schemas]
         for c in commands:
             operation = {'responses': {}}
-            for response_code in self._DEFAULT_RESPONSES:
+            for response_code in self._DEFAULT_COMMAND_RESPONSES[c]:
                 ref = self._extract_description_reference(c, commands, path, response_code, schema_names)
 
                 operation['responses'][str(response_code)] = {'schema': {'$ref': ref}}
