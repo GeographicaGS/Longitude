@@ -1,4 +1,5 @@
 from pprint import pprint
+from longitude.core.rest_api.flask import LongitudeFlaskAPI
 from longitude.core.rest_api.base import LongitudeRESTAPI
 
 from marshmallow import Schema, fields
@@ -16,7 +17,7 @@ if __name__ == "__main__":
 
 
     schemas = [UserSchema]
-    api = LongitudeRESTAPI(schemas=schemas)
+    api = LongitudeFlaskAPI(schemas=schemas)
     api.setup()
     api.add_path('/')
     api.add_path('/users', ['get', 'post'])  # This will use the UserSchema automagically

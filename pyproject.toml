@@ -23,6 +23,7 @@ sqlalchemy = "1.3.0b2"
 apispec = "^0.39.0"
 marshmallow = "^2.18"
 inflect = "^2.1"
+flask = "^1.0"
 
 [tool.poetry.dev-dependencies]
 pdoc = "^0.3.2"
