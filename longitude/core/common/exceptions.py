@@ -6,6 +6,10 @@ class LongitudeRetriesExceeded(LongitudeBaseException):
     pass
 
 
+class LongitudeAppNotReady(LongitudeBaseException):
+    pass
+
+
 class LongitudeQueryCannotBeExecutedException(LongitudeBaseException):
     pass
 

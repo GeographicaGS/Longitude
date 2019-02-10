@@ -9,6 +9,19 @@ from longitude.core.common.schemas import *
 import inflect
 
 
+class LongitudeRequest:
+    def __init__(self):
+        self.body = None
+        self.query = None
+        self.params = None
+
+    def __getitem__(self, key):
+        try:
+            return self.params[key]
+        except KeyError:
+            return None
+
+
 class LongitudeRESTAPI(LongitudeConfigurable):
     _inflect = inflect.engine()
 
@@ -34,20 +47,55 @@ class LongitudeRESTAPI(LongitudeConfigurable):
     }
 
     @classmethod
-    def generate_json_response(cls, value):
+    def generate_json_response(cls, value, status_code=200):
         raise NotImplementedError
 
     @classmethod
-    def json_response(cls, schema_class):
+    def json_response(cls, response_schema_class, request_body_schema_class=None):
+        # TODO: For now we are assuming that body requests have the same schema as the responses
+        #  We can choose which fields are mandatory to validate the body schema
+
+        request_body_schema_class = request_body_schema_class or response_schema_class
+
         def method_decorator(method):
             def wrapper(*args, **kwargs):
-                value = method(*args, **kwargs)
-                data = schema_class().dump(value).data
-                return cls.generate_json_response(data)
+                request = cls.get_request()
+
+                errors = []
+                if request.body:
+                    errors = request_body_schema_class().validate(request.body)
+
+                if len(errors) == 0:
+                    value = method(request)
+                    is_list = isinstance(value, list) or isinstance(value, set) or isinstance(value, tuple)
+                    data = response_schema_class(many=is_list).dump(value)
+                    return cls.generate_json_response(value=data, status_code=200)
+                else:
+                    return cls.generate_json_response(value={'errors': errors}, status_code=400)
 
             return wrapper
 
         return method_decorator
+
+    @staticmethod
+    def get_request_body():
+        raise NotImplementedError
+
+    @staticmethod
+    def get_request_query_params():
+        raise NotImplementedError
+
+    @staticmethod
+    def get_request_path_params():
+        raise NotImplementedError
+
+    @classmethod
+    def get_request(cls):
+        req = LongitudeRequest()
+        req.body = cls.get_request_body()
+        req.query = cls.get_request_query_params()
+        req.params = cls.get_request_path_params()
+        return req
 
     def __init__(self, config=None, name='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
                  schemas=None, managers=None):
@@ -137,3 +185,6 @@ class LongitudeRESTAPI(LongitudeConfigurable):
                 }
                 operations[c] = operation
         self._endpoints.append((path, operations, manager))
+
+    def run(self):
+        raise NotImplementedError
