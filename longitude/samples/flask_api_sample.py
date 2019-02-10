@@ -7,12 +7,14 @@ from marshmallow import Schema, fields
 
 class HomeSchema(Schema):
     message = fields.String(default='Api is running!')
+    debug = fields.Boolean(default=bool(Config.get('flask_api.debug')))
 
 
 class HomeManager:
     @staticmethod
+    @LongitudeFlaskAPI.json_response(HomeSchema)
     def get():
-        return HomeSchema().dumps({})
+        return {'debug': False}
 
 
 class GroupSchema(Schema):

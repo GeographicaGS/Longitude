@@ -33,6 +33,22 @@ class LongitudeRESTAPI(LongitudeConfigurable):
         'patch': [202, 403, 500]
     }
 
+    @classmethod
+    def generate_json_response(cls, value):
+        raise NotImplementedError
+
+    @classmethod
+    def json_response(cls, schema_class):
+        def method_decorator(method):
+            def wrapper(*args, **kwargs):
+                value = method(*args, **kwargs)
+                data = schema_class().dump(value).data
+                return cls.generate_json_response(data)
+
+            return wrapper
+
+        return method_decorator
+
     def __init__(self, config=None, name='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
                  schemas=None, managers=None):
 
@@ -112,6 +128,7 @@ class LongitudeRESTAPI(LongitudeConfigurable):
                         if auto_name + 'Schema' in schema_names:
                             ref = auto_name
 
+                operation['produces'] = ['application/json']
                 operation['responses'][str(response_code)] = {
                     'description': '',
                     'schema': {

@@ -1,7 +1,7 @@
 from apispec.ext.flask import FlaskPlugin
 from apispec.ext.marshmallow import MarshmallowPlugin
 from flasgger import Swagger
-from flask import Flask
+from flask import Flask, jsonify
 from werkzeug.contrib.fixers import ProxyFix
 
 from .base import LongitudeRESTAPI
@@ -18,6 +18,10 @@ class LongitudeFlaskAPI(LongitudeRESTAPI):
         FlaskPlugin()
     )
 
+    @classmethod
+    def generate_json_response(cls, value):
+        return jsonify(value)
+
     def make_app(self):
         self._app = Flask(self.name)
         self._app.wsgi_app = ProxyFix(self._app.wsgi_app)
@@ -33,5 +37,6 @@ class LongitudeFlaskAPI(LongitudeRESTAPI):
             for ep in self._endpoints:
                 for command in ep[1]:
                     name = command + '_' + ep[2].__name__.replace('Manager', '')
+
                     self._app.add_url_rule(ep[0], name, getattr(ep[2], command))
                     self._spec.add_path(ep[0], ep[1], view=getattr(ep[2], command))
