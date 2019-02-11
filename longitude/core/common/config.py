@@ -8,6 +8,7 @@ class EnvironmentConfiguration:
     prefix = 'LONGITUDE'
     separator = '__'
     config = None
+    logger = logging.getLogger(__name__)
 
     @classmethod
     def _load_environment_variables(cls):
@@ -25,6 +26,8 @@ class EnvironmentConfiguration:
         for v in [k for k in os.environ.keys() if k.startswith(cls.prefix)]:
             value_path = v.split(cls.separator)[1:]
             cls._append_value(os.environ.get(v), value_path, cls.config)
+        if cls.config == {}:
+            cls.logger.warning('Empty environment configuration')
 
     @classmethod
     def get(cls, key=None):
@@ -86,14 +89,13 @@ class LongitudeConfigurable:
     _default_config = {}
     _config = {}
 
-    def __init__(self, config=None):
-        if config is not None and not isinstance(config, dict):
-            raise TypeError('Config object must be a dictionary')
+    def __init__(self, name=''):
+        self.name = name
+        self._config = EnvironmentConfiguration.get(name) or {}
 
-        self._config = config or {}
         self.logger = logging.getLogger(__class__.__module__)
         default_keys = set(self._default_config.keys())
-        config_keys = set(config.keys()) if config is not None else set([])
+        config_keys = set(self._config.keys()) if self._config is not None else set([])
         unexpected_config_keys = list(config_keys.difference(default_keys))
         using_defaults_for = list(default_keys.difference(config_keys))
 

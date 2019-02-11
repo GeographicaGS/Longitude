@@ -6,9 +6,7 @@
 ██║  ██║╚██████╔╝╚███╔███╔╝       ██║   ╚██████╔╝    ╚██████╔╝███████║███████╗       ██║   ██║  ██║██║███████║╚═╝
 ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝   
 
-You must create a 'carto_sample_config.py' file at this folder with the needed fields (look at the import)
-That file will be ignored in git, so do not worry about pushing credentials anywhere (but BE CAREFUL!)
-DO NOT REPLACE THIS WITH HARD CODED CREDENTIALS EVER AND ALWAYS REVIEW YOUR COMMITS!
+Fill the needed environment variables using LONGITUDE__ as prefix!
 
 There is a cache entry in the docker-compose.yaml file. You can use it to run a local Redis container to test this:
 
@@ -29,21 +27,15 @@ from longitude.core.common.helpers import DisabledCache
 from longitude.core.caches.redis import RedisCache
 from longitude.core.common.exceptions import LongitudeRetriesExceeded
 from longitude.core.data_sources.carto import CartoDataSource
-from longitude.samples.carto_sample_config import CARTO_API_KEY, CARTO_USER, CARTO_TABLE_NAME
 
 if __name__ == "__main__":
-    config = {
-        'api_key': CARTO_API_KEY,
-        'user': CARTO_USER,
-        'cache': {'password': 'longitude'}
-    }
 
-    ds = CartoDataSource(config, cache_class=RedisCache)
+    ds = CartoDataSource(name='carto_main', cache_class=RedisCache)
     ds.setup()
     if ds.is_ready:
         try:
 
-            REPEATED_QUERY = 'select * from %s limit 30' % CARTO_TABLE_NAME
+            REPEATED_QUERY = 'select * from county_population limit 30'
             start = time.time()
             data = ds.query(REPEATED_QUERY)
             elapsed = time.time() - start

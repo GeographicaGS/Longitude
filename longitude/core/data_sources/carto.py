@@ -18,8 +18,8 @@ class CartoDataSource(DataSource):
         'cache': None
     }
 
-    def __init__(self, config=None, cache_class=None):
-        super().__init__(config, cache_class=cache_class)
+    def __init__(self, name='', cache_class=None):
+        super().__init__(name=name, cache_class=cache_class)
         self._sql_client = None
         self._batch_client = None
         self.set_custom_query_default('do_post', False)
@@ -32,7 +32,7 @@ class CartoDataSource(DataSource):
 
         if self.get_config('uses_batch'):
             self._batch_client = BatchSQLClient(auth_client)
-        super().setup()
+        return super().setup()
 
     @property
     def base_url(self):

@@ -6,20 +6,15 @@
 ██║  ██║╚██████╔╝╚███╔███╔╝       ██║   ╚██████╔╝    ╚██████╔╝███████║███████╗       ██║   ██║  ██║██║███████║╚═╝
 ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝   
 
-You must create a 'sqlalchemy_sample_config.py' file at this folder with the needed fields (look at the import)
-That file will be ignored in git, so do not worry about pushing credentials anywhere (but BE CAREFUL!)
-DO NOT REPLACE THIS WITH HARD CODED CREDENTIALS EVER AND ALWAYS REVIEW YOUR COMMITS!
+Fill the needed environment variables using LONGITUDE__ as prefix!
 """
 import os
 import sys
-
-from sqlalchemy import text
 
 from longitude.core.caches.ram import RamCache
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
-from longitude.samples.sqlalchemy_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
 
 
 def prepare_sample_table(engine):
@@ -46,15 +41,7 @@ def prepare_sample_table(engine):
 
 
 if __name__ == "__main__":
-    config = {
-        'host': POSTGRES_HOST or 'localhost',
-        'port': POSTGRES_PORT or 5432,
-        'db': POSTGRES_DB or 'longitude',
-        'user': POSTGRES_USER or 'longitude',
-        'password': POSTGRES_PASS or 'longitude'
-    }
-
-    ds = SQLAlchemyDataSource(config, cache_class=RamCache)
+    ds = SQLAlchemyDataSource(name='postgres_main', cache_class=RamCache)
     ds.setup()
     if ds.is_ready:
         # We prepare a table to play around

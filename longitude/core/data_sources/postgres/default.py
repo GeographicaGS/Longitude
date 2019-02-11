@@ -17,10 +17,10 @@ class DefaultPostgresDataSource(DataSource):
         'password': ''
     }
 
-    def __init__(self, config=None, cache_class=None):
+    def __init__(self, name='', cache_class=None):
         self._conn = None
         self._cursor = None
-        super().__init__(config, cache_class=cache_class)
+        super().__init__(name=name, cache_class=cache_class)
 
     def __del__(self):
         if self._cursor:
@@ -38,7 +38,7 @@ class DefaultPostgresDataSource(DataSource):
         )
 
         self._cursor = self._conn.cursor()
-        super().setup()
+        return super().setup()
 
     def is_ready(self):
         return super().is_ready and self._conn and self._cursor
@@ -65,7 +65,6 @@ class DefaultPostgresDataSource(DataSource):
 
         return data
 
-
     def parse_response(self, response):
         if response:
             raw_fields = response['fields']
@@ -73,3 +72,9 @@ class DefaultPostgresDataSource(DataSource):
             rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
+
+    def write_data_frame(self, data_frame, table_name):
+        raise NotImplementedError
+
+    def read_data_frame(self, table_name):
+        raise NotImplementedError

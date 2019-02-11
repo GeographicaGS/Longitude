@@ -17,17 +17,21 @@ class LongitudeAccepted(LongitudeDefaultSchema):
     pass
 
 
+class LongitudeBadRequest(LongitudeDefaultSchema):
+    errors = fields.Dict(default={})
+
+
 class LongitudeEmptyContent(LongitudeDefaultSchema):
     pass
 
 
 class LongitudeNotFoundResponseSchema(LongitudeDefaultSchema):
-    error = fields.String(default="Resource not found")
+    errors = fields.String(default="Resource not found")
 
 
 class LongitudeNotAllowedResponseSchema(LongitudeDefaultSchema):
-    error = fields.String(default="Not authorized")
+    errors = fields.String(default="Not authorized")
 
 
 class LongitudeServerError(LongitudeDefaultSchema):
-    error = fields.String(default="Internal server error. Contact support team.")
+    errors = fields.String(default="Internal server error. Contact support team.")

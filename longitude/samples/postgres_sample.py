@@ -6,9 +6,7 @@
 ██║  ██║╚██████╔╝╚███╔███╔╝       ██║   ╚██████╔╝    ╚██████╔╝███████║███████╗       ██║   ██║  ██║██║███████║╚═╝
 ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝   
 
-You must create a 'postgresql_sample_config.py' file at this folder with the needed fields (look at the import)
-That file will be ignored in git, so do not worry about pushing credentials anywhere (but BE CAREFUL!)
-DO NOT REPLACE THIS WITH HARD CODED CREDENTIALS EVER AND ALWAYS REVIEW YOUR COMMITS!
+Fill the needed environment variables using LONGITUDE__ as prefix!
 """
 import os
 import sys
@@ -17,18 +15,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.caches.ram import RamCache
 from longitude.core.data_sources.base import LongitudeRetriesExceeded
 from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
-from longitude.samples.postgres_sample_config import POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASS
+
 
 if __name__ == "__main__":
-    config = {
-        'host': POSTGRES_HOST or 'localhost',
-        'port': POSTGRES_PORT or 5432,
-        'db': POSTGRES_DB or 'longitude',
-        'user': POSTGRES_USER or 'longitude',
-        'password': POSTGRES_PASS or 'longitude'
-    }
-
-    ds = DefaultPostgresDataSource(config, cache_class=RamCache)
+    ds = DefaultPostgresDataSource(name='postgres_main', cache_class=RamCache)
     ds.setup()
     if ds.is_ready:
         try:

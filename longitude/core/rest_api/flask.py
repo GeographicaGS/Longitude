@@ -40,6 +40,7 @@ class LongitudeFlaskAPI(LongitudeRESTAPI):
             from flask_cors import CORS
             CORS(self._app)
 
+        # TODO Disable this from configuration if in production
         Swagger(self._app, template=self._spec.to_dict())
 
         with self._app.app_context():

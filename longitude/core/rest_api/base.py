@@ -34,16 +34,17 @@ class LongitudeRESTAPI(LongitudeConfigurable):
         201: LongitudeCreated,
         202: LongitudeAccepted,
         204: LongitudeEmptyContent,
+        400: LongitudeBadRequest,
         403: LongitudeNotAllowedResponseSchema,
         404: LongitudeNotFoundResponseSchema,
         500: LongitudeServerError,
     }
 
     _DEFAULT_COMMAND_RESPONSES = {
-        'get': [200, 403, 500],
-        'post': [201, 403, 500],
-        'delete': [204, 403, 500],
-        'patch': [202, 403, 500]
+        'get': [200, 403, 404, 500],
+        'post': [201, 400, 403, 500],
+        'delete': [204, 403, 404, 500],
+        'patch': [202, 400, 403, 404, 500]
     }
 
     @classmethod
@@ -52,8 +53,15 @@ class LongitudeRESTAPI(LongitudeConfigurable):
 
     @classmethod
     def json_response(cls, response_schema_class, request_body_schema_class=None):
+        """
+        This decorator is used to mark a function as API endpoint returning JSON data.
+
+        :param response_schema_class: Marshmallow schema representing a valid response object.
+        :param request_body_schema_class: Marshmallow schema representing a valid body request object (if needed)
+        :return: HTTP Response with application/json Content-Type
+        """
         # TODO: For now we are assuming that body requests have the same schema as the responses
-        #  We can choose which fields are mandatory to validate the body schema
+        #  We can choose which fields are mandatory to validate the body schema to filter responses/requests
 
         request_body_schema_class = request_body_schema_class or response_schema_class
 
@@ -89,6 +97,10 @@ class LongitudeRESTAPI(LongitudeConfigurable):
     def get_request_path_params():
         raise NotImplementedError
 
+    @staticmethod
+    def get_request_headers():
+        raise NotImplementedError
+
     @classmethod
     def get_request(cls):
         req = LongitudeRequest()
@@ -97,19 +109,22 @@ class LongitudeRESTAPI(LongitudeConfigurable):
         req.params = cls.get_request_path_params()
         return req
 
-    def __init__(self, config=None, name='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
-                 schemas=None, managers=None):
+    def __init__(self, name='', title='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
+                 schemas=None, managers=None, data_sources=None):
 
-        super().__init__(config)
+        super().__init__(name=name)
         self._app = None
         self._spec: APISpec = None
 
         self.name = name
+        self.title = title
         self.version = version
         self.version = version
 
         self._schemas = schemas if schemas is not None else []
         self._managers = managers if managers is not None else []
+        self._data_sources = data_sources if data_sources is not None else []
+
         # Defaults hold definitions for the common return codes as a dictionary
         self._default_schemas = return_code_defaults if return_code_defaults is not None else self._DEFAULT_RESPONSES
 
@@ -118,7 +133,7 @@ class LongitudeRESTAPI(LongitudeConfigurable):
     def setup(self):
 
         self._spec = APISpec(
-            title=self.name,
+            title=self.title,
             version=self.version,
             openapi_version='2.0',
             plugins=self.plugins
@@ -131,11 +146,22 @@ class LongitudeRESTAPI(LongitudeConfigurable):
             name = sc.__name__.replace('Schema', '')
             self._spec.definition(name, schema=sc)
 
-        self.make_app()
+        data_sources_ok = all([ds.setup() for ds in self._data_sources])
+
+        return data_sources_ok and self.make_app()
 
     def make_app(self):
+        """
+        Derived classes must define its own method where the service app is created (Flask, bottle, Django...). The
+        reference to the app must be stored at self._app
+
+        In the base class, only endpoints are being defined here in an agnostic way.
+
+        :return: Always True in base class. In derived class, it must return True if the app has been correctly created.
+        """
         for endpoint in self._endpoints:
             self._spec.add_path(endpoint[0], endpoint[1])
+        return True
 
     def add_endpoint(self, path, commands=None, manager=None):
         """
@@ -188,3 +214,10 @@ class LongitudeRESTAPI(LongitudeConfigurable):
 
     def run(self):
         raise NotImplementedError
+
+    def get_spec(self):
+        """
+        Generated APISpec.
+        :return: Returns the API specification as dictionary.
+        """
+        return self._spec.to_dict()

@@ -1,15 +1,37 @@
+"""
+██╗  ██╗ ██████╗ ██╗    ██╗    ████████╗ ██████╗     ██╗   ██╗███████╗███████╗    ████████╗██╗  ██╗██╗███████╗
+██║  ██║██╔═══██╗██║    ██║    ╚══██╔══╝██╔═══██╗    ██║   ██║██╔════╝██╔════╝    ╚══██╔══╝██║  ██║██║██╔════╝██╗
+███████║██║   ██║██║ █╗ ██║       ██║   ██║   ██║    ██║   ██║███████╗█████╗         ██║   ███████║██║███████╗╚═╝
+██╔══██║██║   ██║██║███╗██║       ██║   ██║   ██║    ██║   ██║╚════██║██╔══╝         ██║   ██╔══██║██║╚════██║██╗
+██║  ██║╚██████╔╝╚███╔███╔╝       ██║   ╚██████╔╝    ╚██████╔╝███████║███████╗       ██║   ██║  ██║██║███████║╚═╝
+╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝
+
+Fill the needed environment variables using LONGITUDE__ as prefix!
+"""
+
 from pprint import pprint
-from longitude.core.rest_api.flask import LongitudeFlaskAPI
+from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
+from longitude.core.rest_api.flask import LongitudeFlaskAPI as RESTApi
 from longitude.core.common.config import EnvironmentConfiguration as Config
+from longitude.core.data_sources.base import DataSource
 
 from marshmallow import Schema, fields
+
+# These are globally accessible for endpoint methods
+dss = DataSource.data_sources
 
 
 # Marshmallow schemas
 
 class HomeSchema(Schema):
+    debug_mode = Config.get('flask_api.debug')
+
     message = fields.String(default='')
-    debug = fields.Boolean(default=bool(Config.get('flask_api.debug')))
+    debug = fields.Boolean(default=bool(debug_mode))
+
+    # Conditional Schema (we show in the root the info if we are debugging)
+    if debug_mode:
+        data_sources = fields.Dict(keys=fields.Str(), values=fields.Str())
 
 
 class GroupSchema(Schema):
@@ -36,15 +58,20 @@ class UserDetailSchema(Schema):
 
 class HomeManager:
     @staticmethod
-    @LongitudeFlaskAPI.json_response(HomeSchema)
+    @RESTApi.json_response(HomeSchema)
     def get(req):
-        return {'message': 'Api is running!'}
+
+        # As the schema shows data_sources info only if in debug, it is irrelevant if we fill it out here.
+        return {
+            'message': 'Api is running!',
+            'data_sources': {ds.name: ds.__class__.__name__ for ds in list(dss.values())}
+        }
 
 
 class UsersManager:
 
     @staticmethod
-    @LongitudeFlaskAPI.json_response(UserSchema)
+    @RESTApi.json_response(UserSchema)
     def get(req):
         return [
             {'id': 0,
@@ -62,7 +89,7 @@ class UsersManager:
 
 class UserDetailManager:
     @staticmethod
-    @LongitudeFlaskAPI.json_response(UserDetailSchema)
+    @RESTApi.json_response(UserDetailSchema)
     def get(req):
         return {
             'id': req['user_id'],
@@ -70,7 +97,7 @@ class UserDetailManager:
         }
 
     @staticmethod
-    @LongitudeFlaskAPI.json_response(UserDetailSchema)
+    @RESTApi.json_response(UserDetailSchema)
     def post(req):
         return {
             'id': req['user_id'],
@@ -80,7 +107,7 @@ class UserDetailManager:
 
 class UserManager:
     @staticmethod
-    @LongitudeFlaskAPI.json_response(UserSchema)
+    @RESTApi.json_response(UserSchema)
     def get(req):
         user_id = req['user_id']
         return {
@@ -102,10 +129,11 @@ class UserManager:
 # App config
 
 if __name__ == "__main__":
+    data_sources = [DefaultPostgresDataSource(name='postgres_main')]
     schemas = [HomeSchema, GroupSchema, UserSchema, UserDetailSchema]
     managers = [UserManager, UsersManager, HomeManager]
 
-    api = LongitudeFlaskAPI(config=Config.get('flask_api'), schemas=schemas, managers=managers)
+    api = RESTApi(name='flask_api', schemas=schemas, managers=managers, data_sources=data_sources)
     api.add_endpoint('/', manager=HomeManager)
     api.add_endpoint('/users', ['get', 'post'], manager=UsersManager)
 
@@ -113,8 +141,6 @@ if __name__ == "__main__":
     api.add_endpoint('/users/{user_id:Integer}/details', {'get': UserDetailSchema, 'post': UserDetailSchema},
                      manager=UserDetailManager)
 
-    api.setup()
-
-    pprint(api._spec.to_dict())
-
-    api._app.run(debug=True)
+    if api.setup():
+        pprint(api._spec.to_dict())
+        api._app.run(debug=True)
