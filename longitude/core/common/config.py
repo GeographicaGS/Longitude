@@ -30,12 +30,13 @@ class EnvironmentConfiguration:
             cls.logger.warning('Empty environment configuration')
 
     @classmethod
-    def get(cls, key=None):
+    def get(cls, key=None, default=None):
         """
         Returns a nested config value from the configuration. It allows getting values as a series of joined keys using
         dot ('.') as separator. This will search for keys in nested dictionaries until a final value is found.
 
         :param key: String in the form of 'parent.child.value...'. It must replicate the configuration nested structure.
+        :param default: Returned value if nested key is not found
         :return: It returns an integer, a string or a nested dictionary. If none of these is found, it returns None.
         """
 
@@ -44,7 +45,15 @@ class EnvironmentConfiguration:
             cls._load_environment_variables()
 
         if key is not None:
-            return cls._get_nested_key(key, cls.config)
+            value = cls._get_nested_key(key, cls.config)
+            if value:
+                return value
+            else:
+                if default is not None:
+                    cls.logger.warning('Using default value for config key %s' % key)
+                else:
+                    cls.logger.warning('Config key %s not found and no default has been defined.' % key)
+                return default
         else:
             return cls.config
 
