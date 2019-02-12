@@ -78,8 +78,15 @@ class DefaultPostgresDataSource(DataSource):
         self._cursor.copy_from(data, to_table, columns=headers, sep=',')
         self._conn.commit()
 
-    def write_data_frame(self, data_frame, table_name):
-        raise NotImplementedError
+    def write_dataframe(self, *args, **kwargs):
+        raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')
 
-    def read_data_frame(self, table_name):
-        raise NotImplementedError
+    def read_dataframe(self, *args, **kwargs):
+        # TODO: It is possible to read dataframes using psycopg2, but we do not support it for now to encourage
+        #  the use of SQLAlchemy for such tasks
+        raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')
+
+    def query_dataframe(self, *args, **kwargs):
+        # TODO: It is possible to read dataframes using psycopg2, but we do not support it for now to encourage
+        #  the use of SQLAlchemy for such tasks
+        raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')

@@ -207,3 +207,12 @@ class DataSource(LongitudeConfigurable):
 
     def copy_from(self, data, filepath, to_table):
         raise NotImplementedError
+
+    def read_dataframe(self, table_name='', *args, **kwargs):
+        raise NotImplementedError
+
+    def query_dataframe(self, query='', *args, **kwargs):
+        raise NotImplementedError
+
+    def write_dataframe(self, df, table_name='', *args, **kwargs):
+        raise NotImplementedError

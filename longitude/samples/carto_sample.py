@@ -27,9 +27,9 @@ if __name__ == "__main__":
 
             # Pandas DataFrame read/write
             # ########################################
-            df = ds.cc.read(table_name='country_population', limit=30)
+            df = ds.read_dataframe(table_name='county_population', limit=30)
             print(df)
-            ds.cc.write(df=df, table_name='another_county_population', overwrite=True)
+            ds.write_dataframe(df=df, table_name='another_county_population', overwrite=True)
 
         except LongitudeRetriesExceeded:
             print("Too many retries and no success...")

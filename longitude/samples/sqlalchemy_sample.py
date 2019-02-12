@@ -73,13 +73,15 @@ if __name__ == "__main__":
         print("Cached? " + str(r.comes_from_cache))
 
         # Work with data as dataframes
-        import pandas as pd
+
         ds.query('DROP TABLE IF EXISTS new_avengers')
         ds.query('DROP TABLE IF EXISTS green_avengers')
-        df = pd.read_sql_table('avengers', con=ds.engine)
-        df.to_sql('new_avengers', con=ds.engine)
-        df = pd.read_sql_query("SELECT * FROM avengers where name='hulk'", con=ds.engine)
-        df.to_sql('green_avengers', con=ds.engine)
+
+        df = ds.read_dataframe(table_name='avengers')
+        ds.write_dataframe(df, table_name='new_avengers')
+        df = ds.query_dataframe(query="SELECT * FROM avengers where name='hulk'")
+        ds.write_dataframe(df, table_name='green_avengers')
+
         r = ds.query('SELECT * FROM green_avengers')
         print(r.rows[0])
     else:

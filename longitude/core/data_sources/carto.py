@@ -1,5 +1,3 @@
-import os
-import requests
 from carto.auth import APIKeyAuthClient
 from carto.exceptions import CartoException
 from carto.sql import BatchSQLClient, SQLClient
@@ -119,3 +117,12 @@ class CartoDataSource(DataSource):
         data.seek(0)
         from_query = 'COPY %s (%s) FROM stdin WITH (FORMAT csv, HEADER true)' % (to_table, headers)
         return self._copy_client.copyfrom_file_object(from_query, data)
+
+    def read_dataframe(self, table_name='', *args, **kwargs):
+        return self.cc.read(table_name=table_name, *args, **kwargs)
+
+    def query_dataframe(self, query='', *args, **kwargs):
+        return self.cc.query(query=query, *args, **kwargs)
+
+    def write_dataframe(self, df, table_name='', *args, **kwargs):
+        return self.cc.write(df=df, table_name=table_name, *args, **kwargs)
