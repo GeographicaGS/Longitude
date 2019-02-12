@@ -3,14 +3,15 @@ import logging
 import pickle
 
 from longitude.core.common.query_response import LongitudeQueryResponse
+
 from ..common.config import LongitudeConfigurable
 
 
 class LongitudeCache(LongitudeConfigurable):
     _default_config = {}
 
-    def __init__(self, config=None):
-        super().__init__(config=config)
+    def __init__(self, name=''):
+        super().__init__(name=name)
         self.logger = logging.getLogger(self.__class__.__module__)
 
     @staticmethod

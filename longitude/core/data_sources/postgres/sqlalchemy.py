@@ -1,10 +1,14 @@
 from time import time
 
+from pandas import read_sql_table, read_sql_query
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from .common import psycopg2_type_as_string
+
 from longitude.core.common.query_response import LongitudeQueryResponse
 from longitude.core.data_sources.base import DataSource
+
+from .common import psycopg2_type_as_string
 
 
 class SQLAlchemyDataSource(DataSource):
@@ -27,13 +31,13 @@ class SQLAlchemyDataSource(DataSource):
     def create_all(self):
         self.base_class.metadata.create_all(self._engine)
 
-    def __init__(self, config=None, cache_class=None):
+    def __init__(self, name='', cache_class=None):
         # https://docs.sqlalchemy.org/en/latest/dialects/postgresql.html
 
         self._engine = None
         self._connection = None
 
-        super().__init__(config, cache_class=cache_class)
+        super().__init__(name=name, cache_class=cache_class)
 
     def __del__(self):
         if self._connection:
@@ -44,7 +48,7 @@ class SQLAlchemyDataSource(DataSource):
         self._engine = create_engine(connection_string_template % self.get_config(), echo=True)
         self._connection = self._engine.connect()
 
-        super().setup()
+        return super().setup()
 
     @property
     def is_ready(self):
@@ -77,3 +81,18 @@ class SQLAlchemyDataSource(DataSource):
             rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
+
+    def copy_from(self, data, filepath, to_table):
+        headers = data.readline().decode('utf-8').split(',')
+        conn = self._engine.raw_connection()
+        conn.cursor().copy_from(data, to_table, columns=headers, sep=',')
+        conn.commit()
+
+    def read_dataframe(self, table_name='', *args, **kwargs):
+        return read_sql_table(table_name=table_name, con=self._engine)
+
+    def query_dataframe(self, query='', *args, **kwargs):
+        return read_sql_query(sql=query, con=self._engine, *args, **kwargs)
+
+    def write_dataframe(self, df, table_name='', *args, **kwargs):
+        return df.to_sql(name=table_name, con=self._engine, *args, **kwargs)

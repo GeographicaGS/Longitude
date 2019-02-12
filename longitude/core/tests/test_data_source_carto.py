@@ -27,29 +27,34 @@ class TestCartoDataSource(TestCase):
             self.assertEqual('', carto_ds.get_config('user'))
             self.assertFalse(carto_ds.get_config('uses_batch'))
 
+    @mock.patch.dict('longitude.core.common.config.os.environ', {})
     def test_setup_not_ready_if_empty_user(self):
-        carto_ds = CartoDataSource({
-            'uses_batch': True  # Just to enable that coverage branch for now
-        })
+        carto_ds = CartoDataSource('test_config')
         carto_ds.setup()
         self.assertFalse(carto_ds.is_ready)
 
-    def test_setup_needs_some_user(self):
-        carto_ds = CartoDataSource({
+    @mock.patch('longitude.core.common.config.EnvironmentConfiguration.get')
+    def test_setup_needs_some_user(self, fake_config_get):
+        fake_config_get.return_value = {
             'user': 'some_user'
-        })
+        }
+        carto_ds = CartoDataSource('test_config')
         carto_ds.setup()
         self.assertTrue(carto_ds.is_ready)
         self.assertEqual('https://some_user.carto.com', carto_ds.base_url)
+        fake_config_get.assert_called_once_with('test_config')
 
-    def test_setup_can_accept_on_premise_domain(self):
-        carto_ds = CartoDataSource({
+    @mock.patch('longitude.core.common.config.EnvironmentConfiguration.get')
+    def test_setup_can_accept_on_premise_domain(self, fake_configuration_get):
+        fake_configuration_get.return_value = {
             'user': 'some_on_premise_user',
             'on_premise_domain': 'some_cool_domain.io'
-        })
+        }
+        carto_ds = CartoDataSource('test_config')
         carto_ds.setup()
         self.assertTrue(carto_ds.is_ready)
         self.assertEqual('https://some_cool_domain.io/user/some_on_premise_user', carto_ds.base_url)
+        fake_configuration_get.assert_called_once_with('test_config')
 
     def test_succesful_query(self):
         ds = CartoDataSource()

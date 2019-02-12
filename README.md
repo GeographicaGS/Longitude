@@ -32,24 +32,27 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
  
 - [x] CI PyPi versioning
 
-- [ ] Data manipulation
-  - [ ] Carto
-    - [ ] DataFrame read/write
-    - [ ] COPY
-  - [ ] Postgres
-    - [ ] DataFrame read/write
-    - [ ] COPY
+- [ ] COPY operations
+  - [x] Carto
+    - [x] COPY FROM
+    - [ ] COPY TO
+  - [x] Postgres
+    - [x] COPY FROM
+    - [ ] COPY TO
+  - [x] SQLAlchemy
+    - [x] COPY FROM
+    - [ ] COPY TO
  
 - [ ] Validations
   - [ ] Marshmallow
     - [ ] Wrapper (?)
     - [ ] Documentation
  
-- [ ] Swagger
+- [x] Swagger
   - [ ] Decorators
-  - [ ] Flassger (?)
+  - [x] Flassger (?)
   - [ ] OAuth integration
-  - [ ] Postman integration
+  - [x] Postman integration
   - [ ] Documentation
   
 - [ ] SQL Alchemy

@@ -13,4 +13,3 @@ class LongitudeQueryResponse:
 
     def mark_as_cached(self):
         self._from_cache = True
-

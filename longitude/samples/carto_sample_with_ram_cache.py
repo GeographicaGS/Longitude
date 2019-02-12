@@ -6,9 +6,7 @@
 ██║  ██║╚██████╔╝╚███╔███╔╝       ██║   ╚██████╔╝    ╚██████╔╝███████║███████╗       ██║   ██║  ██║██║███████║╚═╝
 ╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝   
 
-You must create a 'carto_sample_config.py' file at this folder with the needed fields (look at the import)
-That file will be ignored in git, so do not worry about pushing credentials anywhere (but BE CAREFUL!)
-DO NOT REPLACE THIS WITH HARD CODED CREDENTIALS EVER AND ALWAYS REVIEW YOUR COMMITS!
+Fill the needed environment variables using LONGITUDE__ as prefix!
 """
 
 import time
@@ -19,20 +17,16 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.caches.ram import RamCache
 from longitude.core.data_sources.base import LongitudeRetriesExceeded
 from longitude.core.data_sources.carto import CartoDataSource
-from longitude.samples.carto_sample_config import CARTO_API_KEY, CARTO_USER, CARTO_TABLE_NAME
 
 if __name__ == "__main__":
-    config = {
-        'api_key': CARTO_API_KEY,
-        'user': CARTO_USER
-    }
+    # This will throw a log warning as we are passing a password to the RamCache config and it does not expect it
+    ds = CartoDataSource(name='carto_main', cache_class=RamCache)
 
-    ds = CartoDataSource(config, cache_class=RamCache)
     ds.setup()
     if ds.is_ready:
         try:
 
-            REPEATED_QUERY = 'select * from %s limit 30' % CARTO_TABLE_NAME
+            REPEATED_QUERY = 'select * from county_population limit 30'
             start = time.time()
             data = ds.query(REPEATED_QUERY)
             elapsed = time.time() - start

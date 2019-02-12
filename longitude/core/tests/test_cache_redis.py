@@ -3,6 +3,7 @@ from unittest import TestCase, mock
 import redis.exceptions
 
 from longitude.core.common.query_response import LongitudeQueryResponse
+
 from ..caches.redis import RedisCache
 
 
@@ -11,7 +12,7 @@ class TestRedisCache(TestCase):
     cache = None
 
     def setUp(self):
-        self.cache = RedisCache(config={'host': 'some_host', 'port': 666, 'db': 0, 'password': 'some_pass'})
+        self.cache = RedisCache(name='test_cache')
 
     def test_is_ready_if_redis_returns_ping(self, redis_mock):
         redis_mock.return_value.ping.return_value = True
@@ -39,7 +40,7 @@ class TestRedisCache(TestCase):
         with self.assertLogs(level='ERROR') as log_test:
             self.assertFalse(self.cache.is_ready)
             expected_log = [
-                'ERROR:longitude.core.caches.redis:Cannot connect to Redis server at some_host:666.'
+                'ERROR:longitude.core.caches.redis:Cannot connect to Redis server at localhost:6379.'
             ]
 
             self.assertEqual(expected_log, log_test.output)

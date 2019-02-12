@@ -18,21 +18,43 @@ class CartoDataSource(DataSource):
         'cache': None
     }
 
-    def __init__(self, config=None, cache_class=None):
-        super().__init__(config, cache_class=cache_class)
+    def __init__(self, name='', cache_class=None):
+        super().__init__(name=name, cache_class=cache_class)
+        self._auth_client = None
         self._sql_client = None
         self._batch_client = None
         self.set_custom_query_default('do_post', False)
         self.set_custom_query_default('parse_json', True)
         self.set_custom_query_default('format', 'json')
 
-    def setup(self):
-        auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
-        self._sql_client = SQLClient(auth_client, api_version=self.get_config('api_version'))
+        # Carto Context for DataFrame handling
+        self._carto_context = None
 
+        # Carto client for COPYs
+        self._copy_client = None
+
+    @property
+    def cc(self):
+        """
+        Creates and returns a CartoContext object to work with Panda Dataframes
+        :return:
+        """
+        # TODO: The CartoContext documentaton says that SSL must be disabled sometimes if an on premise host is used
+        #  We are not taking this into account. It would need to create a requests.Session() object, set its SSL
+        #  to false and pass it to the CartoContext init.
+        import cartoframes
+        if self._carto_context is None:
+            self._carto_context = cartoframes.CartoContext(base_url=self.base_url, api_key=self.get_config('api_key'))
+        return self._carto_context
+
+    def setup(self):
+        self._auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
+        self._sql_client = SQLClient(self._auth_client, api_version=self.get_config('api_version'))
+
+        # TODO: We could create the batch client instance in the first use instead of getting a config field
         if self.get_config('uses_batch'):
-            self._batch_client = BatchSQLClient(auth_client)
-        super().setup()
+            self._batch_client = BatchSQLClient(self._auth_client)
+        return super().setup()
 
     @property
     def base_url(self):
@@ -65,6 +87,7 @@ class CartoDataSource(DataSource):
         #  ---
         #  There is an open issue in CARTO about having separated parameters and binding them in the server:
         #  https://github.com/CartoDB/Geographica-Product-Coordination/issues/57
+        params = {k: "'" + v + "'" for k, v in params.items()}
         formatted_query = query_template % params
 
         parse_json = query_config.custom['parse_json']
@@ -74,7 +97,7 @@ class CartoDataSource(DataSource):
             return self._sql_client.send(formatted_query, parse_json=parse_json, do_post=do_post, format=format_)
 
         except CartoException as e:
-            raise LongitudeQueryCannotBeExecutedException
+            raise LongitudeQueryCannotBeExecutedException(str(e))
 
     def parse_response(self, response):
         return LongitudeQueryResponse(
@@ -85,3 +108,21 @@ class CartoDataSource(DataSource):
                 'total_rows': response['total_rows']
             }
         )
+
+    def copy_from(self, data, filepath, to_table):
+        if self._copy_client is None:
+            from carto.sql import CopySQLClient
+            self._copy_client = CopySQLClient(self._auth_client)
+        headers = data.readline().decode('utf-8')
+        data.seek(0)
+        from_query = 'COPY %s (%s) FROM stdin WITH (FORMAT csv, HEADER true)' % (to_table, headers)
+        return self._copy_client.copyfrom_file_object(from_query, data)
+
+    def read_dataframe(self, table_name='', *args, **kwargs):
+        return self.cc.read(table_name=table_name, *args, **kwargs)
+
+    def query_dataframe(self, query='', *args, **kwargs):
+        return self.cc.query(query=query, *args, **kwargs)
+
+    def write_dataframe(self, df, table_name='', *args, **kwargs):
+        return self.cc.write(df=df, table_name=table_name, *args, **kwargs)

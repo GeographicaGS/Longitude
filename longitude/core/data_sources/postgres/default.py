@@ -2,10 +2,10 @@ from time import time
 
 import psycopg2
 import psycopg2.extensions
-from .common import psycopg2_type_as_string
 
 from ...common.query_response import LongitudeQueryResponse
 from ..base import DataSource
+from .common import psycopg2_type_as_string
 
 
 class DefaultPostgresDataSource(DataSource):
@@ -17,10 +17,10 @@ class DefaultPostgresDataSource(DataSource):
         'password': ''
     }
 
-    def __init__(self, config=None, cache_class=None):
+    def __init__(self, name='', cache_class=None):
         self._conn = None
         self._cursor = None
-        super().__init__(config, cache_class=cache_class)
+        super().__init__(name=name, cache_class=cache_class)
 
     def __del__(self):
         if self._cursor:
@@ -38,7 +38,7 @@ class DefaultPostgresDataSource(DataSource):
         )
 
         self._cursor = self._conn.cursor()
-        super().setup()
+        return super().setup()
 
     def is_ready(self):
         return super().is_ready and self._conn and self._cursor
@@ -65,7 +65,6 @@ class DefaultPostgresDataSource(DataSource):
 
         return data
 
-
     def parse_response(self, response):
         if response:
             raw_fields = response['fields']
@@ -73,3 +72,21 @@ class DefaultPostgresDataSource(DataSource):
             rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
             return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
         return None
+
+    def copy_from(self, data, filepath, to_table):
+        headers = data.readline().decode('utf-8').split(',')
+        self._cursor.copy_from(data, to_table, columns=headers, sep=',')
+        self._conn.commit()
+
+    def write_dataframe(self, *args, **kwargs):
+        raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')
+
+    def read_dataframe(self, *args, **kwargs):
+        # TODO: It is possible to read dataframes using psycopg2, but we do not support it for now to encourage
+        #  the use of SQLAlchemy for such tasks
+        raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')
+
+    def query_dataframe(self, *args, **kwargs):
+        # TODO: It is possible to read dataframes using psycopg2, but we do not support it for now to encourage
+        #  the use of SQLAlchemy for such tasks
+        raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')
