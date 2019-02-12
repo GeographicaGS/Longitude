@@ -132,11 +132,18 @@ class LongitudeRESTAPI(LongitudeConfigurable):
 
     def setup(self):
 
+        options = {
+            'host': "%s:%d" % (self.get_config('host'), self.get_config('port')),
+            'schemas': [self.get_config('protocol')],
+            'basePath': ''
+        }
+
         self._spec = APISpec(
             title=self.title,
             version=self.version,
             openapi_version='2.0',
-            plugins=self.plugins
+            plugins=self.plugins,
+            **options
         )
 
         for rc in self._default_schemas:
@@ -183,6 +190,28 @@ class LongitudeRESTAPI(LongitudeConfigurable):
             params = re.findall(params_template, url_path)
             return auto_name, params
 
+        def _append_operation(http_command, operation, operations, ref, response_code):
+            operation['produces'] = ['application/json']
+            operation['responses'][str(response_code)] = {
+                'description': '',
+                'schema': {
+                    '$ref': '#/definitions/%s' % ref
+                }
+            }
+            operations[http_command] = operation
+
+        def _generate_reference_name(http_command, commands, parse_path, path, response_code, schema_names):
+            ref = 'default_%d' % response_code
+            if floor(response_code / 100) == 2:
+                if isinstance(commands, dict):
+                    ref = commands[http_command].__name__.replace('Schema', '')
+                else:
+                    auto_name, path_params = parse_path(path)
+                    # TODO: spec forthe path_params
+                    if auto_name + 'Schema' in schema_names:
+                        ref = auto_name
+            return ref
+
         if commands is None:  # By default, we assume it is get
             commands = ['get']
 
@@ -192,24 +221,8 @@ class LongitudeRESTAPI(LongitudeConfigurable):
         for c in commands:
             operation = {'responses': {}}
             for response_code in self._DEFAULT_COMMAND_RESPONSES[c]:
-                ref = 'default_%d' % response_code
-                if floor(response_code / 100) == 2:
-                    if isinstance(commands, dict):
-                        ref = commands[c].__name__.replace('Schema', '')
-                    else:
-                        auto_name, path_params = parse_path(path)
-                        # TODO: spec forthe path_params
-                        if auto_name + 'Schema' in schema_names:
-                            ref = auto_name
-
-                operation['produces'] = ['application/json']
-                operation['responses'][str(response_code)] = {
-                    'description': '',
-                    'schema': {
-                        '$ref': '#/definitions/%s' % ref
-                    }
-                }
-                operations[c] = operation
+                reference_name = _generate_reference_name(c, commands, parse_path, path, response_code, schema_names)
+                _append_operation(c, operation, operations, reference_name, response_code)
         self._endpoints.append((path, operations, manager))
 
     def run(self):

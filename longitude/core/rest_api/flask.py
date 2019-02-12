@@ -13,6 +13,9 @@ from ..common.exceptions import LongitudeAppNotReady
 
 class LongitudeFlaskAPI(LongitudeRESTAPI):
     _default_config = {
+        'protocol': 'http',
+        'host': 'localhost',
+        'port': 5000,
         'debug': False,
         'secret': None,
         'allow_cors': True
@@ -70,6 +73,7 @@ class LongitudeFlaskAPI(LongitudeRESTAPI):
                     self._app.add_url_rule(rule=url, endpoint=name, view_func=getattr(ep[2], command),
                                            methods=[command])
                     self._spec.add_path(ep[0], ep[1], view=getattr(ep[2], command))
+        return self._app is not None
 
     def run(self):
         if self._app:
