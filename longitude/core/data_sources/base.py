@@ -21,9 +21,11 @@ class DataSourceQueryConfig:
 
 
 class DataSource(LongitudeConfigurable):
+    # Every  data source is registered at class level so other domain entities can access them (APIs, views...)
+    data_sources = {}
 
-    def __init__(self, config=None, cache_class: Type[LongitudeCache] = None):
-        super().__init__(config=config)
+    def __init__(self, name='', cache_class: Type[LongitudeCache] = None):
+        super().__init__(name=name)
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
         self._use_cache = True
@@ -33,11 +35,16 @@ class DataSource(LongitudeConfigurable):
             if not issubclass(cache_class, LongitudeCache):
                 raise TypeError('Cache must derive from LongitudeCache or be None')
             else:
-                self._cache = cache_class(config=config.get('cache'))
+                self._cache = cache_class('%s.cache' % self.name)
 
     def setup(self):
-        if self._cache:
-            self._cache.setup()
+
+        if self._cache and not self._cache.setup():
+            self.logger.error('Error in the cache configuration for "%s" data source' % self.name)
+            return False
+
+        self.data_sources[self.name] = self
+        return True
 
     @property
     def tries(self):

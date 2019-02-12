@@ -48,11 +48,11 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
     - [ ] Wrapper (?)
     - [ ] Documentation
  
-- [ ] Swagger
+- [x] Swagger
   - [ ] Decorators
-  - [ ] Flassger (?)
+  - [x] Flassger (?)
   - [ ] OAuth integration
-  - [ ] Postman integration
+  - [x] Postman integration
   - [ ] Documentation
   
 - [ ] SQL Alchemy

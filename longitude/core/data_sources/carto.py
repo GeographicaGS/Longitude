@@ -20,8 +20,8 @@ class CartoDataSource(DataSource):
         'cache': None
     }
 
-    def __init__(self, config=None, cache_class=None):
-        super().__init__(config, cache_class=cache_class)
+    def __init__(self, name='', cache_class=None):
+        super().__init__(name=name, cache_class=cache_class)
         self._auth_client = None
         self._sql_client = None
         self._batch_client = None
@@ -56,7 +56,7 @@ class CartoDataSource(DataSource):
         # TODO: We could create the batch client instance in the first use instead of getting a config field
         if self.get_config('uses_batch'):
             self._batch_client = BatchSQLClient(self._auth_client)
-        super().setup()
+        return super().setup()
 
     @property
     def base_url(self):
