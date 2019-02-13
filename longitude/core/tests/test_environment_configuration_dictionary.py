@@ -16,9 +16,9 @@ class TestConfigurationDictionary(TestCase):
 
             with self.assertLogs(level='WARNING') as test_log:
 
-                self.assertEqual(42, Config.get('parent.child.value_a'))
-                self.assertEqual('wut', Config.get('parent.child.value_b'))
-                self.assertEqual(8008, Config.get('value_a'))
+                self.assertEqual(42, Config.get('PARENT.child.value_a'))
+                self.assertEqual('wut', Config.get('parent.CHILD.value_b'))
+                self.assertEqual(8008, Config.get('value_A'))
 
                 self.assertEqual(None, Config.get('wrong_value'))
                 self.assertEqual(None, Config.get('wrong_parent.child.value'))

@@ -1,5 +1,6 @@
 from unittest import TestCase, mock
 
+from longitude.core.common.config import EnvironmentConfiguration as Config
 from carto.exceptions import CartoException
 
 from ..data_sources.base import LongitudeRetriesExceeded
@@ -10,10 +11,13 @@ class TestCartoDataSource(TestCase):
 
     def test_default_configuration_loads(self):
         with self.assertLogs(level='INFO') as log_test:
+            Config.config = None  # To ensure that environment will be loaded
             carto_ds = CartoDataSource()
             module_name = 'longitude.core.common.config'
             self.assertEqual(log_test.output,
-                             ['INFO:%s:api_key key is using default value' % module_name,
+                             ['WARNING:%s:Empty environment configuration' % module_name,
+                              "WARNING:%s:Using default value for root config" % module_name,
+                              'INFO:%s:api_key key is using default value' % module_name,
                               'INFO:%s:api_version key is using default value' % module_name,
                               'INFO:%s:cache key is using default value' % module_name,
                               'INFO:%s:on_premise_domain key is using default value' % module_name,
@@ -42,7 +46,7 @@ class TestCartoDataSource(TestCase):
         carto_ds.setup()
         self.assertTrue(carto_ds.is_ready)
         self.assertEqual('https://some_user.carto.com', carto_ds.base_url)
-        fake_config_get.assert_called_once_with('test_config')
+        fake_config_get.assert_called_once_with('test_config', default={})
 
     @mock.patch('longitude.core.common.config.EnvironmentConfiguration.get')
     def test_setup_can_accept_on_premise_domain(self, fake_configuration_get):
@@ -54,7 +58,7 @@ class TestCartoDataSource(TestCase):
         carto_ds.setup()
         self.assertTrue(carto_ds.is_ready)
         self.assertEqual('https://some_cool_domain.io/user/some_on_premise_user', carto_ds.base_url)
-        fake_configuration_get.assert_called_once_with('test_config')
+        fake_configuration_get.assert_called_once_with('test_config', default={})
 
     def test_succesful_query(self):
         ds = CartoDataSource()

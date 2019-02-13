@@ -50,7 +50,10 @@ class EnvironmentConfiguration:
                 return value
             else:
                 if default is not None:
-                    cls.logger.warning('Using default value for config key %s' % key)
+                    if key:
+                        cls.logger.warning('Using default value for config key %s' % key)
+                    else:
+                        cls.logger.warning('Using default value for root config')
                 else:
                     cls.logger.warning('Config key %s not found and no default has been defined.' % key)
                 return default
@@ -66,7 +69,7 @@ class EnvironmentConfiguration:
         :return:
         """
         key_path = key.split('.')
-        root_key = key_path[0]
+        root_key = key_path[0].lower()
 
         if root_key in d.keys():
             if len(key_path) == 1:
@@ -100,7 +103,7 @@ class LongitudeConfigurable:
 
     def __init__(self, name=''):
         self.name = name
-        self._config = EnvironmentConfiguration.get(name) or {}
+        self._config = EnvironmentConfiguration.get(name, default={})
 
         self.logger = logging.getLogger(__class__.__module__)
         default_keys = set(self._default_config.keys())

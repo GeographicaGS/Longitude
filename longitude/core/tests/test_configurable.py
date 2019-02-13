@@ -24,7 +24,7 @@ class TestConfig(TestCase):
         self.assertEqual(0, ds.get_config('some_config_value'))
         self.assertEqual(None, ds.get_config('some_none_value'))
 
-        fake_get_config.assert_called_once_with('test_config')
+        fake_get_config.assert_called_once_with('test_config', default={})
 
         # We do not allow trying to get a config value out of the default keys
         with self.assertRaises(LongitudeConfigError):
@@ -47,4 +47,4 @@ class TestConfig(TestCase):
             'b': 'this will not be overwritten'
         }
         self.assertEqual(expected_config, c)
-        fake_get_config.assert_called_once_with('test_config')
+        fake_get_config.assert_called_once_with('test_config', default={})
