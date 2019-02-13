@@ -19,10 +19,8 @@ def copy_from_sample(ds):
 
 if __name__ == "__main__":
 
-    carto = CartoDataSource(Config.get('carto_main'))
-    postgres = DefaultPostgresDataSource(Config.get('postgres_main'))
-    carto.setup()
-    postgres.setup()
+    carto = CartoDataSource(name='carto_main')
+    postgres = DefaultPostgresDataSource(name='postgres_main')
 
     if carto.is_ready and postgres.is_ready:
         copy_from_sample(carto)

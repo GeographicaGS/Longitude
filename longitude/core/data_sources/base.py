@@ -24,27 +24,46 @@ class DataSource(LongitudeConfigurable):
     # Every  data source is registered at class level so other domain entities can access them (APIs, views...)
     data_sources = {}
 
-    def __init__(self, name='', cache_class: Type[LongitudeCache] = None):
+    def __init__(self, name='', cache_class: Type[LongitudeCache] = None, cache=None):
+        """
+        Base class to create an instance of a data source. This class is used as base class for specific interfaces.
+
+        :param name: Label as it appears in the configuration (or environment variable as LONGITUDE__{name}__...}
+        :param cache_class: If provided, this class will be instantiated with the configuration from the datasource
+         cache. Cannot be provided at the same time as cache.
+        :param cache: If provided, this cache instance will be used as cache for the datasource. Cache configuration in
+         the datasource config will be ignored. Cannot be provided at the same time ascache_class.
+        """
         super().__init__(name=name)
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
         self._use_cache = True
         self._cache = None
 
+        if cache_class and cache:
+            raise RuntimeError('Either cache_class or cache can be provided, but not both at the same time.')
+
         if cache_class:
             if not issubclass(cache_class, LongitudeCache):
-                raise TypeError('Cache must derive from LongitudeCache or be None')
+                raise TypeError('Cache class must derive from LongitudeCache or be None')
             else:
                 self._cache = cache_class('%s.cache' % self.name)
 
-    def setup(self):
-
-        if self._cache and not self._cache.setup():
-            self.logger.error('Error in the cache configuration for "%s" data source' % self.name)
-            return False
+        if cache:
+            if not isinstance(cache, LongitudeCache):
+                raise TypeError('Cache must be an instance from LongitudeCache or be None')
+            else:
+                self._cache = cache
 
         self.data_sources[self.name] = self
-        return True
+
+    @property
+    def is_ready(self):
+        """
+        This method must be implemented by children classes to reflect that setup was ok and must call super().is_ready
+        :return: True if setup() call was successful. False if not.
+        """
+        return not self._cache or self._cache.is_ready
 
     @property
     def tries(self):
@@ -71,14 +90,6 @@ class DataSource(LongitudeConfigurable):
         """
         return self._default_query_config.copy()
 
-    @property
-    def is_ready(self):
-        """
-        This method must be implemented by children classes to reflect that setup was ok and must call super().is_ready
-        :return: True if setup() call was successful. False if not.
-        """
-        return not self._cache or self._cache.is_ready
-
     def enable_cache(self):
         self._use_cache = True
 
@@ -96,7 +107,7 @@ class DataSource(LongitudeConfigurable):
         :param params: Values to be passed to the query when formatting it
         :return:
         """
-        return self.query(query_template, params=params, use_cache=False, needs_commit=True)
+        return self.query(query_template, params=params, cache=False, needs_commit=True)
 
     def cached_query(self, query_template, params=None, expiration_time_s=None):
         """
@@ -112,7 +123,7 @@ class DataSource(LongitudeConfigurable):
         """
         return self.query(query_template, params=params, expiration_time_s=expiration_time_s)
 
-    def query(self, query_template, params=None, use_cache=True, expiration_time_s=None, needs_commit=False,
+    def query(self, query_template, params=None, cache=True, expiration_time_s=None, needs_commit=False,
               query_config=None, **opts):
         """
         This method has to be called to interact with the data source. Each children class will have to implement
@@ -120,7 +131,7 @@ class DataSource(LongitudeConfigurable):
 
         :param query_template: Unformatted SQL query
         :param params: Values to be passed to the query when formatting it
-        :param use_cache: Boolean to indicate if this specific query should use cache or not (default: True)
+        :param cache: Boolean to indicate if this specific query should use cache or not (default: True)
         :param expiration_time_s: If using cache and cache supports expiration, amount of seconds for the payload to be stored
         :param needs_commit: Boolean to indicate if this specific query needs to commit to db (default: False)
         :param query_config: Specific query configuration. If None, the default one will be used.
@@ -134,7 +145,7 @@ class DataSource(LongitudeConfigurable):
             query_config = self._default_query_config
 
         normalized_response = None
-        if self._cache and self._use_cache and use_cache:
+        if self._cache and self._use_cache and cache:
             start = time()
             normalized_response = self._cache.get(query_template, params)
             if normalized_response:
@@ -153,7 +164,7 @@ class DataSource(LongitudeConfigurable):
                                                   **opts)
 
                     normalized_response = self.parse_response(response)
-                    if self._cache and self._use_cache and use_cache:
+                    if self._cache and self._use_cache and cache:
                         self._cache.put(
                             query_template,
                             payload=normalized_response,

@@ -11,10 +11,7 @@ class TestRedisCache(TestCase):
     def setUp(self):
         self.cache = RamCache()
 
-    def test_setup_must_clean_cache(self):
-        with mock.patch('longitude.core.caches.ram.RamCache.flush') as fake_flush:
-            self.cache.setup()
-            fake_flush.assert_called_once()
+    def test_is_ready_by_default(self):
         self.assertTrue(self.cache.is_ready)
 
     def test_serialization_does_nothing(self):

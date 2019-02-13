@@ -19,22 +19,21 @@ from longitude.core.data_sources.postgres.default import DefaultPostgresDataSour
 
 if __name__ == "__main__":
     ds = DefaultPostgresDataSource(name='postgres_main', cache_class=RamCache)
-    ds.setup()
     if ds.is_ready:
         try:
 
-            r0 = ds.query("drop table if exists users", use_cache=False)
+            r0 = ds.query("drop table if exists users", cache=False)
             r1 = ds.query(
                 'create table users(id serial PRIMARY KEY, name varchar(50) UNIQUE NOT NULL, password varchar(50))',
                 needs_commit=True,
-                use_cache=False
+                cache=False
             )
             print(r1.profiling)
 
             for i in range(10):
                 r2 = ds.query("insert into users(name, password) values(%(user)s, %(password)s)",
                               needs_commit=True,
-                              use_cache=False,
+                              cache=False,
                               params={
                                   'user': 'longitude_user_' + str(i),
                                   'password': 'unsafe_password_' + str(i)
@@ -42,12 +41,12 @@ if __name__ == "__main__":
                               })
                 print(r2.profiling)
 
-            r3 = ds.query('select * from users', use_cache=True)
+            r3 = ds.query('select * from users', cache=True)
 
             print(r3.rows)
             print(r3.profiling)
 
-            r4 = ds.query('select * from users', use_cache=True)
+            r4 = ds.query('select * from users', cache=True)
             print(r4.profiling)
             print('It is %f times faster using cache' % (r4.profiling['execute_time'] / r4.profiling['cache_time']))
 

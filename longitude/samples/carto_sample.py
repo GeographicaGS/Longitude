@@ -18,7 +18,7 @@ from longitude.core.data_sources.carto import CartoDataSource
 if __name__ == "__main__":
 
     ds = CartoDataSource(name='carto_main')
-    ds.setup()
+
     if ds.is_ready:
         try:
             data = ds.query('select * from county_population limit 30')

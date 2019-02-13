@@ -34,21 +34,15 @@ class SQLAlchemyDataSource(DataSource):
     def __init__(self, name='', cache_class=None):
         # https://docs.sqlalchemy.org/en/latest/dialects/postgresql.html
 
-        self._engine = None
-        self._connection = None
-
         super().__init__(name=name, cache_class=cache_class)
 
-    def __del__(self):
-        if self._connection:
-            self._connection.close()
-
-    def setup(self):
         connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)d/%(db)s'
         self._engine = create_engine(connection_string_template % self.get_config(), echo=True)
         self._connection = self._engine.connect()
 
-        return super().setup()
+    def __del__(self):
+        if self._connection:
+            self._connection.close()
 
     @property
     def is_ready(self):

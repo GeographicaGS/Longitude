@@ -7,9 +7,6 @@ class RamCache(LongitudeCache):
     """
     _values = {}
 
-    def setup(self):
-        self.flush()
-
     @property
     def is_ready(self):
         return True

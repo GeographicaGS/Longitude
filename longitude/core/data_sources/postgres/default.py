@@ -18,17 +18,7 @@ class DefaultPostgresDataSource(DataSource):
     }
 
     def __init__(self, name='', cache_class=None):
-        self._conn = None
-        self._cursor = None
         super().__init__(name=name, cache_class=cache_class)
-
-    def __del__(self):
-        if self._cursor:
-            self._cursor.close()
-        if self._conn:
-            self._conn.close()
-
-    def setup(self):
         self._conn = psycopg2.connect(
             host=self.get_config('host'),
             port=self.get_config('port'),
@@ -38,7 +28,12 @@ class DefaultPostgresDataSource(DataSource):
         )
 
         self._cursor = self._conn.cursor()
-        return super().setup()
+
+    def __del__(self):
+        if self._cursor:
+            self._cursor.close()
+        if self._conn:
+            self._conn.close()
 
     def is_ready(self):
         return super().is_ready and self._conn and self._cursor
