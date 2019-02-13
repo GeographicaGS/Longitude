@@ -135,6 +135,8 @@ class LongitudeRESTAPI(LongitudeConfigurable):
 
         self._endpoints = []
 
+    # TODO: If this class survives to hapic, we must remove the setup method as part of the interface and rely only
+    #  on the is_ready thing
     def setup(self):
 
         options = {
@@ -158,7 +160,7 @@ class LongitudeRESTAPI(LongitudeConfigurable):
             name = sc.__name__.replace('Schema', '')
             self._spec.definition(name, schema=sc)
 
-        data_sources_ok = all([ds.setup() for ds in self._data_sources])
+        data_sources_ok = all([ds.is_ready for ds in self._data_sources])
 
         return data_sources_ok and self.make_app()
 

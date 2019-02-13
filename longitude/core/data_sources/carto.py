@@ -20,9 +20,7 @@ class CartoDataSource(DataSource):
 
     def __init__(self, name='', cache_class=None):
         super().__init__(name=name, cache_class=cache_class)
-        self._auth_client = None
-        self._sql_client = None
-        self._batch_client = None
+
         self.set_custom_query_default('do_post', False)
         self.set_custom_query_default('parse_json', True)
         self.set_custom_query_default('format', 'json')
@@ -32,6 +30,24 @@ class CartoDataSource(DataSource):
 
         # Carto client for COPYs
         self._copy_client = None
+
+        self._auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
+        self._sql_client = SQLClient(self._auth_client, api_version=self.get_config('api_version'))
+
+        # TODO: We could create the batch client instance in the first use instead of getting a config field
+        self._batch_client = None
+        if self.get_config('uses_batch'):
+            self._batch_client = BatchSQLClient(self._auth_client)
+
+    @property
+    def is_ready(self):
+        if super().is_ready:
+            sql_setup_ready = self._sql_client is not None
+            batch_setup_ready = not self.get_config('uses_batch') or (self._batch_client is not None)
+            is_ready = sql_setup_ready and batch_setup_ready and self.get_config('user') != ''
+            return is_ready
+        else:
+            return False
 
     @property
     def cc(self):
@@ -47,15 +63,6 @@ class CartoDataSource(DataSource):
             self._carto_context = cartoframes.CartoContext(base_url=self.base_url, api_key=self.get_config('api_key'))
         return self._carto_context
 
-    def setup(self):
-        self._auth_client = APIKeyAuthClient(api_key=self.get_config('api_key'), base_url=self.base_url)
-        self._sql_client = SQLClient(self._auth_client, api_version=self.get_config('api_version'))
-
-        # TODO: We could create the batch client instance in the first use instead of getting a config field
-        if self.get_config('uses_batch'):
-            self._batch_client = BatchSQLClient(self._auth_client)
-        return super().setup()
-
     @property
     def base_url(self):
         user = self.get_config('user')
@@ -65,16 +72,6 @@ class CartoDataSource(DataSource):
         else:
             base_url = self.SUBDOMAIN_URL_PATTERN % user
         return base_url
-
-    @property
-    def is_ready(self):
-        if super().is_ready:
-            sql_setup_ready = self._sql_client is not None
-            batch_setup_ready = not self.get_config('uses_batch') or (self._batch_client is not None)
-            is_ready = sql_setup_ready and batch_setup_ready and self.get_config('user') != ''
-            return is_ready
-        else:
-            return False
 
     def execute_query(self, query_template, params, needs_commit, query_config, **opts):
         # TODO: Here we are parsing the parameters and taking responsability for it. We do not make any safe parsing as

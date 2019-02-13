@@ -1,4 +1,3 @@
-
 class LongitudeQueryResponse:
     def __init__(self, rows=None, fields=None, profiling=None):
         self.rows = rows or []
@@ -6,9 +5,8 @@ class LongitudeQueryResponse:
         self.profiling = profiling or {}
         self._from_cache = False
 
-
     @property
-    def comes_from_cache(self):
+    def from_cache(self):
         return self._from_cache
 
     def mark_as_cached(self):

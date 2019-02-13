@@ -8,7 +8,16 @@ TESTED_MODULE_PATH = 'longitude.core.data_sources.postgres.sqlalchemy.%s'
 
 class TestSQLAlchemyDataSource(TestCase):
 
-    def test_default_configuration_loads(self):
+    def setUp(self):
+        # We mock the calls to the internal engine creation for all tests
+        # As we have a is_ready method, we just ensure that these calls return something
+        patcher = mock.patch(TESTED_MODULE_PATH % 'create_engine')
+        self.addCleanup(patcher.stop)
+        self.create_engine_mock = patcher.start()
+
+        self.create_engine_mock.return_value._connect.return_value = object()
+
+    def test_default_configuration_loads(self ):
         with self.assertLogs(level='INFO') as log_test:
             Config.config = None  # To ensure that environment will be loaded
             carto_ds = SQLAlchemyDataSource()
@@ -37,6 +46,7 @@ class TestSQLAlchemyDataSource(TestCase):
         self.assertIsNotNone(carto_ds.base_class)  # Here, first time instance is created
         self.assertIsNotNone(carto_ds.base_class)  # Here, instance is recovered
         alchemy_base_mock.assert_called_once()  # Base class is only created once by our wrapper
+        self.assertTrue(carto_ds.is_ready)
 
     @mock.patch(TESTED_MODULE_PATH % 'SQLAlchemyDataSource.base_class')
     def test_create_all(self, base_class_mock):
@@ -44,9 +54,3 @@ class TestSQLAlchemyDataSource(TestCase):
         carto_ds = SQLAlchemyDataSource()
         carto_ds.create_all()
         base_class_mock.metadata.create_all.assert_called_once()
-
-    def test_setup(self):
-        carto_ds = SQLAlchemyDataSource()
-        with mock.patch(TESTED_MODULE_PATH % 'create_engine') as fake_create_engine:
-            carto_ds.setup()
-            fake_create_engine.assert_called_once()

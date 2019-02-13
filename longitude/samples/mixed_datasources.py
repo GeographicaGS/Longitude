@@ -35,14 +35,14 @@ def import_table_values_from_carto(limit):
     # First, we read from CARTO our 'county_population'
     # If you execute this script twice fast, you will make use of the cache.
     # After 3 seconds, the Carto query will be executed again if requested.
-    carto_data = carto.query('select * from county_population limit %d' % limit, use_cache=True, expiration_time_s=3)
-    print(carto_data.comes_from_cache)
+    carto_data = carto.query('select * from county_population limit %d' % limit, cache=True, expiration_time_s=3)
+    print(carto_data.from_cache)
     # Then, we create a local table
-    postgres.query("drop table if exists county_population", use_cache=False)
+    postgres.query("drop table if exists county_population", cache=False)
     postgres.query(
         'create table county_population(id serial PRIMARY KEY, cartodb_id integer UNIQUE NOT NULL, the_geom text)',
         needs_commit=True,
-        use_cache=False
+        cache=False
     )
 
     # Now we want to copy row by row these values using simple inserts:
@@ -70,8 +70,6 @@ if __name__ == "__main__":
 
     carto = CartoDataSource(name='carto_main', cache_class=RedisCache)
     postgres = DefaultPostgresDataSource(name='postgres_main')
-    carto.setup()
-    postgres.setup()
 
     if carto.is_ready and postgres.is_ready:
         import_table_values_from_carto(limit=30)

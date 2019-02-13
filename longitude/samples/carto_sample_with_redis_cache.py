@@ -31,7 +31,6 @@ from longitude.core.data_sources.carto import CartoDataSource
 if __name__ == "__main__":
 
     ds = CartoDataSource(name='carto_main', cache_class=RedisCache)
-    ds.setup()
     if ds.is_ready:
         try:
 
@@ -40,14 +39,14 @@ if __name__ == "__main__":
             data = ds.query(REPEATED_QUERY)
             elapsed = time.time() - start
             print("It took %s without cache" % elapsed)
-            print('Uses cache? ' + str(data.comes_from_cache))
+            print('Uses cache? ' + str(data.from_cache))
 
             # Repeated read queries return cached values
             start_with_cache = time.time()
             cached_data = ds.query(REPEATED_QUERY)
             elapsed_with_cache = time.time() - start_with_cache
             print("It took %s with cache" % elapsed_with_cache)
-            print('Uses cache? ' + str(cached_data.comes_from_cache))
+            print('Uses cache? ' + str(cached_data.from_cache))
 
             # You can also disable the cache for a while (nothing gets read or written)
             with DisabledCache(ds):
@@ -55,15 +54,15 @@ if __name__ == "__main__":
                 data = ds.query(REPEATED_QUERY)
                 elapsed = time.time() - start
                 print('It took %s with disabled cache' % str(elapsed))
-                print('Uses cache? ' + str(data.comes_from_cache))
+                print('Uses cache? ' + str(data.from_cache))
 
             # Or disable specific queries via query_config (nothing gets read or written)
             query_config = ds.copy_default_query_config()
             start = time.time()
-            data = ds.query(REPEATED_QUERY, query_config=query_config, use_cache=False)
+            data = ds.query(REPEATED_QUERY, query_config=query_config, cache=False)
             elapsed = time.time() - start
             print('It took %s with disabled cache (per-query)' % str(elapsed))
-            print('Uses cache? ' + str(data.comes_from_cache))
+            print('Uses cache? ' + str(data.from_cache))
 
             print('If you see decreasing times it is probably because CARTOs cache doing its job!')
 

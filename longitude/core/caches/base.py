@@ -14,6 +14,10 @@ class LongitudeCache(LongitudeConfigurable):
         super().__init__(name=name)
         self.logger = logging.getLogger(self.__class__.__module__)
 
+    @property
+    def is_ready(self):
+        raise NotImplementedError
+
     @staticmethod
     def generate_key(query_template, params):
         """
@@ -27,13 +31,6 @@ class LongitudeCache(LongitudeConfigurable):
         """
         query_payload = str(query_template) + str(params)
         return hashlib.sha256(query_payload.encode('utf-8')).hexdigest()
-
-    def setup(self):
-        raise NotImplementedError
-
-    @property
-    def is_ready(self):
-        raise NotImplementedError
 
     def get(self, query_template, query_params=None):
         if query_params is None:

@@ -42,7 +42,6 @@ def prepare_sample_table(engine):
 
 if __name__ == "__main__":
     ds = SQLAlchemyDataSource(name='postgres_main', cache_class=RamCache)
-    ds.setup()
     if ds.is_ready:
         # We prepare a table to play around
         table = prepare_sample_table(ds._engine)
@@ -56,21 +55,21 @@ if __name__ == "__main__":
             {'name': 'hulk', 'fullname': 'Dr. Phd. Bruce Banner', 'password': 'smartestavenger'},
             {'name': 'cap', 'fullname': 'Capt. Steve Rogers', 'password': 'igotthatreference'}
         ]
-        ds.query(q, params, use_cache=False)
+        ds.query(q, params, cache=False)
 
         # Demo select. Again, the search is done by a parametrized query. In this case, direct text is used as
         #  where clause.
         q = table.select('password = :password')
         params = {'password': 'igotthatreference'}
-        r = ds.query(q, params, use_cache=True)
+        r = ds.query(q, params, cache=True)
         print(r.fields)
         print(r.rows)
-        print("Cached? " + str(r.comes_from_cache))
+        print("Cached? " + str(r.from_cache))
 
         # Just repeat to check the cache working
-        r = ds.query(q, params, use_cache=True)
+        r = ds.query(q, params, cache=True)
         print(r.rows)
-        print("Cached? " + str(r.comes_from_cache))
+        print("Cached? " + str(r.from_cache))
 
         # Work with data as dataframes
 

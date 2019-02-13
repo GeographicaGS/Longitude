@@ -33,9 +33,6 @@ class TestDataSource(TestCase):
                     return 'hit'
                 return 'miss'
 
-            def setup(self):
-                pass
-
             @property
             def is_ready(self):
                 return True
@@ -59,17 +56,15 @@ class TestDataSource(TestCase):
 
     def test_cache_hit(self):
         ds = DataSource(cache_class=self._cache_class)
-        ds.setup()
         # At high level, ds.query will return a normalized LongitudeQueryResponse
         # In this test we are interested in triggering that call to the parse function that would return such object,
         # but we do not care, in the abstract class, about what content is generated there.
-        self.assertTrue(ds.query('some_query_in_cache').comes_from_cache)
+        self.assertTrue(ds.query('some_query_in_cache').from_cache)
 
     @mock.patch('longitude.core.data_sources.base.DataSource.parse_response')
     @mock.patch('longitude.core.data_sources.base.DataSource.execute_query')
     def test_cache_miss(self, execute_query_mock, parse_response_mock):
         ds = DataSource(cache_class=self._cache_class)
-        ds.setup()
         execute_query_mock.return_value = 'some response from the server'
         parse_response_mock.return_value = LongitudeQueryResponse(profiling={'value': 42})
         self.assertEqual(42, ds.query('some_query_not_in_cache').profiling['value'])
@@ -83,16 +78,12 @@ class TestDataSource(TestCase):
 
     def test_is_ready(self):
         class FakeReadyCache(LongitudeCache):
-            def setup(self):
-                pass
 
             @property
             def is_ready(self):
                 return True
 
         class FakeNotReadyCache(LongitudeCache):
-            def setup(self):
-                pass
 
             @property
             def is_ready(self):
@@ -108,3 +99,15 @@ class TestDataSource(TestCase):
         the_copy = ds.copy_default_query_config()
         self.assertNotEqual(the_copy, ds._default_query_config)
         self.assertEqual(the_copy.__dict__, ds._default_query_config.__dict__)
+
+    def test_only_cache_or_cache_class(self):
+        with self.assertRaises(RuntimeError):
+            DataSource(cache_class=self._cache_class, cache=self._cache_class())
+
+    def test_cache_instance_must_have_right_type(self):
+        with self.assertRaises(TypeError):
+            DataSource(cache=object())
+
+    def test_cache_instance_can_be_passed(self):
+        ds = DataSource(cache=self._cache_class())
+        self.assertTrue(ds.is_ready)
