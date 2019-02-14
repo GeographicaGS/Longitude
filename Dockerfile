@@ -28,6 +28,7 @@ RUN set -x \
     && poetry config settings.virtualenvs.create false
 
 COPY pyproject.* .
+COPY poetry.lock .
 
 COPY . .
 

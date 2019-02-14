@@ -41,15 +41,15 @@ pipeline{
         sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pylint --ignore=samples -E longitude"
       }
     }
-    stage('Testing')
-    {
-      agent { node {
-        label 'docker'
-      } }
-      steps {
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pytest --cov=longitude.core longitude/core/tests/"
-      }
-    }
+    // stage('Testing')
+    // {
+    //   agent { node {
+    //     label 'docker'
+    //   } }
+    //   steps {
+    //     sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pytest --cov=longitude.core longitude/core/tests/"
+    //   }
+    // }
     stage ('Publish') {
       agent { node {
         label 'docker'
