@@ -3,7 +3,7 @@
 // Global Environment variables
 FAILURE_EMAIL = "build@geographica.gs"
 DESIRED_REPOSITORY = "https://github.com/GeographicaGS/Longitude.git"
-PUBLISH_BRANCH = "publish"
+PUBLISH_BRANCH = "master"
 REPO_NAME = "longitude"
 
 pipeline{
@@ -32,13 +32,12 @@ pipeline{
         sh "docker build --pull=true -t geographica/${REPO_NAME}:${git_commit} ."
       }
     }
-    stage('Linter')
-    {
+    stage('Linter') {
       agent { node {
         label 'docker'
       } }
       steps {
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} /root/.poetry/bin/poetry run pylint --ignore=samples -E longitude"
+        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pylint --ignore=samples -E longitude"
       }
     }
     stage('Testing')
@@ -47,7 +46,7 @@ pipeline{
         label 'docker'
       } }
       steps {
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} /root/.poetry/bin/poetry run pytest --cov=longitude.core longitude/core/tests/"
+        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pytest --cov=longitude.core longitude/core/tests/"
       }
     }
     stage ('Publish') {
@@ -57,12 +56,34 @@ pipeline{
       when { anyOf {
         branch "${PUBLISH_BRANCH}"
       } }
+      environment {
+        PYPI_CREDS = credentials('pypi-geographica')
+      }
       steps{
         // TODO: this must be "publish" but we keep "build" while testing the Jenkins pipeline
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} /root/.poetry/bin/poetry build"
+        // poetry publish -vvv --build -r testpypi --username ${PYPI_CREDS_USR} --password ${PYPI_CREDS_PSW}
+        sh """
+          docker run \
+            --rm geographica/${REPO_NAME}:${git_commit}  \
+            /bin/bash -c \
+              "poetry publish -vvv --build --username ${PYPI_CREDS_USR} --password ${PYPI_CREDS_PSW}"
+          """
       }
     }
-    // TODO: Stage to check that module can be imported
+    stage('Test-deploy') {
+      agent { node {
+        label 'docker'
+      } }
+    // TODO: Improve stage to check that module can be imported
+      steps {
+        script {
+          // grep -Po "^version = .*" pyproject.toml | sed 's/version\ \=\ //g' | sed 's/\"//g'
+          LONGITUDE_VERSION = sh(returnStdout: true, script: """grep -Po "^version = .*" pyproject.toml | sed 's/version\\ \\=\\ //g' | sed 's/\\"//g'""").trim()
+        }
+        // pip install --extra-index-url https://test.pypi.org/simple/ geographica-longitude==${LONGITUDE_VERSION}
+        sh "docker run --rm python:3.6.6-slim pip install geographica-longitude==${LONGITUDE_VERSION}"
+      }
+    }
   }
   post {
     always {

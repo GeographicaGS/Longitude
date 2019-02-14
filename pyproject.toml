@@ -3,18 +3,19 @@ name = "geographica-longitude"
 packages = [
     { include='longitude' }
 ]
-version = "1.0.0"
+version = "1.0.0a1"
 description = ""
+homepage = "https://github.com/GeographicaGS/Longitude"
 authors = [
-"Dani Ramirez <daniel.ramirez@geographica.gs>",
-"Alberto Asuero <alberto.asuero@geographica.gs>",
-"Jose María Camacho <jcamacho@geographica.gs>"
+    "Dani Ramirez <daniel.ramirez@geographica.com>",
+    "Alberto Asuero <alberto.asuero@geographica.com>",
+    "Jose María Camacho <jcamacho@geographica.com>"
 ]
 license = "MIT"
 readme = "README.md"
 exclude = [
-"longitude/core/tests/**",
-"longitude/core/**/README.md"
+    "longitude/core/tests/**",
+    "longitude/core/**/README.md"
 ]
 
 [tool.poetry.dependencies]
@@ -43,7 +44,7 @@ pytest-sugar = "^0.9.2"
 pytest-instafail = "^0.4.0"
 
 [tool.flit.metadata.urls]
-Company = "https://geographica.gs"
+Company = "https://geographica.com"
 Repository = "https://github.com/GeographicaGS/Longitude"
 
 [build-system]
