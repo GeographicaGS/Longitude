@@ -9,16 +9,32 @@ class TestConfigurationDictionary(TestCase):
         fake_environment = {
             'LONGITUDE__PARENT__CHILD__VALUE_A': '42',
             'LONGITUDE__PARENT__CHILD__VALUE_B': 'wut',
-            'LONGITUDE__VALUE_A': '8008'
+            'LONGITUDE__VALUE_A': '8008',
+            'LONGITUDE__BOOL_VALUE': '1',
+            'LONGITUDE__FLOAT_VALUE': '3.1416',
+            'LONGITUDE__BOOL_STRING_1': 'true',
+            'LONGITUDE__BOOL_STRING_2': 'False',
+            'LONGITUDE__BOOL_STRING_3': 'yes',
+            'LONGITUDE__BOOL_STRING_4': 'no',
+            'LONGITUDE__BOOL_STRING_5': 'Y',
+            'LONGITUDE__BOOL_STRING_6': 'n',
         }
         with mock.patch.dict('longitude.core.common.config.os.environ', fake_environment):
             Config.config = None  # To ensure that environment will be loaded
 
             with self.assertLogs(level='WARNING') as test_log:
-
-                self.assertEqual(42, Config.get('PARENT.child.value_a'))
+                self.assertEqual(42, Config.get('PARENT.child.value_a', default=2))
+                self.assertEqual('42', Config.get('PARENT.child.value_a'))
                 self.assertEqual('wut', Config.get('parent.CHILD.value_b'))
-                self.assertEqual(8008, Config.get('value_A'))
+                self.assertEqual(8008, Config.get('value_A', default=0))
+                self.assertEqual(True, Config.get('BOOL_VALUE', default=False))
+                self.assertEqual(3.1416, Config.get('float_VALUE', default=0.0))
+                self.assertTrue(Config.get('bool_string_1'))
+                self.assertFalse(False, Config.get('bool_string_2'))
+                self.assertTrue(Config.get('bool_string_3'))
+                self.assertFalse(False, Config.get('bool_string_4'))
+                self.assertTrue(Config.get('bool_string_5'))
+                self.assertFalse(False, Config.get('bool_string_6'))
 
                 self.assertEqual(None, Config.get('wrong_value'))
                 self.assertEqual(None, Config.get('wrong_parent.child.value'))
