@@ -3,7 +3,7 @@
 // Global Environment variables
 FAILURE_EMAIL = "build@geographica.gs"
 DESIRED_REPOSITORY = "https://github.com/GeographicaGS/Longitude.git"
-PUBLISH_BRANCH = "publish"
+PUBLISH_BRANCH = "mlr_test__publish"
 REPO_NAME = "longitude"
 
 pipeline{
@@ -38,7 +38,7 @@ pipeline{
         label 'docker'
       } }
       steps {
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} /root/.poetry/bin/poetry run pylint --ignore=samples -E longitude"
+        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pylint --ignore=samples -E longitude"
       }
     }
     stage('Testing')
@@ -47,7 +47,7 @@ pipeline{
         label 'docker'
       } }
       steps {
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} /root/.poetry/bin/poetry run pytest --cov=longitude.core longitude/core/tests/"
+        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} poetry run pytest --cov=longitude.core longitude/core/tests/"
       }
     }
     stage ('Publish') {
@@ -57,9 +57,17 @@ pipeline{
       when { anyOf {
         branch "${PUBLISH_BRANCH}"
       } }
+      environment {
+        PYPI_CREDS = credentials('test.pypi-manolo')
+      }
       steps{
         // TODO: this must be "publish" but we keep "build" while testing the Jenkins pipeline
-        sh "docker run --rm geographica/${REPO_NAME}:${git_commit} /root/.poetry/bin/poetry build"
+        sh """
+          docker run \
+            --rm geographica/${REPO_NAME}:${git_commit}  \
+            /bin/bash -c \
+              "poetry publish -vvv --build -r testpypi --username ${PYPI_CREDS_USR} --password ${PYPI_CREDS_PSW}"
+          """
       }
     }
     // TODO: Stage to check that module can be imported
