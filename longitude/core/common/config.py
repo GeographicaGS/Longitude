@@ -102,9 +102,13 @@ class LongitudeConfigurable:
     _default_config = {}
     _config = {}
 
-    def __init__(self, name=''):
-        self.name = name
-        self._config = EnvironmentConfiguration.get(name, default={})
+    def __init__(self, config=''):
+        if isinstance(config, str):
+            self.name = config
+            self._config = EnvironmentConfiguration.get(config, default={})
+        else:
+            self.name = ''
+            self._config = config
 
         self.logger = logging.getLogger(__class__.__module__)
         default_keys = set(self._default_config.keys())

@@ -18,8 +18,8 @@ class CartoDataSource(DataSource):
         'cache': None
     }
 
-    def __init__(self, name='', cache_class=None):
-        super().__init__(name=name, cache_class=cache_class)
+    def __init__(self, config='', cache_class=None, cache=None):
+        super().__init__(config=config, cache_class=cache_class, cache=cache)
 
         self.set_custom_query_default('do_post', False)
         self.set_custom_query_default('parse_json', True)

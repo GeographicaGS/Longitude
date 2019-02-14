@@ -17,7 +17,7 @@ class TestRedisCache(TestCase):
         self.addCleanup(patcher.stop)
         self.redis_mock = patcher.start()
 
-        self.cache = RedisCache(name='test_cache')
+        self.cache = RedisCache(config='test_cache')
 
     def test_is_ready_if_redis_returns_ping(self):
         self.redis_mock.return_value.ping.return_value = True

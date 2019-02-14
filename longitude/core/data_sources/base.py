@@ -24,17 +24,18 @@ class DataSource(LongitudeConfigurable):
     # Every  data source is registered at class level so other domain entities can access them (APIs, views...)
     data_sources = {}
 
-    def __init__(self, name='', cache_class: Type[LongitudeCache] = None, cache=None):
+    def __init__(self, config='', cache_class: Type[LongitudeCache] = None, cache=None):
         """
         Base class to create an instance of a data source. This class is used as base class for specific interfaces.
 
-        :param name: Label as it appears in the configuration (or environment variable as LONGITUDE__{name}__...}
+        :param config: Label as it appears in the configuration (or environment variable as LONGITUDE__{name}__...} or
+        a dictionary with a valid configuration.
         :param cache_class: If provided, this class will be instantiated with the configuration from the datasource
          cache. Cannot be provided at the same time as cache.
         :param cache: If provided, this cache instance will be used as cache for the datasource. Cache configuration in
          the datasource config will be ignored. Cannot be provided at the same time ascache_class.
         """
-        super().__init__(name=name)
+        super().__init__(config=config)
         self.logger = logging.getLogger(self.__class__.__module__)
         self._default_query_config = DataSourceQueryConfig()
         self._use_cache = True

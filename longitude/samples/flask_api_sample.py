@@ -129,7 +129,7 @@ class UserManager:
 # App config
 
 if __name__ == "__main__":
-    data_sources = [DefaultPostgresDataSource(name='postgres_main')]
+    data_sources = [DefaultPostgresDataSource(config='postgres_main')]
     schemas = [HomeSchema, GroupSchema, UserSchema, UserDetailSchema]
     managers = [UserManager, UsersManager, HomeManager]
 

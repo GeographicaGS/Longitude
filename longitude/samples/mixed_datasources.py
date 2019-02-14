@@ -68,8 +68,8 @@ if __name__ == "__main__":
     # This is an example of how to get an explicit value from config using a fully qualified name from env vars
     print('REDIS password is %s' % Config.get('carto_main.cache.password'))
 
-    carto = CartoDataSource(name='carto_main', cache_class=RedisCache)
-    postgres = DefaultPostgresDataSource(name='postgres_main')
+    carto = CartoDataSource(config='carto_main', cache_class=RedisCache)
+    postgres = DefaultPostgresDataSource(config='postgres_main')
 
     if carto.is_ready and postgres.is_ready:
         import_table_values_from_carto(limit=30)

@@ -114,14 +114,14 @@ class LongitudeRESTAPI(LongitudeConfigurable):
         req.params = cls.get_request_path_params()
         return req
 
-    def __init__(self, name='', title='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
+    def __init__(self, config='', title='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
                  schemas=None, managers=None, data_sources=None):
 
-        super().__init__(name=name)
+        super().__init__(config=config)
         self._app = None
         self._spec: APISpec = None
 
-        self.name = name
+        self.name = config
         self.title = title
         self.version = version
         self.version = version

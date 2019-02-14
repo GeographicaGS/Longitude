@@ -14,8 +14,8 @@ class RedisCache(LongitudeCache):
 
     _values = None
 
-    def __init__(self, name=''):
-        super().__init__(name=name)
+    def __init__(self, config=''):
+        super().__init__(config=config)
 
         self._values = redis.Redis(
             host=self.get_config('host'),

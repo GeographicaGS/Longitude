@@ -12,7 +12,7 @@ class TestConfig(TestCase):
         fake_get_config.return_value = {"some_config_value": 0, "some_another_config_value": "tomato"}
 
         with self.assertLogs(level='WARNING') as log_test:
-            ds = LongitudeConfigurable(name='test_config')
+            ds = LongitudeConfigurable(config='test_config')
             self.assertEqual(log_test.output,
                              [
                                  'WARNING:longitude.core.common.config:some_another_config_value is an unexpected config value',
@@ -40,7 +40,7 @@ class TestConfig(TestCase):
         fake_get_config.return_value = {
             'a': 'custom_value'
         }
-        ds = SomeConfigurableClass(name='test_config')
+        ds = SomeConfigurableClass(config='test_config')
         c = ds.get_config()
         expected_config = {
             'a': 'custom_value',
