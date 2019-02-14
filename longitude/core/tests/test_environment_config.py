@@ -22,7 +22,13 @@ class TestConfigurationDictionary(TestCase):
         with mock.patch.dict('longitude.core.common.config.os.environ', fake_environment):
             Config.config = None  # To ensure that environment will be loaded
 
+            root_config = Config.get()
+            root_config['custom'] = {
+                'custom_value': 'you can add me!'
+            }
+
             with self.assertLogs(level='WARNING') as test_log:
+                self.assertEqual('you can add me!', Config.get('custom.custom_value'))
                 self.assertEqual(42, Config.get('PARENT.child.value_a', default=2))
                 self.assertEqual('42', Config.get('PARENT.child.value_a'))
                 self.assertEqual('wut', Config.get('parent.CHILD.value_b'))
@@ -56,16 +62,16 @@ class TestConfigurationDictionary(TestCase):
 
                 self.assertEqual(expected_log, test_log.output)
 
-        def test_existing_nested_values_return_dictionaries(self):
-            fake_config = {
-                'parent':
-                    {'child':
-                        {
-                            'value_a': 42,
-                            'value_b': 'wut'
-                        }
-                    },
-                'value_a': 8008
-            }
-            with mock.patch('longitude.core.common.config.EnvironmentConfiguration.config', fake_config):
-                self.assertEqual(42, Config.get('parent.child.value_a'))
+    def test_existing_nested_values_return_dictionaries(self):
+        fake_config = {
+            'parent':
+                {'child':
+                    {
+                        'value_a': 42,
+                        'value_b': 'wut'
+                    }
+                },
+            'value_a': 8008
+        }
+        with mock.patch('longitude.core.common.config.EnvironmentConfiguration.config', fake_config):
+            self.assertEqual(42, Config.get('parent.child.value_a'))
