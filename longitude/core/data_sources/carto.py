@@ -65,7 +65,11 @@ class CartoDataSource(DataSource):
 
     @property
     def base_url(self):
-        user = self.get_config('user')
+        return self._generate_base_url()
+
+    def _generate_base_url(self, user=None):
+        if user is None:
+            user = self.get_config('user')
         on_premise_domain = self.get_config('on_premise_domain')
         if on_premise_domain:
             base_url = self.ON_PREMISE_URL_PATTERN % (on_premise_domain, user)
