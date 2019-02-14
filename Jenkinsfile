@@ -32,8 +32,7 @@ pipeline{
         sh "docker build --pull=true -t geographica/${REPO_NAME}:${git_commit} ."
       }
     }
-    stage('Linter')
-    {
+    stage('Linter') {
       agent { node {
         label 'docker'
       } }
@@ -70,7 +69,19 @@ pipeline{
           """
       }
     }
-    // TODO: Stage to check that module can be imported
+    stage('Test-deploy') {
+      agent { node {
+        label 'docker'
+      } }
+    // TODO: Improve stage to check that module can be imported
+      steps {
+        script {
+          // grep -Po "^version = .*" pyproject.toml | sed 's/version\ \=\ //g' | sed 's/\"//g'
+          LONGITUDE_VERSION = sh(returnStdout: true, script: """grep -Po "^version = .*" pyproject.toml | sed 's/version\\ \\=\\ //g' | sed 's/\\"//g'""").trim()
+        }
+        sh "docker run --rm python:3.6.6-slim pip install --extra-index-url https://test.pypi.org/simple/ geographica-longitude-mlr==1.0.1"
+      }
+    }
   }
   post {
     always {
