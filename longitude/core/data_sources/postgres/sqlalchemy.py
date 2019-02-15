@@ -31,10 +31,10 @@ class SQLAlchemyDataSource(DataSource):
     def create_all(self):
         self.base_class.metadata.create_all(self._engine)
 
-    def __init__(self, name='', cache_class=None):
+    def __init__(self, config='', cache_class=None, cache=None):
         # https://docs.sqlalchemy.org/en/latest/dialects/postgresql.html
 
-        super().__init__(name=name, cache_class=cache_class)
+        super().__init__(config=config, cache_class=cache_class, cache=cache)
 
         connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)d/%(db)s'
         self._engine = create_engine(connection_string_template % self.get_config(), echo=True)

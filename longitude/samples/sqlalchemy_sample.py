@@ -41,7 +41,7 @@ def prepare_sample_table(engine):
 
 
 if __name__ == "__main__":
-    ds = SQLAlchemyDataSource(name='postgres_main', cache_class=RamCache)
+    ds = SQLAlchemyDataSource(config='postgres_main', cache_class=RamCache)
     if ds.is_ready:
         # We prepare a table to play around
         table = prepare_sample_table(ds._engine)

@@ -17,8 +17,8 @@ class DefaultPostgresDataSource(DataSource):
         'password': ''
     }
 
-    def __init__(self, name='', cache_class=None):
-        super().__init__(name=name, cache_class=cache_class)
+    def __init__(self, config='', cache_class=None, cache=None):
+        super().__init__(config=config, cache_class=cache_class, cache=cache)
         self._conn = psycopg2.connect(
             host=self.get_config('host'),
             port=self.get_config('port'),

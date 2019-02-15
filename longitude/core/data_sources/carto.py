@@ -18,8 +18,8 @@ class CartoDataSource(DataSource):
         'cache': None
     }
 
-    def __init__(self, name='', cache_class=None):
-        super().__init__(name=name, cache_class=cache_class)
+    def __init__(self, config='', cache_class=None, cache=None):
+        super().__init__(config=config, cache_class=cache_class, cache=cache)
 
         self.set_custom_query_default('do_post', False)
         self.set_custom_query_default('parse_json', True)
@@ -65,7 +65,11 @@ class CartoDataSource(DataSource):
 
     @property
     def base_url(self):
-        user = self.get_config('user')
+        return self._generate_base_url()
+
+    def _generate_base_url(self, user=None):
+        if user is None:
+            user = self.get_config('user')
         on_premise_domain = self.get_config('on_premise_domain')
         if on_premise_domain:
             base_url = self.ON_PREMISE_URL_PATTERN % (on_premise_domain, user)

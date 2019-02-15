@@ -1,7 +1,9 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-omit = longitude/core/tests/*, **/__init__.py, longitude/samples/**
+
+# TODO: the flask API is not being used and will probably be removed. Thus, we ignore it for testing for now.
+omit = longitude/core/tests/*, **/__init__.py, longitude/samples/**, longitude/core/rest_api/flask.py
 
 [report]
 # Regexes for lines to exclude from consideration

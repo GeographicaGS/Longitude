@@ -8,13 +8,14 @@ class RedisCache(LongitudeCache):
         'host': 'localhost',
         'port': 6379,
         'db': 0,
-        'password': None
+        'password': None,
+        'expiration_time_s': None
     }
 
     _values = None
 
-    def __init__(self, name=''):
-        super().__init__(name=name)
+    def __init__(self, config=''):
+        super().__init__(config=config)
 
         self._values = redis.Redis(
             host=self.get_config('host'),
@@ -49,6 +50,7 @@ class RedisCache(LongitudeCache):
     def execute_put(self, key, payload, expiration_time_s=None):
         overwrite = self._values.exists(key) == 1
         self._values.set(name=key, value=payload)
+        expiration_time_s = expiration_time_s or self.get_config('expiration_time_s')
         if expiration_time_s:
             self._values.expire(name=key, time=expiration_time_s)
         return overwrite

@@ -18,7 +18,7 @@ from longitude.core.data_sources.postgres.default import DefaultPostgresDataSour
 
 
 if __name__ == "__main__":
-    ds = DefaultPostgresDataSource(name='postgres_main', cache_class=RamCache)
+    ds = DefaultPostgresDataSource(config='postgres_main', cache_class=RamCache)
     if ds.is_ready:
         try:
 

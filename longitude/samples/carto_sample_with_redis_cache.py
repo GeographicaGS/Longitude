@@ -30,7 +30,7 @@ from longitude.core.data_sources.carto import CartoDataSource
 
 if __name__ == "__main__":
 
-    ds = CartoDataSource(name='carto_main', cache_class=RedisCache)
+    ds = CartoDataSource(config='carto_main', cache_class=RedisCache)
     if ds.is_ready:
         try:
 

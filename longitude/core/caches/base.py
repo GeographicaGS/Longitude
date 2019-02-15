@@ -10,8 +10,8 @@ from ..common.config import LongitudeConfigurable
 class LongitudeCache(LongitudeConfigurable):
     _default_config = {}
 
-    def __init__(self, name=''):
-        super().__init__(name=name)
+    def __init__(self, config=''):
+        super().__init__(config=config)
         self.logger = logging.getLogger(self.__class__.__module__)
 
     @property
@@ -49,7 +49,8 @@ class LongitudeCache(LongitudeConfigurable):
 
     def execute_get(self, key):
         """
-        Custom get action over the cache.
+        Custom get action over the cache. The application must call this method for generic cache use. For queries, you
+        should use .get(...)
 
         :return: Query response as it was saved if hit. None if miss.
         """
@@ -57,7 +58,8 @@ class LongitudeCache(LongitudeConfigurable):
 
     def execute_put(self, key, payload, expiration_time_s=None):
         """
-        Custom put action over the cache.
+        Custom put action over the cache. The application must call this method for generic cache use. For queries, you
+        should use .put(...)
 
         :return: True if key was overwritten. False if key was new in the cache.
         """

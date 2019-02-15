@@ -20,7 +20,7 @@ from longitude.core.data_sources.carto import CartoDataSource
 
 if __name__ == "__main__":
     # This will throw a log warning as we are passing a password to the RamCache config and it does not expect it
-    ds = CartoDataSource(name='carto_main', cache_class=RamCache)
+    ds = CartoDataSource(config='carto_main', cache_class=RamCache)
     if ds.is_ready:
         try:
 

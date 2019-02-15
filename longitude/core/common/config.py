@@ -47,6 +47,11 @@ class EnvironmentConfiguration:
         if key is not None:
             value = cls._get_nested_key(key, cls.config)
             if value:
+                if isinstance(value, str) and value.lower() in ['true', 'false', 'yes', 'no', 'y', 'n']:
+                    value = value.lower() in ['true', 'yes', 'y']
+                if default is not None:
+                    cast_type = type(default)
+                    value = cast_type(value)
                 return value
             else:
                 if default is not None:
@@ -83,11 +88,7 @@ class EnvironmentConfiguration:
     def _append_value(value, value_path, d):
         root_path = value_path[0].lower()
         if len(value_path) == 1:
-
-            try:
-                d[root_path] = int(value)
-            except ValueError:
-                d[root_path] = value
+            d[root_path] = value
         else:
             if root_path not in d.keys():
                 d[root_path] = {}
@@ -101,9 +102,13 @@ class LongitudeConfigurable:
     _default_config = {}
     _config = {}
 
-    def __init__(self, name=''):
-        self.name = name
-        self._config = EnvironmentConfiguration.get(name, default={})
+    def __init__(self, config=''):
+        if isinstance(config, str):
+            self.name = config
+            self._config = EnvironmentConfiguration.get(config, default={})
+        else:
+            self.name = ''
+            self._config = config
 
         self.logger = logging.getLogger(__class__.__module__)
         default_keys = set(self._default_config.keys())
