@@ -311,7 +311,6 @@ name = "jsonschema"
 optional = false
 python-versions = "*"
 version = "2.6.0"
->>>>>>> danibishop/ch31873/swagger-integration
 
 [[package]]
 category = "dev"
@@ -771,7 +770,6 @@ name = "werkzeug"
 optional = false
 python-versions = "*"
 version = "0.14.1"
->>>>>>> danibishop/ch31873/swagger-integration
 
 [[package]]
 category = "dev"
