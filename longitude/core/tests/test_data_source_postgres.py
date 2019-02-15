@@ -39,7 +39,7 @@ class TestSQLAlchemyDataSource(TestCase):
             self.assertEqual(5432, carto_ds.get_config('port'))
             self.assertEqual('postgres', carto_ds.get_config('user'))
 
-            self.assertTrue(carto_ds.is_ready())
+            self.assertTrue(carto_ds.is_ready)
 
     def test_query_without_commit(self):
         fake_fields = ['field_A', 'field_B']
