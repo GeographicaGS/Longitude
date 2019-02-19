@@ -70,11 +70,13 @@ pipeline{
           """
       }
     }
-    stage('Test-deploy') {
+    stage('Check-published') {
       agent { node {
         label 'docker'
       } }
-    // TODO: Improve stage to check that module can be imported
+      when { anyOf {
+        branch "${PUBLISH_BRANCH}"
+      } }
       steps {
         script {
           // grep -Po "^version = .*" pyproject.toml | sed 's/version\ \=\ //g' | sed 's/\"//g'
