@@ -7,9 +7,8 @@ version = "1.0.0a1"
 description = ""
 homepage = "https://github.com/GeographicaGS/Longitude"
 authors = [
-    "Dani Ramirez <daniel.ramirez@geographica.com>",
-    "Alberto Asuero <alberto.asuero@geographica.com>",
-    "Jose María Camacho <jcamacho@geographica.com>"
+    "Geographica <system@geographica.com>"
+    "Dani Ramirez <daniel.ramirez@geographica.com>"
 ]
 license = "MIT"
 readme = "README.md"
@@ -50,4 +49,3 @@ Repository = "https://github.com/GeographicaGS/Longitude"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
