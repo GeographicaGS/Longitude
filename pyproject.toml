@@ -7,7 +7,7 @@ version = "1.0.0a1"
 description = ""
 homepage = "https://github.com/GeographicaGS/Longitude"
 authors = [
-    "Geographica <system@geographica.com>"
+    "Geographica <system@geographica.com>",
     "Dani Ramirez <daniel.ramirez@geographica.com>"
 ]
 license = "MIT"
