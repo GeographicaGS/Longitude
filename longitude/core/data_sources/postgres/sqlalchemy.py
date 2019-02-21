@@ -36,7 +36,7 @@ class SQLAlchemyDataSource(DataSource):
 
         super().__init__(config=config, cache_class=cache_class, cache=cache)
 
-        connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)d/%(db)s'
+        connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(db)s'
         self._engine = create_engine(connection_string_template % self.get_config(), echo=True)
         self._connection = self._engine.connect()
 
@@ -46,7 +46,7 @@ class SQLAlchemyDataSource(DataSource):
 
     @property
     def is_ready(self):
-        return self._engine is not None and self._connection is not None
+        return self._engine is not None and self._connection is not None and not self._connection.closed
 
     def execute_query(self, query_template, params, needs_commit, query_config, **opts):
         data = {
