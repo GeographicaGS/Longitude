@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 from longitude.core.common.config import EnvironmentConfiguration as Config
+from longitude.core.common.query_response import LongitudeQueryResponse
 from ..data_sources.postgres.default import DefaultPostgresDataSource
 
 TESTED_MODULE_PATH = 'longitude.core.data_sources.postgres.default.%s'
@@ -20,7 +21,7 @@ class TestSQLAlchemyDataSource(TestCase):
     def test_default_configuration_loads(self):
         with self.assertLogs(level='INFO') as log_test:
             Config.config = None  # To ensure that environment will be loaded
-            carto_ds = DefaultPostgresDataSource()
+            postgres_ds = DefaultPostgresDataSource()
             module_name = 'longitude.core.common.config'
             self.assertEqual(
                 ['WARNING:%s:Empty environment configuration' % module_name,
@@ -33,13 +34,13 @@ class TestSQLAlchemyDataSource(TestCase):
                  ], log_test.output
             )
 
-            self.assertEqual('', carto_ds.get_config('db'))
-            self.assertEqual('localhost', carto_ds.get_config('host'))
-            self.assertEqual('', carto_ds.get_config('password'))
-            self.assertEqual(5432, carto_ds.get_config('port'))
-            self.assertEqual('postgres', carto_ds.get_config('user'))
+            self.assertEqual('', postgres_ds.get_config('db'))
+            self.assertEqual('localhost', postgres_ds.get_config('host'))
+            self.assertEqual('', postgres_ds.get_config('password'))
+            self.assertEqual(5432, postgres_ds.get_config('port'))
+            self.assertEqual('postgres', postgres_ds.get_config('user'))
 
-            self.assertTrue(carto_ds.is_ready)
+            self.assertTrue(postgres_ds.is_ready)
 
     def test_query_without_commit(self):
         fake_fields = ['field_A', 'field_B']
@@ -49,9 +50,9 @@ class TestSQLAlchemyDataSource(TestCase):
         self.connection_mock.return_value.cursor.return_value.description = fake_fields
         self.connection_mock.return_value.cursor.return_value.fetchall.return_value = fake_rows
 
-        carto_ds = DefaultPostgresDataSource()
-        data = carto_ds.execute_query(query_template="some valid query", params={}, needs_commit=False,
-                                      query_config=None)
+        postgres_ds = DefaultPostgresDataSource()
+        data = postgres_ds.execute_query(query_template="some valid query", params={}, needs_commit=False,
+                                         query_config=None)
 
         # Queries with no commit return an dictionary with, at least, fields and rows
         self.assertTrue('fields' in data)
@@ -65,9 +66,9 @@ class TestSQLAlchemyDataSource(TestCase):
         self.connection_mock.return_value.commit().return_value = None
         self.connection_mock.return_value.cursor.return_value.execute.return_value = None
 
-        carto_ds = DefaultPostgresDataSource()
-        data = carto_ds.execute_query(query_template="some valid query", params={}, needs_commit=True,
-                                      query_config=None)
+        postgres_ds = DefaultPostgresDataSource()
+        data = postgres_ds.execute_query(query_template="some valid query", params={}, needs_commit=True,
+                                         query_config=None)
 
         # Queries with no commit return an dictionary with, at least, fields and rows
         self.assertTrue('fields' in data)
@@ -78,3 +79,32 @@ class TestSQLAlchemyDataSource(TestCase):
         self.assertCountEqual([], data['rows'])
 
         self.assertTrue('commit_time' in data['profiling'])
+
+    def test_parse_response(self):
+        class FakeField:
+            def __init__(self, name, type_code):
+                self.name = name
+                self.type_code = type_code
+
+        postgres_ds = DefaultPostgresDataSource()
+        self.assertIsNone(postgres_ds.parse_response())
+
+        response = {
+            'fields': [FakeField('field_A', 23), FakeField('field_B', 19)],
+            'rows': [
+                [666, 'day of the beast'],
+                [42, 'the answer'],
+                [69, 'idk'],
+                [-1, 'nope']
+            ],
+            'profiling': {'metric_A': 42, 'metric_B': 'big'}
+        }
+
+        parsed_response = postgres_ds.parse_response(response)
+        self.assertTrue(isinstance(parsed_response, LongitudeQueryResponse))
+
+        self.assertEqual(4, len(parsed_response.rows))
+        self.assertEqual('INTEGER', parsed_response.fields['field_A']['type'])  # This is the 23 above
+        self.assertEqual('STRING', parsed_response.fields['field_B']['type'])  # This is the 19 above
+        self.assertFalse(parsed_response.from_cache)
+        self.assertEqual(response['profiling'], parsed_response.profiling)

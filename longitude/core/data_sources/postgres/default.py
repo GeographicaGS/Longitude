@@ -35,6 +35,7 @@ class DefaultPostgresDataSource(DataSource):
         if self._conn:
             self._conn.close()
 
+    @property
     def is_ready(self):
         return super().is_ready and self._conn and self._cursor
 
@@ -60,7 +61,7 @@ class DefaultPostgresDataSource(DataSource):
 
         return data
 
-    def parse_response(self, response):
+    def parse_response(self, response=None):
         if response:
             raw_fields = response['fields']
             fields_names = {n.name: {'type': psycopg2_type_as_string(n.type_code).name} for n in raw_fields}
