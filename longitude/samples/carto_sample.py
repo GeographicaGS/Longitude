@@ -10,20 +10,17 @@ Fill the needed environment variables using LONGITUDE__ as prefix!
 import os
 import sys
 
-from environs import Env
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.data_sources.carto import CartoDataSource
+from longitude.samples.config import config
+
 
 if __name__ == "__main__":
 
-    # Getting needed env configs:
-    env = Env()
-
-    user = env('CARTO_USER')
-    api_key = env('CARTO_API_KEY')
-
-    ds = CartoDataSource(user=user, api_key=api_key)
+    ds = CartoDataSource(
+        user=config['carto_user'],
+        api_key=config['carto_api_key']
+    )
 
     data = ds.query('select * from county_population limit 30')
     [print(r) for r in data.rows]

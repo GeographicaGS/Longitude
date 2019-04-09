@@ -10,17 +10,17 @@ Fill the needed environment variables using LONGITUDE__ as prefix!
 """
 import os
 import sys
-from environs import Env
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.caches.ram import RamCache
 from longitude.core.data_sources.postgres.default import PostgresDataSource
+from longitude.samples.config import config
 
 
 if __name__ == "__main__":
     options = {
-        'user': 'user',
-        'password': 'userpass'
+        'user': config['pg_user'],
+        'password': config['pg_password']
     }
     ds = PostgresDataSource(options)
 

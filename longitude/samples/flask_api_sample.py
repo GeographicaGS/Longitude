@@ -9,10 +9,10 @@
 Fill the needed environment variables using LONGITUDE__ as prefix!
 """
 
-from environs import Env
 from pprint import pprint
 from longitude.core.data_sources.postgres.default import PostgresDataSource
 from longitude.core.rest_api.flask import LongitudeFlaskAPI as RESTApi
+from longitude.samples.config import config
 
 from marshmallow import Schema, fields
 
@@ -21,8 +21,7 @@ from marshmallow import Schema, fields
 # Marshmallow schemas
 
 class HomeSchema(Schema):
-    env = Env()
-    debug_mode = env.bool('DEBUG', False)
+    debug_mode = config['debug']
 
     message = fields.String(default='')
     debug = fields.Boolean(default=debug_mode)

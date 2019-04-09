@@ -13,6 +13,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
+from longitude.samples.config import config
 
 
 def prepare_sample_table(engine):
@@ -40,8 +41,8 @@ def prepare_sample_table(engine):
 
 if __name__ == "__main__":
     options = {
-        'user': 'user',
-        'password': 'userpass'
+        'user': config['pg_user'],
+        'password': config['pg_password']
     }
 
     ds = SQLAlchemyDataSource(options)

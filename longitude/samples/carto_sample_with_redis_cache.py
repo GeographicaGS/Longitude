@@ -22,24 +22,23 @@ import time
 import os
 import sys
 
-from environs import Env
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.common.helpers import DisabledCache
 from longitude.core.caches.redis import RedisCache
 from longitude.core.common.exceptions import LongitudeRetriesExceeded
 from longitude.core.data_sources.carto import CartoDataSource
+from longitude.samples.config import config
 
 if __name__ == "__main__":
 
-    # Getting needed env configs:
-    env = Env()
-    user = env('CARTO_USER')
-    api_key = env('CARTO_API_KEY')
-
-    ram_cache = RedisCache()
-
-    ds = CartoDataSource(user=user, api_key=api_key, options={'cache': ram_cache})
+    redis_cache = RedisCache()
+    ds = CartoDataSource(
+        user=config['carto_user'],
+        api_key=config['carto_api_key'],
+        options={
+            'cache': redis_cache
+        }
+    )
 
     REPEATED_QUERY = 'select * from county_population limit 30'
     start = time.time()
