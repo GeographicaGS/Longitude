@@ -8,7 +8,6 @@ TESTED_MODULE_PATH = 'longitude.core.data_sources.postgres.default.%s'
 class TestSQLAlchemyDataSource(TestCase):
     def setUp(self):
         # We mock the calls to the internal engine creation for all tests
-        # As we have a is_ready method, we just ensure that these calls return something
         patcher = mock.patch(TESTED_MODULE_PATH % 'psycopg2.connect')
         self.addCleanup(patcher.stop)
         self.connection_mock = patcher.start()

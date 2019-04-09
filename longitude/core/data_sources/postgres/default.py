@@ -29,9 +29,6 @@ class PostgresDataSource(DataSource):
         if self._conn:
             self._conn.close()
 
-    def is_ready(self):
-        return super().is_ready and self._conn and self._cursor
-
     def execute_query(self, query_template, params, **opts):
         data = {
             'fields': [],

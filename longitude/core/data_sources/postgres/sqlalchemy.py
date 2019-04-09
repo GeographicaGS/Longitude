@@ -53,10 +53,6 @@ class SQLAlchemyDataSource(DataSource):
         if self._connection:
             self._connection.close()
 
-    @property
-    def is_ready(self):
-        return self._engine is not None and self._connection is not None
-
     def execute_query(self, query_template, params, **opts):
         data = {
             'fields': [],

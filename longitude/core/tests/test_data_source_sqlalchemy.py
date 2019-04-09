@@ -9,7 +9,6 @@ class TestSQLAlchemyDataSource(TestCase):
 
     def setUp(self):
         # We mock the calls to the internal engine creation for all tests
-        # As we have a is_ready method, we just ensure that these calls return something
         patcher = mock.patch(TESTED_MODULE_PATH % 'create_engine')
         self.addCleanup(patcher.stop)
         self.create_engine_mock = patcher.start()
@@ -23,7 +22,6 @@ class TestSQLAlchemyDataSource(TestCase):
         self.assertIsNotNone(carto_ds.base_class)  # Here, first time instance is created
         self.assertIsNotNone(carto_ds.base_class)  # Here, instance is recovered
         alchemy_base_mock.assert_called_once()  # Base class is only created once by our wrapper
-        self.assertTrue(carto_ds.is_ready)
 
     @mock.patch(TESTED_MODULE_PATH % 'SQLAlchemyDataSource.base_class')
     def test_create_all(self, base_class_mock):

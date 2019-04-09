@@ -34,7 +34,6 @@ if __name__ == "__main__":
 
     # Getting needed env configs:
     env = Env()
-
     user = env('CARTO_USER')
     api_key = env('CARTO_API_KEY')
 

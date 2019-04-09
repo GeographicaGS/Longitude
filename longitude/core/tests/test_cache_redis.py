@@ -19,7 +19,7 @@ class TestRedisCache(TestCase):
 
         self.cache = RedisCache()
 
-    def test_is_ready_if_redis_returns_ping(self):
+    def test_if_redis_returns_ping(self):
         self.redis_mock.return_value.ping.return_value = True
 
         self.redis_mock.return_value.get.return_value = None

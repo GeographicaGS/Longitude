@@ -23,12 +23,12 @@ For such features, check specific samples.
 import os
 import sys
 
+from environs import Env
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from longitude.core.caches.redis import RedisCache
-from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
+from longitude.core.data_sources.postgres.default import PostgresDataSource
 from longitude.core.data_sources.carto import CartoDataSource
-from longitude.core.common.config import EnvironmentConfiguration as Config
 
 
 def import_table_values_from_carto(limit):
@@ -65,11 +65,11 @@ def import_table_values_from_carto(limit):
 
 if __name__ == "__main__":
 
-    # This is an example of how to get an explicit value from config using a fully qualified name from env vars
-    print('REDIS password is %s' % Config.get('carto_main.cache.password'))
+    # Getting needed env configs:
+    env = Env()
+    user = env('CARTO_USER')
+    api_key = env('CARTO_API_KEY')
 
-    carto = CartoDataSource(config='carto_main', cache_class=RedisCache)
-    postgres = DefaultPostgresDataSource(config='postgres_main')
-
-    if carto.is_ready and postgres.is_ready:
-        import_table_values_from_carto(limit=30)
+    carto = CartoDataSource(user=user, api_key=api_key)
+    postgres = PostgresDataSource({'user': 'user', 'password': 'userpass'})
+    # No exceptions.. both connections ok...
