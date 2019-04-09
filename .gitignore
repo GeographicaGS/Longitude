@@ -122,3 +122,5 @@ dmypy.json
 
 # Coverage report
 coverage_html_report
+
+pip-wheel-metadata/

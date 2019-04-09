@@ -7,10 +7,6 @@ class RamCache(LongitudeCache):
     """
     _values = {}
 
-    @property
-    def is_ready(self):
-        return True
-
     def execute_get(self, key):
         return self._values.get(key)
 

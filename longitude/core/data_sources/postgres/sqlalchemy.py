@@ -31,13 +31,22 @@ class SQLAlchemyDataSource(DataSource):
     def create_all(self):
         self.base_class.metadata.create_all(self._engine)
 
-    def __init__(self, config='', cache_class=None, cache=None):
+    def __init__(self, options={}):
         # https://docs.sqlalchemy.org/en/latest/dialects/postgresql.html
 
-        super().__init__(config=config, cache_class=cache_class, cache=cache)
+        super().__init__(options)
+
+        self.options = {
+            'host' : options.get('host', 'localhost'),
+            'port' : options.get('port', 5432),
+            'db' : options.get('db', ''),
+            'user' : options.get('user', 'postgres'),
+            'password' : options.get('password', '')
+        }
+        self._auto_commit = options.get('auto_commit', False)
 
         connection_string_template = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)d/%(db)s'
-        self._engine = create_engine(connection_string_template % self.get_config(), echo=True)
+        self._engine = create_engine(connection_string_template % self.options, echo=True)
         self._connection = self._engine.connect()
 
     def __del__(self):
@@ -48,16 +57,13 @@ class SQLAlchemyDataSource(DataSource):
     def is_ready(self):
         return self._engine is not None and self._connection is not None
 
-    def execute_query(self, query_template, params, needs_commit, query_config, **opts):
+    def execute_query(self, query_template, params, **opts):
         data = {
             'fields': [],
-            'rows': [],
-            'profiling': {}
+            'rows': []
         }
 
-        start = time()
         response = self._connection.execute(query_template, params)
-        data['profiling']['execute_time'] = time() - start
 
         if response.returns_rows:
             data['fields'] = response.cursor.description
@@ -67,20 +73,23 @@ class SQLAlchemyDataSource(DataSource):
 
         return data
 
-    def parse_response(self, response):
+    def commit(self):
+        self._conn.commit()
 
+    def parse_response(self, response):
         if response:
             raw_fields = response['fields']
-            fields_names = {n.name: {'type': psycopg2_type_as_string(n.type_code).name} for n in raw_fields}
-            rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
-            return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
+            fields_names = {n.name: {'type': psycopg2_type_as_string(n.type_code)} for n in raw_fields}
+            rows = [dict(zip(fields_names.keys(), row)) for row in response['rows']]
+            return LongitudeQueryResponse(rows=rows, fields=fields_names)
         return None
 
     def copy_from(self, data, filepath, to_table):
         headers = data.readline().decode('utf-8').split(',')
         conn = self._engine.raw_connection()
         conn.cursor().copy_from(data, to_table, columns=headers, sep=',')
-        conn.commit()
+        if self._auto_commit:
+            self.commit()
 
     def read_dataframe(self, table_name='', *args, **kwargs):
         return read_sql_table(table_name=table_name, con=self._engine)
