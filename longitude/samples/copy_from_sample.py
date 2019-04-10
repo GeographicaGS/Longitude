@@ -1,8 +1,8 @@
 import os
-from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
+from longitude.core.data_sources.postgres.default import PostgresDataSource
 from longitude.core.data_sources.carto import CartoDataSource
-from longitude.core.common.config import EnvironmentConfiguration as Config
 
+from longitude.samples.config import config
 
 def copy_from_sample(ds):
     # Copy from csv
@@ -19,9 +19,11 @@ def copy_from_sample(ds):
 
 if __name__ == "__main__":
 
-    carto = CartoDataSource(config='carto_main')
-    postgres = DefaultPostgresDataSource(config='postgres_main')
+    carto = CartoDataSource(user=config['carto_user'], api_key=config['carto_api_key'])
+    postgres = PostgresDataSource({
+        'user': config['pg_user'],
+        'password': config['pg_password']
+    })
 
-    if carto.is_ready and postgres.is_ready:
-        copy_from_sample(carto)
-        copy_from_sample(postgres)
+    copy_from_sample(carto)
+    copy_from_sample(postgres)

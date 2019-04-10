@@ -8,24 +8,18 @@ from ..base import DataSource
 from .common import psycopg2_type_as_string
 
 
-class DefaultPostgresDataSource(DataSource):
-    _default_config = {
-        'host': 'localhost',
-        'port': 5432,
-        'db': '',
-        'user': 'postgres',
-        'password': ''
-    }
+class PostgresDataSource(DataSource):
 
-    def __init__(self, config='', cache_class=None, cache=None):
-        super().__init__(config=config, cache_class=cache_class, cache=cache)
+    def __init__(self, options={}):
+        super().__init__(options)
         self._conn = psycopg2.connect(
-            host=self.get_config('host'),
-            port=self.get_config('port'),
-            database=self.get_config('db'),
-            user=self.get_config('user'),
-            password=self.get_config('password')
+            host=options.get('host', 'localhost'),
+            port=options.get('port', 5432),
+            database=options.get('db', ''),
+            user=options.get('user', 'postgres'),
+            password=options.get('password', '')
         )
+        self._auto_commit = options.get('auto_commit', False)
 
         self._cursor = self._conn.cursor()
 
@@ -35,43 +29,39 @@ class DefaultPostgresDataSource(DataSource):
         if self._conn:
             self._conn.close()
 
-    def is_ready(self):
-        return super().is_ready and self._conn and self._cursor
-
-    def execute_query(self, query_template, params, needs_commit, query_config, **opts):
+    def execute_query(self, query_template, params, **opts):
         data = {
             'fields': [],
-            'rows': [],
-            'profiling': {}
+            'rows': []
         }
 
-        start = time()
         self._cursor.execute(query_template, params)
-        data['profiling']['execute_time'] = time() - start
 
         if self._cursor.description:
             data['fields'] = self._cursor.description
             data['rows'] = self._cursor.fetchall()
 
-        if needs_commit:
-            start = time()
-            self._conn.commit()
-            data['profiling']['commit_time'] = time() - start
+        if self._auto_commit:
+            self.commit()
 
         return data
+
+    def commit(self):
+        self._conn.commit()
 
     def parse_response(self, response):
         if response:
             raw_fields = response['fields']
-            fields_names = {n.name: {'type': psycopg2_type_as_string(n.type_code).name} for n in raw_fields}
-            rows = [{raw_fields[i].name: f for i, f in enumerate(row_data)} for row_data in response['rows']]
-            return LongitudeQueryResponse(rows=rows, fields=fields_names, profiling=response['profiling'])
+            fields_names = {n.name: {'type': psycopg2_type_as_string(n.type_code)} for n in raw_fields}
+            rows = [dict(zip(fields_names.keys(), row)) for row in response['rows']]
+            return LongitudeQueryResponse(rows=rows, fields=fields_names)
         return None
 
     def copy_from(self, data, filepath, to_table):
         headers = data.readline().decode('utf-8').split(',')
         self._cursor.copy_from(data, to_table, columns=headers, sep=',')
-        self._conn.commit()
+        if self._auto_commit:
+            self.commit()
 
     def write_dataframe(self, *args, **kwargs):
         raise NotImplementedError('Use the SQLAlchemy data source if you need dataframes!')

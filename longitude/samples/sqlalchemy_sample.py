@@ -11,10 +11,9 @@ Fill the needed environment variables using LONGITUDE__ as prefix!
 import os
 import sys
 
-from longitude.core.caches.ram import RamCache
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from longitude.core.data_sources.postgres.sqlalchemy import SQLAlchemyDataSource
+from longitude.samples.config import config
 
 
 def prepare_sample_table(engine):
@@ -41,47 +40,50 @@ def prepare_sample_table(engine):
 
 
 if __name__ == "__main__":
-    ds = SQLAlchemyDataSource(config='postgres_main', cache_class=RamCache)
-    if ds.is_ready:
-        # We prepare a table to play around
-        table = prepare_sample_table(ds._engine)
+    options = {
+        'user': config['pg_user'],
+        'password': config['pg_password']
+    }
 
-        # Demo insert. Notice how values are passed as parameters instead of just pasted into some string
-        q = table.insert()
+    ds = SQLAlchemyDataSource(options)
 
-        # With SQLAlchemy we can bind lists and subsequent rendered queries will be executed
-        params = [
-            {'name': 'tony', 'fullname': 'Tony Stark Jr.', 'password': 'smartestavenger'},
-            {'name': 'hulk', 'fullname': 'Dr. Phd. Bruce Banner', 'password': 'smartestavenger'},
-            {'name': 'cap', 'fullname': 'Capt. Steve Rogers', 'password': 'igotthatreference'}
-        ]
-        ds.query(q, params, cache=False)
+    # We prepare a table to play around
+    table = prepare_sample_table(ds._engine)
 
-        # Demo select. Again, the search is done by a parametrized query. In this case, direct text is used as
-        #  where clause.
-        q = table.select('password = :password')
-        params = {'password': 'igotthatreference'}
-        r = ds.query(q, params, cache=True)
-        print(r.fields)
-        print(r.rows)
-        print("Cached? " + str(r.from_cache))
+    # Demo insert. Notice how values are passed as parameters instead of just pasted into some string
+    q = table.insert()
 
-        # Just repeat to check the cache working
-        r = ds.query(q, params, cache=True)
-        print(r.rows)
-        print("Cached? " + str(r.from_cache))
+    # With SQLAlchemy we can bind lists and subsequent rendered queries will be executed
+    params = [
+        {'name': 'tony', 'fullname': 'Tony Stark Jr.', 'password': 'smartestavenger'},
+        {'name': 'hulk', 'fullname': 'Dr. Phd. Bruce Banner', 'password': 'smartestavenger'},
+        {'name': 'cap', 'fullname': 'Capt. Steve Rogers', 'password': 'igotthatreference'}
+    ]
+    ds.query(q, params, cache=False)
 
-        # Work with data as dataframes
+    # Demo select. Again, the search is done by a parametrized query. In this case, direct text is used as
+    #  where clause.
+    q = table.select('password = :password')
+    params = {'password': 'igotthatreference'}
+    r = ds.query(q, params, cache=True)
+    print(r.fields)
+    print(r.rows)
+    print("Cached? " + str(r.from_cache))
 
-        ds.query('DROP TABLE IF EXISTS new_avengers')
-        ds.query('DROP TABLE IF EXISTS green_avengers')
+    # Just repeat to check the cache working
+    r = ds.query(q, params, cache=True)
+    print(r.rows)
+    print("Cached? " + str(r.from_cache))
 
-        df = ds.read_dataframe(table_name='avengers')
-        ds.write_dataframe(df, table_name='new_avengers')
-        df = ds.query_dataframe(query="SELECT * FROM avengers where name='hulk'")
-        ds.write_dataframe(df, table_name='green_avengers')
+    # Work with data as dataframes
 
-        r = ds.query('SELECT * FROM green_avengers')
-        print(r.rows[0])
-    else:
-        print("Data source is not properly configured.")
+    ds.query('DROP TABLE IF EXISTS new_avengers')
+    ds.query('DROP TABLE IF EXISTS green_avengers')
+
+    df = ds.read_dataframe(table_name='avengers')
+    ds.write_dataframe(df, table_name='new_avengers')
+    df = ds.query_dataframe(query="SELECT * FROM avengers where name='hulk'")
+    ds.write_dataframe(df, table_name='green_avengers')
+
+    r = ds.query('SELECT * FROM green_avengers')
+    print(r.rows[0])

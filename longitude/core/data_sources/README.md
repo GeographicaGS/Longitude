@@ -8,10 +8,6 @@ If you want to add data source classes to Longitude you must create a new class 
 * It can also override:
   * ```__init___```: if it needs instance attributes to be defined
   * ```setup()```: if it needs some process to be done **before** executing queries
-  * ```is_ready``` (*property*): if you need a ```setup()``` here you return if setup was successful.
-* It can also define configuration fields using the ```_default_config``` dictionary
-  * Keep in mind that if you do not add a default key/value for a config, it will not be allowed as configuration value.
-  * Only existent keys in the default dictionary are allowed as configuration values.
 
 ### Template
 
@@ -23,24 +19,16 @@ from core.data_sources.base import DataSource
 
 
 class MyDatabaseTechnologyDataSource(DataSource):
-    _default_config = {
-        "...": "..."
-    }
 
-    def __init__(self, config=None, cache_class=None):
+    def __init__(self, options={}):
         # TODO: Here you can define instance values like cursors, connections, etc...
-        super().__init__(config, cache_class=cache_class)
+        super().__init__(options)
 
     def setup(self):
         # TODO: Write how your database connection is stablised, how to log...
         super().setup()
 
-    @property
-    def is_ready(self):
-        # TODO: Write how, after setup, you can know if queries can be executed (return True) or not (return False)
-        return False
-
-    def execute_query(self, query_template, params, needs_commit, query_config, **opts):
+    def execute_query(self, query_template, params, query_config, **opts):
         # TODO: Write how the database query is executed and return the response or None
         pass
 

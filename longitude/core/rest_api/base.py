@@ -4,7 +4,6 @@ from math import floor
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 
-from longitude.core.common.config import LongitudeConfigurable
 from longitude.core.common.schemas import *
 import inflect
 
@@ -21,18 +20,12 @@ class LongitudeRequest:
         except KeyError:
             return None
 
-
-class LongitudeRESTAPI(LongitudeConfigurable):
+class LongitudeRESTAPI():
     _inflect = inflect.engine()
 
     plugins = (
         MarshmallowPlugin(),
     )
-    _default_config = {
-        'host': 'localhost',
-        'port': 80,
-        'protocol': 'http'
-    }
 
     _DEFAULT_RESPONSES = {
         200: LongitudeOkResponseSchema,
@@ -114,35 +107,34 @@ class LongitudeRESTAPI(LongitudeConfigurable):
         req.params = cls.get_request_path_params()
         return req
 
-    def __init__(self, config='', title='Longitude Default REST API', version='0.0.1', return_code_defaults=None,
-                 schemas=None, managers=None, data_sources=None):
+    def __init__(self, name=None, title='Longitude Default REST API', options={}):
 
-        super().__init__(config=config)
+        self.host = options.get('host', 'localhost')
+        self.port = options.get('port', 80)
+        self.base_path = options.get('base_path', '')
+        self.protocol = options.get('protocol', 'http')
+        self.version = options.get('version', '0.0.1')
+
+        self._default_schemas = options.get('return_code_defaults', self._DEFAULT_RESPONSES)
+        self._schemas = options.get('schemas', [])
+        self._managers = options.get('managers', [])
+        self._data_sources = options.get('data_sources', [])
+
         self._app = None
         self._spec: APISpec = None
 
-        self.name = config
+        self.name = name
         self.title = title
-        self.version = version
-        self.version = version
-
-        self._schemas = schemas if schemas is not None else []
-        self._managers = managers if managers is not None else []
-        self._data_sources = data_sources if data_sources is not None else []
-
-        # Defaults hold definitions for the common return codes as a dictionary
-        self._default_schemas = return_code_defaults if return_code_defaults is not None else self._DEFAULT_RESPONSES
 
         self._endpoints = []
 
-    # TODO: If this class survives to hapic, we must remove the setup method as part of the interface and rely only
-    #  on the is_ready thing
+
     def setup(self):
 
         options = {
-            'host': "%s:%d" % (self.get_config('host'), self.get_config('port')),
-            'schemas': [self.get_config('protocol')],
-            'basePath': ''
+            'host': "%s:%d" % (self.host, self.port),
+            'schemas': [self.protocol],
+            'basePath': self.base_path
         }
 
         self._spec = APISpec(
@@ -160,7 +152,7 @@ class LongitudeRESTAPI(LongitudeConfigurable):
             name = sc.__name__.replace('Schema', '')
             self._spec.definition(name, schema=sc)
 
-        data_sources_ok = all([ds.is_ready for ds in self._data_sources])
+        data_sources_ok = all([ds for ds in self._data_sources])
 
         return data_sources_ok and self.make_app()
 

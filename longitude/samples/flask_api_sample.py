@@ -10,24 +10,21 @@ Fill the needed environment variables using LONGITUDE__ as prefix!
 """
 
 from pprint import pprint
-from longitude.core.data_sources.postgres.default import DefaultPostgresDataSource
+from longitude.core.data_sources.postgres.default import PostgresDataSource
 from longitude.core.rest_api.flask import LongitudeFlaskAPI as RESTApi
-from longitude.core.common.config import EnvironmentConfiguration as Config
-from longitude.core.data_sources.base import DataSource
+from longitude.samples.config import config
 
 from marshmallow import Schema, fields
 
-# These are globally accessible for endpoint methods
-dss = DataSource.data_sources
 
 
 # Marshmallow schemas
 
 class HomeSchema(Schema):
-    debug_mode = Config.get('flask_api.debug')
+    debug_mode = config['debug']
 
     message = fields.String(default='')
-    debug = fields.Boolean(default=bool(debug_mode))
+    debug = fields.Boolean(default=debug_mode)
 
     # Conditional Schema (we show in the root the info if we are debugging)
     if debug_mode:
@@ -64,7 +61,7 @@ class HomeManager:
         # As the schema shows data_sources info only if in debug, it is irrelevant if we fill it out here.
         return {
             'message': 'Api is running!',
-            'data_sources': {ds.name: ds.__class__.__name__ for ds in list(dss.values())}
+            'data_sources': 'TODO, if necessary'
         }
 
 
@@ -129,11 +126,15 @@ class UserManager:
 # App config
 
 if __name__ == "__main__":
-    data_sources = [DefaultPostgresDataSource(config='postgres_main')]
+    data_sources = [PostgresDataSource({'user': 'user', 'password': 'userpass'})]
     schemas = [HomeSchema, GroupSchema, UserSchema, UserDetailSchema]
     managers = [UserManager, UsersManager, HomeManager]
 
-    api = RESTApi(name='flask_api', schemas=schemas, managers=managers, data_sources=data_sources)
+    api = RESTApi(name='flask_api', options={
+        'schemas': schemas,
+        'managers': managers,
+        'data_sources': data_sources
+    })
     api.add_endpoint('/', manager=HomeManager)
     api.add_endpoint('/users', ['get', 'post'], manager=UsersManager)
 

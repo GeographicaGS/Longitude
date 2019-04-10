@@ -117,7 +117,7 @@ class TestRESTAPIBase(TestCase):
     def test_add_schemas(self):
         with mock.patch('longitude.core.rest_api.base.APISpec.definition') as fake_add_definition_to_spec, mock.patch(
                 'longitude.core.rest_api.base.APISpec.add_path') as fake_add_path:
-            api = BaseApi(schemas=[FakeSchema])
+            api = BaseApi(options={'schemas': [FakeSchema]})
             api._default_schemas = []  # So we can easily check the single call adding FakeSchema
 
             # Default get for root path (=index). As no IndexSchema is provided -> default_200

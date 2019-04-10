@@ -12,6 +12,7 @@ from ..common.exceptions import LongitudeAppNotReady
 
 
 class LongitudeFlaskAPI(LongitudeRESTAPI):
+
     _default_config = {
         'protocol': 'http',
         'host': 'localhost',
@@ -34,12 +35,19 @@ class LongitudeFlaskAPI(LongitudeRESTAPI):
         )
         return response
 
+    def __init__(self, name, title=None, options={}):
+        super().__init__(name, title, options)
+        self._debug = bool(options.get('debug', False))
+        self._secret_key = options.get('secret_key', '')
+        self._allow_cors = options.get('allow_cors', False)
+
     def make_app(self):
         self._app = Flask(self.name)
         self._app.wsgi_app = ProxyFix(self._app.wsgi_app)
-        self._app.debug = bool(self.get_config('debug'))
-        self._app.secret_key = self.get_config('secret')
-        if self.get_config('allow_cors'):
+
+        self._app.debug = self._debug
+        self._app.secret_key = self._secret_key
+        if self._allow_cors:
             from flask_cors import CORS
             CORS(self._app)
 

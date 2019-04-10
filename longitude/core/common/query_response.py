@@ -1,8 +1,8 @@
 class LongitudeQueryResponse:
-    def __init__(self, rows=None, fields=None, profiling=None):
+    def __init__(self, rows=None, fields=None, meta=None):
         self.rows = rows or []
         self.fields = fields or {}
-        self.profiling = profiling or {}
+        self.meta = meta or {}
         self._from_cache = False
 
     @property
