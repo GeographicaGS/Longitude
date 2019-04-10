@@ -22,12 +22,12 @@ if __name__ == "__main__":
         api_key=config['carto_api_key']
     )
 
-    data = ds.query('select * from county_population limit 30')
+    data = ds.query('select * from country_population limit 30')
     [print(r) for r in data.rows]
     print(data.meta)
 
     # Pandas DataFrame read/write
     # ########################################
-    df = ds.read_dataframe(table_name='county_population', limit=30)
+    df = ds.read_dataframe(table_name='country_population', limit=30)
     print(df)
     ds.write_dataframe(df=df, table_name='temp_debug_delete_me', overwrite=True)

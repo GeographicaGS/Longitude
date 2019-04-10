@@ -30,36 +30,10 @@ from longitude.core.data_sources.carto import CartoDataSource
 from longitude.samples.config import config
 
 
-def import_table_values_from_carto(limit):
-    # First, we read from CARTO our 'county_population'
-    # If you execute this script twice fast, you will make use of the cache.
-    # After 3 seconds, the Carto query will be executed again if requested.
-    carto_data = carto.query('select * from county_population limit %d' % limit, cache=True, expiration_time_s=3)
-    print(carto_data.from_cache)
-    # Then, we create a local table
-    postgres.query("drop table if exists county_population", cache=False)
-    postgres.query(
-        'create table county_population(id serial PRIMARY KEY, cartodb_id integer UNIQUE NOT NULL, the_geom text)',
-        needs_commit=True,
-        cache=False
-    )
+def run_query(ds):
+    data = ds.query('select * from country_population limit 30')
 
-    # Now we want to copy row by row these values using simple inserts:
-
-    # Using psycopg2 directly, we must build our queries and parameters carefully
-    # i.e. when doing multiple values inserts:
-    values_template = ('(%s,%s),' * limit)[:-1]
-    params = [None] * limit * 2  # We reserve places for all values (=limit) for all columns (=2)...
-    params[::2] = [r['cartodb_id'] for r in carto_data.rows]  # ... and we alternate id and geom in the values
-    params[1::2] = [r['the_geom'] for r in carto_data.rows]  # This way is both efficient (not using copy) and safe
-
-    postgres.query(
-        'insert into county_population (cartodb_id, the_geom) values %s' % values_template,
-        params=params,
-        needs_commit=True)
-
-    res = postgres.query('select * from county_population')
-    print(res.rows)
+    return data
 
 
 if __name__ == "__main__":
@@ -69,4 +43,14 @@ if __name__ == "__main__":
         api_key=config['carto_api_key']
     )
     postgres = PostgresDataSource({'user': 'user', 'password': 'userpass'})
-    # No exceptions.. both connections ok...
+
+    carto_data = run_query(carto)
+    print(carto_data.meta)
+    print('------ \n')
+
+    pg_data = run_query(postgres)
+    # Notice that there is no meta-data for postgres results
+    print(pg_data.meta)
+    [print(r) for r in pg_data.rows[:1]]
+
+    #... nice

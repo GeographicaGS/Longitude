@@ -40,7 +40,7 @@ if __name__ == "__main__":
         }
     )
 
-    REPEATED_QUERY = 'select * from county_population limit 30'
+    REPEATED_QUERY = 'select * from country_population limit 30'
     start = time.time()
     data = ds.query(REPEATED_QUERY)
     elapsed = time.time() - start
