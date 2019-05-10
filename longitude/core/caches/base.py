@@ -47,12 +47,12 @@ class LongitudeCache():
             expiration_time_s=expiration_time_s
         )
 
-    def put_async(self, query_template, payload, query_params=None, expiration_time_s=None):
+    async def put_async(self, query_template, payload, query_params=None, expiration_time_s=None):
         if query_params is None:
             query_params = {}
         if not isinstance(payload, LongitudeQueryResponse):
             raise TypeError('Payloads must be instances of LongitudeQueryResponse!')
-        return self.execute_put_async(
+        return await self.execute_put_async(
             self.generate_key(query_template, query_params),
             self.serialize_payload(payload),
             expiration_time_s=expiration_time_s
