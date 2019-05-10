@@ -3,7 +3,6 @@ from unittest import TestCase, mock
 from longitude.core.common.query_response import LongitudeQueryResponse
 
 from ..caches.redis import RedisCache
-from longitude.core.tests.utils import async_test
 
 TESTED_MODULE_PATH = 'longitude.core.caches.redis.%s'
 
@@ -37,8 +36,3 @@ class TestRedisCache(TestCase):
 
     def test_is_not_ready_if_redis_fails_ping_because_of_timeout(self):
         self.redis_mock.return_value.ping.side_effect = TimeoutError
-
-    @async_test
-    async def test_read_flush_async(self):
-        self.assertIsNone(await self.cache.get_async('fake_key'))
-        self.cache.flush_async()
