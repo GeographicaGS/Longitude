@@ -22,10 +22,9 @@ import time
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
 from longitude.core.common.helpers import DisabledCache
 from longitude.core.caches.redis import RedisCache
-from longitude.core.common.exceptions import LongitudeRetriesExceeded
 from longitude.core.data_sources.carto import CartoDataSource
 from longitude.samples.config import config
 
