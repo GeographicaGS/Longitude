@@ -29,7 +29,11 @@ class MyDatabaseTechnologyDataSource(DataSource):
         super().setup()
 
     def execute_query(self, query_template, params, query_config, **opts):
-        # TODO: Write how the database query is executed and return the LongitudeQueryResponse object or None
+        # TODO: Write how the database query is executed and return the response or None
+        pass
+
+    def parse_response(self, response):
+        # TODO: Write how the database query response is converted into a LongitudeQueryResponse object
         pass
 
 ```
