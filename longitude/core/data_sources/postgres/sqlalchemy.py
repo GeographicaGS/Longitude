@@ -70,7 +70,7 @@ class SQLAlchemyDataSource(DataSource):
         return data
 
     def commit(self):
-        self._conn.commit()
+        self._connection.commit()
 
     def parse_response(self, response):
         if response:
