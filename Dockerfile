@@ -1,4 +1,4 @@
-FROM python:3.6.6-slim
+FROM python:3.7.3-slim
 
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=0
