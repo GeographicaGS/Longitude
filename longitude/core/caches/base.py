@@ -30,7 +30,7 @@ class LongitudeCache():
         payload = self.execute_get(self.generate_key(query_template, query_params))
         return self.deserialize_payload(payload)
 
-    async def get_async(self, query_template, query_params):
+    async def get_async(self, query_template, query_params=None):
         if query_params is None:
             query_params = {}
         payload = await self.execute_get_async(self.generate_key(query_template, query_params))
