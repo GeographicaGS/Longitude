@@ -53,18 +53,24 @@ class RedisCache(LongitudeCache):
 
     def execute_put(self, key, payload, expiration_time_s=None):
         overwrite = self._redis.exists(key) == 1
-        self._redis.set(name=key, value=payload)
+
+        opt = {}
         expiration_time_s = expiration_time_s or self.expiration_time
         if expiration_time_s:
-            self._redis.expire(name=key, time=expiration_time_s)
+            opt['ex'] = expiration_time_s
+
+        self._redis.set(name=key, value=payload, **opt)
         return overwrite
 
     async def execute_put_async(self, key, payload, expiration_time_s=None):
         overwrite = await self._aredis.exists(key) == 1
-        await self._aredis.set(name=key, value=payload)
+
+        opt = {}
         expiration_time_s = expiration_time_s or self.expiration_time
         if expiration_time_s:
-            await self._aredis.expire(name=key, time=expiration_time_s)
+            opt['ex'] = expiration_time_s
+
+        await self._aredis.set(name=key, value=payload, **opt)
         return overwrite
 
     def flush(self):
