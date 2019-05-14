@@ -5,7 +5,6 @@ import aiohttp  # noqa
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
 from longitude.core.data_sources.carto_async import CartoAsyncDataSource
-from longitude.core.caches.redis import RedisCache
 from longitude.samples.config import config
 
 
@@ -48,13 +47,7 @@ async def main():
 
     # Otherwise, if you don't want to pass your own ClientSession in the constructor,
     # this would be the recommended way to use this datasource:
-    async with CartoAsyncDataSource(
-            config['carto_user'],
-            config['carto_api_key'],
-            options={
-                'cache': RedisCache()
-            }
-    ) as ds:
+    async with CartoAsyncDataSource(config['carto_user'], config['carto_api_key']) as ds:
         # Parallel execution of coroutines:
         res_1, res_2, res_3 = await asyncio.gather(
             query_1(ds), query_2(ds), query_3(ds)
