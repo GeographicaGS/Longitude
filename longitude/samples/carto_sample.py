@@ -10,7 +10,7 @@ Fill the needed environment variables using LONGITUDE__ as prefix!
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
 from longitude.core.data_sources.carto import CartoDataSource
 from longitude.samples.config import config
 

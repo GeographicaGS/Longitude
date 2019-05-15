@@ -1,18 +1,16 @@
 import logging
 import os
-from time import time
-from typing import Type
 
 from ..caches.base import LongitudeCache
-from ..common.exceptions import (LongitudeQueryCannotBeExecutedException,
+from ..common.exceptions import (LongitudeQueryCannotBeExecutedException,  # noqa
                                  LongitudeRetriesExceeded)
 
 
 class DataSource():
 
     def __init__(self, options={}):
-        """
-        Base class to create an instance of a data source. This class is used as base class for specific interfaces.
+        """Base class to create an instance of a data source. This class is used as
+        base class for specific interfaces.
         :param cache: Object. Must be a LongitudeCache subclass.
         """
         self.log = logging.getLogger(self.__class__.__module__)
@@ -32,42 +30,18 @@ class DataSource():
     def disable_cache(self):
         self._use_cache = False
 
-    def committed_query(self, query_template, params=None):
+    def query(self, query_template, params=None, cache=True, expiration_time_s=None,
+              query_config=None, **opts):
         """
-        This is a shortcut for INSERT queries and similar ones dealing with simple update operations.
-
-        Makes a default non-cached query committing the result. If you need to specify more details such as cache or
-        query specific values, use .query(...)
+        This method has to be called to interact with the data source. Each children class will
+        have to implement its own .execute_query(...) with the specific behavior for each interface.
 
         :param query_template: Unformatted SQL query
         :param params: Values to be passed to the query when formatting it
-        :return:
-        """
-        return self.query(query_template, params=params, cache=False, needs_commit=True)
-
-    def cached_query(self, query_template, params=None, expiration_time_s=None):
-        """
-        This is a shortcut for SELECT queries and similar ones requesting simple data.
-
-        Makes a default cached query. This means that no commit is done and no specific config for the query is
-        available. If you need any of these, use .query(...)
-
-        :param query_template: Unformatted SQL query
-        :param params: Values to be passed to the query when formatting it
-        :param expiration_time_s: Amount of seconds for the payload to be stored (if cache supports this)
-        :return: Result of the query
-        """
-        return self.query(query_template, params=params, expiration_time_s=expiration_time_s)
-
-    def query(self, query_template, params=None, cache=True, expiration_time_s=None, query_config=None, **opts):
-        """
-        This method has to be called to interact with the data source. Each children class will have to implement
-        its own .execute_query(...) with the specific behavior for each interface.
-
-        :param query_template: Unformatted SQL query
-        :param params: Values to be passed to the query when formatting it
-        :param cache: Boolean to indicate if this specific query should use cache or not (default: True)
-        :param expiration_time_s: If using cache and cache supports expiration, amount of seconds for the payload to be stored
+        :param cache: Boolean to indicate if this specific query should use cache or not
+            (default: True)
+        :param expiration_time_s: If using cache and cache supports expiration, amount of seconds
+            for the payload to be stored
         :param query_config: Specific query configuration. If None, the default one will be used.
         :param opts:
         :return: Result of querying the database
@@ -82,10 +56,12 @@ class DataSource():
         if response:
             response.mark_as_cached()
         else:
-            response = self.execute_query(query_template=query_template,
-                                            params=params,
-                                            query_config=query_config,
-                                            **opts)
+            response = self.execute_query(
+                query_template=query_template,
+                params=params,
+                query_config=query_config,
+                **opts
+            )
 
             response = self.parse_response(response)
             if self._cache and self._use_cache and cache:

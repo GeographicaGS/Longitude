@@ -24,8 +24,12 @@ class TestSQLAlchemyDataSource(TestCase):
         self.connection_mock.return_value.cursor.return_value.fetchall.return_value = fake_rows
 
         carto_ds = PostgresDataSource()
-        data = carto_ds.execute_query(query_template="some valid query", params={}, needs_commit=False,
-                                      query_config=None)
+        data = carto_ds.execute_query(
+            query_template="some valid query",
+            params={},
+            needs_commit=False,
+            query_config=None
+        )
 
         # Queries with no commit return an dictionary with, at least, fields and rows
         self.assertTrue('fields' in data)
@@ -39,8 +43,12 @@ class TestSQLAlchemyDataSource(TestCase):
         self.connection_mock.return_value.cursor.return_value.execute.return_value = None
 
         carto_ds = PostgresDataSource()
-        data = carto_ds.execute_query(query_template="some valid query", params={}, needs_commit=True,
-                                      query_config=None)
+        data = carto_ds.execute_query(
+            query_template="some valid query",
+            params={},
+            needs_commit=True,
+            query_config=None
+        )
 
         # Queries with no commit return an dictionary with, at least, fields and rows
         self.assertTrue('fields' in data)

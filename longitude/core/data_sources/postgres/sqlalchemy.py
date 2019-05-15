@@ -37,11 +37,11 @@ class SQLAlchemyDataSource(DataSource):
         super().__init__(options)
 
         self.options = {
-            'host' : options.get('host', 'localhost'),
-            'port' : options.get('port', 5432),
-            'db' : options.get('db', ''),
-            'user' : options.get('user', 'postgres'),
-            'password' : options.get('password', '')
+            'host': options.get('host', 'localhost'),
+            'port': options.get('port', 5432),
+            'db': options.get('db', ''),
+            'user': options.get('user', 'postgres'),
+            'password': options.get('password', '')
         }
         self._auto_commit = options.get('auto_commit', False)
 
@@ -70,7 +70,7 @@ class SQLAlchemyDataSource(DataSource):
         return data
 
     def commit(self):
-        self._conn.commit()
+        self._connection.commit()
 
     def parse_response(self, response):
         if response:

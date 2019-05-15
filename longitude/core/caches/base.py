@@ -30,14 +30,33 @@ class LongitudeCache():
         payload = self.execute_get(self.generate_key(query_template, query_params))
         return self.deserialize_payload(payload)
 
+    async def get_async(self, query_template, query_params=None):
+        if query_params is None:
+            query_params = {}
+        payload = await self.execute_get_async(self.generate_key(query_template, query_params))
+        return self.deserialize_payload(payload)
+
     def put(self, query_template, payload, query_params=None, expiration_time_s=None):
         if query_params is None:
             query_params = {}
         if not isinstance(payload, LongitudeQueryResponse):
             raise TypeError('Payloads must be instances of LongitudeQueryResponse!')
-        return self.execute_put(self.generate_key(query_template, query_params),
-                                self.serialize_payload(payload),
-                                expiration_time_s=expiration_time_s)
+        return self.execute_put(
+            self.generate_key(query_template, query_params),
+            self.serialize_payload(payload),
+            expiration_time_s=expiration_time_s
+        )
+
+    async def put_async(self, query_template, payload, query_params=None, expiration_time_s=None):
+        if query_params is None:
+            query_params = {}
+        if not isinstance(payload, LongitudeQueryResponse):
+            raise TypeError('Payloads must be instances of LongitudeQueryResponse!')
+        return await self.execute_put_async(
+            self.generate_key(query_template, query_params),
+            self.serialize_payload(payload),
+            expiration_time_s=expiration_time_s
+        )
 
     def execute_get(self, key):
         """
@@ -46,6 +65,9 @@ class LongitudeCache():
 
         :return: Query response as it was saved if hit. None if miss.
         """
+        raise NotImplementedError
+
+    async def execute_get_async(self, key):
         raise NotImplementedError
 
     def execute_put(self, key, payload, expiration_time_s=None):
@@ -57,12 +79,18 @@ class LongitudeCache():
         """
         raise NotImplementedError
 
+    async def execute_put_async(self, key, payload, expiration_time_s=None):
+        raise NotImplementedError
+
     def flush(self):
         """
         Custom action to make the cache empty
 
         :return:
         """
+        raise NotImplementedError
+
+    async def flush_async(self):
         raise NotImplementedError
 
     @staticmethod
