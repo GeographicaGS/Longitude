@@ -1,4 +1,5 @@
 import redis
+from aredis import StrictRedis
 
 from .base import LongitudeCache
 
@@ -12,48 +13,68 @@ class RedisCache(LongitudeCache):
         'expiration_time_s': None
     }
 
-    _values = None
+    def __init__(self, options={}):
+        super().__init__(options)
+        self._options = options
 
-    def __init__(self, config=''):
-        super().__init__(config=config)
-
-        self._values = redis.Redis(
-            host=self.get_config('host'),
-            port=self.get_config('port'),
-            db=self.get_config('db'),
-            password=self.get_config('password')
-        )
+        self._async_redis_client = None
+        self._redis_client = None
+        self.expiration_time = options.get('expiration_time_s')
 
     @property
-    def is_ready(self):
-        try:
-            self._values.ping()
-            return True
-        except TimeoutError:
-            return False
-        except redis.exceptions.ConnectionError:
-            self.logger.error(
-                'Cannot connect to Redis server at %s:%d.' % (self.get_config('host'), self.get_config('port')))
-            return False
-        except redis.exceptions.ResponseError as e:
-            msg = str(e)
-            if str(e) == 'invalid password':
-                msg = 'Redis password is wrong.'
-            elif str(e) == "NOAUTH Authentication required.":
-                msg = 'Redis password required.'
-            self.logger.error(msg)
-            return False
+    def _redis(self):
+        # Lazy initialization of the syncronous redis client
+        if not self._redis_client:
+            self._redis_client = redis.Redis(
+                host=self._options.get('host', 'localhost'),
+                port=self._options.get('port', 6379),
+                db=self._options.get('db', 0),
+                password=self._options.get('password')
+            )
+        return self._redis_client
+
+    @property
+    def _aredis(self):
+        # Lazy initialization of the async redis client
+        if not self._async_redis_client:
+            self._async_redis_client = StrictRedis(
+                host=self._options.get('host', 'localhost'),
+                port=self._options.get('port', 6379),
+                db=self._options.get('db', 0),
+                password=self._options.get('password')
+            )
+        return self._async_redis_client
 
     def execute_get(self, key):
-        return self._values.get(name=key)
+        return self._redis.get(name=key)
+
+    async def execute_get_async(self, key):
+        return await self._aredis.get(name=key)
 
     def execute_put(self, key, payload, expiration_time_s=None):
-        overwrite = self._values.exists(key) == 1
-        self._values.set(name=key, value=payload)
-        expiration_time_s = expiration_time_s or self.get_config('expiration_time_s')
+        overwrite = self._redis.exists(key) == 1
+
+        opt = {}
+        expiration_time_s = expiration_time_s or self.expiration_time
         if expiration_time_s:
-            self._values.expire(name=key, time=expiration_time_s)
+            opt['ex'] = expiration_time_s
+
+        self._redis.set(name=key, value=payload, **opt)
+        return overwrite
+
+    async def execute_put_async(self, key, payload, expiration_time_s=None):
+        overwrite = await self._aredis.exists(key) == 1
+
+        opt = {}
+        expiration_time_s = expiration_time_s or self.expiration_time
+        if expiration_time_s:
+            opt['ex'] = expiration_time_s
+
+        await self._aredis.set(name=key, value=payload, **opt)
         return overwrite
 
     def flush(self):
-        self._values.flushall()
+        self._redis.flushall()
+
+    def flush_async(self):
+        self._aredis.flushall()
