@@ -15,17 +15,6 @@ yarl = ">=1.0,<2.0"
 
 [[package]]
 category = "main"
-description = "A pluggable API specification generator. Currently supports the OpenAPI specification (f.k.a. the Swagger specification)."
-name = "apispec"
-optional = false
-python-versions = "*"
-version = "0.39.0"
-
-[package.dependencies]
-PyYAML = ">=3.10"
-
-[[package]]
-category = "main"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
 optional = false
