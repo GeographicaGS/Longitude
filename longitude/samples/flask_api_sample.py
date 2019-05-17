@@ -17,7 +17,6 @@ from longitude.samples.config import config
 from marshmallow import Schema, fields
 
 
-
 # Marshmallow schemas
 
 class HomeSchema(Schema):
@@ -47,6 +46,7 @@ class UserSchema(Schema):
 
 
 class UserDetailSchema(Schema):
+
     id = fields.Integer()
     details = fields.String(required=True)
 
@@ -54,6 +54,7 @@ class UserDetailSchema(Schema):
 # Views
 
 class HomeManager:
+
     @staticmethod
     @RESTApi.json_response(HomeSchema)
     def get(req):
@@ -85,6 +86,7 @@ class UsersManager:
 
 
 class UserDetailManager:
+
     @staticmethod
     @RESTApi.json_response(UserDetailSchema)
     def get(req):
@@ -103,6 +105,7 @@ class UserDetailManager:
 
 
 class UserManager:
+
     @staticmethod
     @RESTApi.json_response(UserSchema)
     def get(req):

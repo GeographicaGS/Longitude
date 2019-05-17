@@ -25,9 +25,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from longitude.core.data_sources.postgres.default import PostgresDataSource
-from longitude.core.data_sources.carto import CartoDataSource
-from longitude.samples.config import config
+from longitude.core.data_sources.postgres.default import PostgresDataSource  # noqa
+from longitude.core.data_sources.carto import CartoDataSource  # noqa
+from longitude.samples.config import config  # noqa
 
 
 def run_query(ds):
@@ -53,4 +53,4 @@ if __name__ == "__main__":
     print(pg_data.meta)
     [print(r) for r in pg_data.rows[:1]]
 
-    #... nice
+    # ... nice

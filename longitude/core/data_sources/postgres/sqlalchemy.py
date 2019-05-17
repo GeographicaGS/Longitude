@@ -1,5 +1,3 @@
-from time import time
-
 from pandas import read_sql_table, read_sql_query
 
 from sqlalchemy import create_engine

@@ -4,15 +4,17 @@
 ███████║██║   ██║██║ █╗ ██║       ██║   ██║   ██║    ██║   ██║███████╗█████╗         ██║   ███████║██║███████╗╚═╝
 ██╔══██║██║   ██║██║███╗██║       ██║   ██║   ██║    ██║   ██║╚════██║██╔══╝         ██║   ██╔══██║██║╚════██║██╗
 ██║  ██║╚██████╔╝╚███╔███╔╝       ██║   ╚██████╔╝    ╚██████╔╝███████║███████╗       ██║   ██║  ██║██║███████║╚═╝
-╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝   
+╚═╝  ╚═╝ ╚═════╝  ╚══╝╚══╝        ╚═╝    ╚═════╝      ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝╚══════╝
 Fill the needed environment variables using LONGITUDE__ as prefix!
 """
+
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
-from longitude.core.data_sources.carto import CartoDataSource
-from longitude.samples.config import config
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from longitude.core.data_sources.carto import CartoDataSource  # noqa
+from longitude.samples.config import config  # noqa
 
 
 if __name__ == "__main__":

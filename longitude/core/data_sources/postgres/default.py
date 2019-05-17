@@ -1,5 +1,3 @@
-from time import time
-
 import psycopg2
 import psycopg2.extensions
 

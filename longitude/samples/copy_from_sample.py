@@ -4,6 +4,7 @@ from longitude.core.data_sources.carto import CartoDataSource
 
 from longitude.samples.config import config
 
+
 def copy_from_sample(ds):
     # Copy from csv
     # ########################################
