@@ -15,6 +15,17 @@ yarl = ">=1.0,<2.0"
 
 [[package]]
 category = "main"
+description = "A pluggable API specification generator. Currently supports the OpenAPI specification (f.k.a. the Swagger specification)."
+name = "apispec"
+optional = false
+python-versions = "*"
+version = "0.39.0"
+
+[package.dependencies]
+PyYAML = ">=3.10"
+
+[[package]]
+category = "main"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
 optional = false
@@ -974,7 +985,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "5693e4a80aed631f9eb219d1946619b93d5f4b6fa047506489cdde70524beff7"
+content-hash = "aca4ea2172f665ca23c7307a39d6d9494a5f082d2aee9184caa55ac35bb288bb"
 python-versions = "^3.7"
 
 [metadata.hashes]

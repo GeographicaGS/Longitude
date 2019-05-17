@@ -16,6 +16,9 @@ class TestSQLAlchemyDataSource(TestCase):
         self.create_engine_mock.return_value.connect.return_value.closed = True
         self.create_engine_mock.return_value.connect.return_value.close.return_value = None
 
+        # Alias
+        self.connection = self.create_engine_mock.return_value.connect.return_value
+
     @mock.patch(TESTED_MODULE_PATH % 'declarative_base')
     def test_base_class(self, alchemy_base_mock):
         alchemy_base_mock.return_value = object()
@@ -39,7 +42,6 @@ class TestSQLAlchemyDataSource(TestCase):
         carto_ds = SQLAlchemyDataSource()
         data = carto_ds.execute_query(query_template='some SQL query', params={}, needs_commit=False, query_config=None)
 
-        self.assertTrue('execute_time' in data['profiling'].keys())
         self.assertTrue('rows' in data.keys())
         self.assertTrue('fields' in data.keys())
         self.connection.execute.assert_called_once()
