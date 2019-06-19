@@ -33,6 +33,8 @@ private_routes = web.RouteTableDef()
 # We'll need ssl here, so we can use the snakeoil cert for example:
 pem_file = config['oauth']['pem_file']
 key_file = config['oauth']['key_file']
+
+
 # OAuth client config:
 def get_oauth_client():
     return AiohttpCartoOAuth2Client(
@@ -44,7 +46,7 @@ def get_oauth_client():
 
 
 # Login management:
-#------------------
+# ------------------
 @login_routes.get('/api/v1/users/auth')
 async def auth_get(request):
     oauth_client = get_oauth_client()
@@ -103,13 +105,17 @@ async def private_handle(request):
 
 # Session data would be stored on redis or cookies, or whatever, this is just a naive example:
 global_sesion_data = {}
+
+
 async def get_session(access_token):
     global global_sesion_data
     return global_sesion_data.get(access_token, {})
 
+
 async def delete_session(access_token):
     global global_sesion_data
     del global_sesion_data[access_token]
+
 
 async def set_session(access_token, session_data):
     global global_sesion_data
