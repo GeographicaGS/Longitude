@@ -23,5 +23,14 @@ config = {
     'carto_api_key': env('CARTO_API_KEY'),
     'pg_user': env('PG_USER'),
     'pg_password': env('PG_PASSWORD'),
-    'debug': env.bool('DEBUG', False)
+    'debug': env.bool('DEBUG', False),
+    'oauth': {
+        'client_id': env('OAUTH_CLIENT_ID'),
+        'client_secret': env('OAUTH_CLIENT_SECRET'),
+        'base_url': env('OAUTH_BASE_URL'),
+        'scope': env('OAUTH_SCOPE', 'offline'),
+
+        'pem_file': env('SSL_PEM_FILE'),
+        'key_file': env('SSL_KEY_FILE')
+    }
 }
