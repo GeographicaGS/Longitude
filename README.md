@@ -61,6 +61,7 @@ A **new** bunch of middleware functions to build applications on top of CARTO.
   - [ ] Documentation
 
 - [ ] OAuth
+  - [x] OAuth2 with Carto (onprem)
   - [ ] Role mapping
   - [ ] Token storage
   - [ ] Documentation

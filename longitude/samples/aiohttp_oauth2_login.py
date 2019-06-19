@@ -9,6 +9,7 @@ from longitude.samples.config import config
 
 """
     Minimal Carto-OAuth2 working example.
+    More details about this at `longitude/aiohttp/carto_oauth2_client.py`
 
     You'll need an onpremises instance of Carto and a pre-configured app:
     @see https://docs.google.com/document/d/1dvdZuBF7J5fQiV6Wh1s40_gPAqFjIwtgDu1E6VBav5s
@@ -75,6 +76,8 @@ async def user_logout(request):
     access_token = request.headers.get('Authorization') or request.headers.get('x-auth-token')
     await delete_session(access_token)
     return web.json_response({'status': 'ok', 'msg': 'Bye'})
+    # In order to logout from Carto, you must redirect to the following URL instead:
+    # web.HTTPFound(f'https://{base_url}/user/{username}/logout')
 # End login management ------------------
 
 

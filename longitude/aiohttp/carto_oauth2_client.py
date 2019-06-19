@@ -35,6 +35,15 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
 
     async def login_process(self, request, session_register_cb=None, referer_url_params_cb=None, error_cb=None):
         """Login helper for Carto OAuth2 process.
+
+        If the login process was successful, then two options:
+            * If request.headers.get('Referer') was set, then the function will redirect to this URL adding a few
+              arguments to the URL (@see referer_url_params_cb below).
+            * Othercase the session data will be returned as JSON with `web.json_response(session_data)`
+
+        In case of errors, the error callback will be called (@see error_cb below), or an error response will
+        be returned as JSON with `aiohttp.web.json_response` function.
+
         @see `longitude/samples` folder for usage examples.
 
         @param request - AioHttp request object.
