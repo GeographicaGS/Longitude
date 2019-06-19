@@ -35,6 +35,7 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
 
     async def login_process(self, request, session_register_cb=None, referer_url_params_cb=None, error_cb=None):
         """Login helper for Carto OAuth2 process.
+        @see `longitude/samples` folder for usage examples.
 
         @param request - AioHttp request object.
 
