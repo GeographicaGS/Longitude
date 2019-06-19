@@ -8,8 +8,10 @@ from longitude.aiohttp.carto_oauth2_client import AiohttpCartoOAuth2Client
 from longitude.samples.config import config
 
 """
-    In order to Carto onprem config, @see:
-        https://docs.google.com/document/d/1dvdZuBF7J5fQiV6Wh1s40_gPAqFjIwtgDu1E6VBav5s
+    Minimal Carto-OAuth2 working example.
+
+    You'll need an onpremises instance of Carto and a pre-configured app:
+    @see https://docs.google.com/document/d/1dvdZuBF7J5fQiV6Wh1s40_gPAqFjIwtgDu1E6VBav5s
 
     This example contains the following endpoints:
 

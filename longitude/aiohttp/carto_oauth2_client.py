@@ -37,15 +37,26 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
         """Login helper for Carto OAuth2 process.
 
         @param request - AioHttp request object.
-        @param session_register_cb - Callback function which receives two params: access_token and session_data dict,
-            so you can use this data to store a session wherever you need to.
-            You also can return a dict with custom fields that will be added to this session_data dict, so that you can
-            use them later by the referer_url_params_cb function to customize the success-login response.
-        @param referer_url_params_cb - If provided, it will receive the session_data dict and must returns another
-            dict with the fields you need to pass to the front-end success login page. The default function returns
-            the following fields: 'username', 'access_token', 'refresh_token', 'expires_in'
-        @param error_cb - If provided this function will be called with a dict with params received from Carto OAuth
-            service. By default this error is returned as a json response with the aiohttp.web.json_response function.
+
+        @param session_register_cb - Callback function which receives two params: access_token (str) and
+            session_data (dict), so you can use this data to store and maintain a session wherever you need to.
+
+            This function can also return a dict with custom parameters (i.e: user_role, user_group, etc.), which
+            will be appended to the session_data that will be received by the referer_url_params_cb.
+
+        @param referer_url_params_cb - If provided, it will receive the session_data and must return a dict with
+            the fields you need to pass to the front-end success login page. This fields will be appended
+            as parameters to the redirected URL.
+
+            The default behaviour returns the following fields from the session_data:
+            'username', 'access_token', 'refresh_token', 'expires_in'
+
+        @param error_cb - If provided this function will be called in the case we receive an error from Carto OAuth
+            service. This function will receive a dictionary with the 'error' parameter, and also may include
+            'error_description' and 'error_uri'. More info about OAuth2 errors here:
+            https://www.oauth.com/oauth2-servers/server-side-apps/possible-errors/
+
+            The default behaviour is to return a JSON response by using the aiohttp.web.json_response function.
         """
         if 'error' in request.query:
             error_func = error_cb or web.json_response
