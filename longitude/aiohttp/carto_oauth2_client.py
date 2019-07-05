@@ -33,7 +33,9 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
         """Parse information from provider."""
         return data
 
-    async def login_process(self, request, session_register_cb=None, referer_url_params_cb=None, error_cb=None):
+    async def login_process(
+        self, request, session_register_cb=None, referer_url_params_cb=None, error_cb=None, state={}
+    ):
         """Login helper for Carto OAuth2 process.
 
         If the login process was successful, then two options:
@@ -48,18 +50,21 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
 
         @param request - AioHttp request object.
 
-        @param session_register_cb - Callback function which receives two params: access_token (str) and
-            session_data (dict), so you can use this data to store and maintain a session wherever you need to.
+        @param session_register_cb - Callback function which receives three params:
+            * access_token (str)
+            * session_data (dict): you can use this data to store and maintain a session wherever you need to.
+            * state (dict): state obj, with the additional 'referer' http header if present. It also can be
+              provided along with the 'state' (dict) parameter of the login_process function.
 
-            This function can also return a dict with custom parameters (i.e: user_role, user_group, etc.), which
-            will be appended to the session_data that will be received by the referer_url_params_cb.
+            This function can also return a dict with additional custom parameters (i.e: user_role, user_group, etc.),
+            which will be appended to the session_data that will be received by the referer_url_params_cb.
 
         @param referer_url_params_cb - If provided, it will receive the session_data and must return a dict with
             the fields you need to pass to the front-end success login page. This fields will be appended
             as parameters to the redirected URL.
 
             The default behaviour returns the following fields from the session_data:
-            'username', 'access_token', 'refresh_token', 'expires_in'
+            'username', 'access_token', 'expires_in'
 
         @param error_cb - If provided this function will be called in the case we receive an error from Carto OAuth
             service. This function will receive a dictionary with the 'error' parameter, and also may include
@@ -67,6 +72,10 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
             https://www.oauth.com/oauth2-servers/server-side-apps/possible-errors/
 
             The default behaviour is to return a JSON response by using the aiohttp.web.json_response function.
+
+        @param state - Dictionary with custom data that will be added to the 'state' encoded string that will
+            be shared with the OAuth endpoint. It will be received back in the session_register_cb function as the
+            third parameter.
         """
         if 'error' in request.query:
             error_func = error_cb or web.json_response
@@ -80,13 +89,13 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
         if self.shared_key not in request.query:
             state_str = self.create_encoded_state(
                 request,
-                state={'referer': request.headers.get('Referer')}
+                state={'referer': request.headers.get('Referer'), **(state or {})},
             )
             return web.HTTPFound(self.get_authorize_url(state=state_str))
 
         # Getting back and checking the state parameter:
-        state = self.get_state(request)
-        if not state:
+        state_data = self.get_state(request)
+        if not state_data:
             return web.HTTPUnauthorized()
 
         # We've a 'code' parameter here, so let's use it to get access token, and user info
@@ -101,13 +110,13 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
         }
 
         if session_register_cb is not None:
-            custom_session_data = await session_register_cb(oauth_token, session_data)
+            custom_session_data = await session_register_cb(oauth_token, session_data, state)
             session_data.update(custom_session_data or {})
 
         # Getting the previously stored Referer URL.
         # If it's present, we have an URL to which redirect back:
-        if state.get('referer'):
-            referer_url = state.get('referer')
+        if state_data.get('referer'):
+            referer_url = state_data.get('referer')
             get_referer_url_params = referer_url_params_cb or self.default_referer_params
             redirect_uri = add_url_params(referer_url, get_referer_url_params(session_data))
             return web.HTTPFound(redirect_uri)
@@ -158,6 +167,5 @@ class AiohttpCartoOAuth2Client(OAuth2Client):
         return {
             'username': session_data['user_info']['username'],
             'access_token': session_data['access_token'],
-            'refresh_token': session_data.get('refresh_token'),
             'expires_in': session_data['expires_in']
         }

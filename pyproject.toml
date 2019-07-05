@@ -3,7 +3,7 @@ name = "geographica-longitude"
 packages = [
     { include='longitude' }
 ]
-version = "0.9.3"
+version = "0.9.4"
 description = "A longitudinal lib"
 authors = ["Geographica <hello@geographica.com>"]
 homepage = "https://github.com/GeographicaGS/Longitude"
