@@ -120,7 +120,7 @@ async def delete_session(access_token):
     del global_sesion_data[access_token]
 
 
-async def set_session(access_token, session_data):
+async def set_session(access_token, session_data, state={}):
     global global_sesion_data
     global_sesion_data[access_token] = session_data
 # -- end session management
