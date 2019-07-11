@@ -4,12 +4,12 @@ import ssl
 from aiohttp import web
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
-from longitude.aiohttp.carto_oauth2_client import AiohttpCartoOAuth2Client
+from longitude.tools.oauth.carto_oauth2_client_aiohttp import CartoOAuth2ClientAiohttp
 from longitude.samples.config import config
 
 """
     Minimal Carto-OAuth2 working example.
-    More details about this at `longitude/aiohttp/carto_oauth2_client.py`
+    More details about this at `longitude/tools/oauth/carto_oauth2_client_aiohttp.py`
 
     You'll need an onpremises instance of Carto and a pre-configured app:
     @see https://docs.google.com/document/d/1dvdZuBF7J5fQiV6Wh1s40_gPAqFjIwtgDu1E6VBav5s
@@ -38,7 +38,7 @@ key_file = config['oauth']['key_file']
 
 # OAuth client config:
 def get_oauth_client():
-    return AiohttpCartoOAuth2Client(
+    return CartoOAuth2ClientAiohttp(
         client_id=config['oauth']['client_id'],
         client_secret=config['oauth']['client_secret'],
         base_url=config['oauth']['base_url'],
