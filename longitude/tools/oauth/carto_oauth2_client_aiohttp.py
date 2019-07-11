@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from longitude.core.common.helpers import add_url_params
 
 
-class AiohttpCartoOAuth2Client(OAuth2Client):
+class CartoOAuth2ClientAiohttp(OAuth2Client):
     """Carto OAuth2 client implementation.
 
     Two 'login_process' and 'refresh_token' helper functions are provided to facilitate the
