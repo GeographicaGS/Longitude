@@ -9,7 +9,7 @@ class DatabaseBaseModel(ABC):
 
     def __init__(self):
         if cfg['CACHE']:
-            self._redis = redis.StrictRedis(host=cfg['REDIS_HOST'], port=cfg['REDIS_PORT'], db=cfg['REDIS_DB'])
+            self._redis = redis.StrictRedis(host=cfg['REDIS_HOST'], port=cfg['REDIS_PORT'], db=cfg['REDIS_DB'], ssl_cert_reqs=None)
         else:
             self._redis = None
 
