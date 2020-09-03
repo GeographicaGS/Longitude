@@ -14,9 +14,9 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
-from longitude.core.caches.ram import RamCache
-from longitude.core.data_sources.carto import CartoDataSource
-from longitude.samples.config import config
+from longitude.core.caches.ram import RamCache  # noqa
+from longitude.core.data_sources.carto import CartoDataSource  # noqa
+from longitude.samples.config import config  # noqa
 
 # import logging
 # logging.basicConfig(level=logging.DEBUG)

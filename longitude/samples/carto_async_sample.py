@@ -4,8 +4,8 @@ import asyncio
 import aiohttp  # noqa
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
-from longitude.core.data_sources.carto_async import CartoAsyncDataSource
-from longitude.samples.config import config
+from longitude.core.data_sources.carto_async import CartoAsyncDataSource  # noqa
+from longitude.samples.config import config  # noqa
 
 
 async def query_1(ds):
