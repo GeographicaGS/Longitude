@@ -3,7 +3,7 @@ name = "geographica-longitude"
 packages = [
     { include='longitude' }
 ]
-version = "0.10.0"
+version = "0.11.0"
 description = "A longitudinal lib"
 authors = ["Geographica <hello@geographica.com>"]
 homepage = "https://github.com/GeographicaGS/Longitude"
@@ -15,7 +15,7 @@ python = "^3.7"
 aiohttp = "^3.5"
 aredis = "^1.1"
 asyncio = "^3.4"
-cartoframes = "^0.9.0"
+cartoframes = "^1.0"
 geolibs-cartoasync = "^0.0.4"
 pandas = "^1.1"
 sqlalchemy = ">=1.1.15, <2.0.0"

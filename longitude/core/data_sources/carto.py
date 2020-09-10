@@ -1,4 +1,6 @@
-import cartoframes
+from cartoframes import read_carto, to_carto
+from cartoframes.auth import set_default_credentials
+
 from carto.auth import APIKeyAuthClient
 from carto.exceptions import CartoException
 from carto.sql import BatchSQLClient, SQLClient
@@ -26,8 +28,8 @@ class CartoDataSource(DataSource):
         self.api_key = api_key
         self.base_url = self._generate_base_url(user, self.base_url_option)
 
-        # Carto Context for DataFrame handling
-        self._carto_context = None
+        # Set Carto Context for DataFrame handling
+        self._set_credentials()
 
         # Carto client for COPYs
         self._copy_client = None
@@ -39,21 +41,16 @@ class CartoDataSource(DataSource):
         if self.batch:
             self._batch_client = BatchSQLClient(self._auth_client)
 
-    @property
-    def cc(self):
+    def _set_credentials(self):
         """
-        Creates and returns a CartoContext object to work with Panda Dataframes
+        Sets the default credentials for the CARTO connection.
         :return:
         """
         # TODO: The CartoContext documentaton says that SSL must be disabled sometimes if an on
         #  premise host is used.
         #  We are not taking this into account. It would need to create a requests.Session()
         #  object, set its SSL to false and pass it to the CartoContext init.
-        if self._carto_context is None:
-            self._carto_context = cartoframes.CartoContext(
-                base_url=self.base_url, api_key=self.api_key
-            )
-        return self._carto_context
+        set_default_credentials(base_url=self.base_url, api_key=self.api_key)
 
     def _generate_base_url(self, user, base_url_option):
         if base_url_option:
@@ -110,10 +107,10 @@ class CartoDataSource(DataSource):
         return self._copy_client.copyfrom_file_object(from_query, data)
 
     def read_dataframe(self, table_name='', *args, **kwargs):
-        return self.cc.read(table_name=table_name, *args, **kwargs)
+        return read_carto(table_name, *args, **kwargs)
 
     def query_dataframe(self, query='', *args, **kwargs):
-        return self.cc.query(query=query, *args, **kwargs)
+        return read_carto(query, *args, **kwargs)
 
     def write_dataframe(self, df, table_name='', *args, **kwargs):
-        return self.cc.write(df=df, table_name=table_name, *args, **kwargs)
+        return to_carto(df, table_name, *args, **kwargs)
