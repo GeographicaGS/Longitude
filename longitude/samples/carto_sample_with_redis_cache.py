@@ -23,10 +23,10 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
-from longitude.core.common.helpers import DisabledCache
-from longitude.core.caches.redis import RedisCache
-from longitude.core.data_sources.carto import CartoDataSource
-from longitude.samples.config import config
+from longitude.core.common.helpers import DisabledCache  # noqa
+from longitude.core.caches.redis import RedisCache  # noqa
+from longitude.core.data_sources.carto import CartoDataSource  # noqa
+from longitude.samples.config import config  # noqa
 
 if __name__ == "__main__":
 

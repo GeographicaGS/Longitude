@@ -4,8 +4,8 @@ import ssl
 from aiohttp import web
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
-from longitude.tools.oauth.carto_oauth2_client_aiohttp import CartoOAuth2ClientAiohttp
-from longitude.samples.config import config
+from longitude.tools.oauth.carto_oauth2_client_aiohttp import CartoOAuth2ClientAiohttp  # noqa
+from longitude.samples.config import config  # noqa
 
 """
     Minimal Carto-OAuth2 working example.
