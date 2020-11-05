@@ -26,6 +26,31 @@ steps:
 
   - name: docker_build_test
     image: plugins/gcr
+    when:
+      event:
+        include:
+          - push
+    resources:
+      limits: &resources
+        memory: "1024m"
+      requests: *resources
+    settings: &build_docker
+      repo: eu.gcr.io/habichuelas/cicd/geographicags/longitude
+      dockerfile: Dockerfile
+      registry: eu.gcr.io
+      json_key:
+        from_secret: google_credentials
+      build_args:
+        - ENVIRONMENT=test
+      cache_from:
+        - eu.gcr.io/habichuelas/cicd/geographicags/longitude:${DRONE_COMMIT_BRANCH//\//__}
+        - eu.gcr.io/habichuelas/cicd/geographicags/longitude:master
+  - name: docker_build_test
+    image: plugins/gcr
+    when:
+      event:
+        exclude:
+          - push
     resources:
       limits: &resources
         memory: "1024m"
