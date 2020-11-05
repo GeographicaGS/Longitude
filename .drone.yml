@@ -45,7 +45,7 @@ steps:
       cache_from:
         - eu.gcr.io/habichuelas/cicd/geographicags/longitude:${DRONE_COMMIT_BRANCH//\//__}
         - eu.gcr.io/habichuelas/cicd/geographicags/longitude:master
-  - name: docker_build_test
+  - name: docker_build_test_tag
     image: plugins/gcr
     when:
       event:
@@ -64,7 +64,6 @@ steps:
       build_args:
         - ENVIRONMENT=test
       cache_from:
-        - eu.gcr.io/habichuelas/cicd/geographicags/longitude:${DRONE_COMMIT_BRANCH//\//__}
         - eu.gcr.io/habichuelas/cicd/geographicags/longitude:master
 
   - name: poetry_build
