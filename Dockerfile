@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=off
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 ENV PIP_DEFAULT_TIMEOUT=100
-ENV POETRY_VERSION=0.12.14
+ENV POETRY_VERSION=1.0.10
 ENV PATH=$PATH:/usr/src/app
 
 ARG ENVIRONMENT=prod
@@ -22,7 +22,7 @@ RUN set -ex ; \
     apt-get update ; \
     apt-get install -y --no-install-recommends git gcc ; \
     pip install "poetry==$POETRY_VERSION" ; \
-    poetry config settings.virtualenvs.create false ; \
+    poetry config virtualenvs.create false ; \
     poetry install --no-interaction --no-ansi $POETRY_INSTALL_EXTRA ; \
     apt-get remove -y --purge git gcc ; \
     apt-get autoremove -y ; \
