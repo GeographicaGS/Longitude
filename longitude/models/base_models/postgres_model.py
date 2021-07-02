@@ -68,16 +68,17 @@ class PostgresModel(DatabaseBaseModel):
             raise Exception(err)
 
     def _do_postgres_query(self, sql_query, arguments, opts):
-        with self._connection.cursor(cursor_factory=RealDictCursor) as cursor:
+        with self._connection:
+            with self._connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            binded_query = cursor.mogrify(sql_query, arguments)
+                binded_query = cursor.mogrify(sql_query, arguments)
 
-            cursor.execute(binded_query)
+                cursor.execute(binded_query)
 
-            if opts.get('write_qry'):
-                self._connection.commit()
+                if opts.get('write_qry'):
+                    self._connection.commit()
 
-                if not opts.get('results'):
-                    return
+                    if not opts.get('results'):
+                        return
 
-            return cursor.fetchall()
+                return cursor.fetchall()
