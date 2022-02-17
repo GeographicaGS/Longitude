@@ -15,7 +15,7 @@ pkginfo==1.4.1
 psycopg2==2.7.3.2
 pycparser==2.18
 PyJWT==1.6.1
-pyrestcli==0.6.4
+pyrestcli==0.6.12
 python-dateutil>=2.5.3
 redis==2.10.6
 requests==2.20.1
